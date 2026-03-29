@@ -4,8 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.13.35818.85 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiscAtlas.WebApp", "PiscAtlas.WebApp\PiscAtlas.WebApp.csproj", "{3BD652B1-F7A1-4E19-8FAA-7658A12C12CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B} = {AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiscAtlas.API", "PiscAtlas.API\PiscAtlas.API.csproj", "{CBBD91BD-D21B-46AD-946C-9C6243DB6553}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B} = {AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiscAtals.Models", "PiscAtals.Models\PiscAtals.Models.csproj", "{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +29,10 @@ Global
 		{CBBD91BD-D21B-46AD-946C-9C6243DB6553}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBBD91BD-D21B-46AD-946C-9C6243DB6553}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBBD91BD-D21B-46AD-946C-9C6243DB6553}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
