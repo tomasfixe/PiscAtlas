@@ -1,4 +1,4 @@
-﻿namespace PiscAtals.Models
+﻿namespace PiscAtlas.Models
 {
     public class Class1
     {

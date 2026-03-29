@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PiscAtals.Models.Models
+namespace PiscAtlas.Models.Models
 {
     public enum EstadoPagamento { Pendente, Pago, Cancelado }
 

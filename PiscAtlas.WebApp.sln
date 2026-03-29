@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiscAtlas.API", "PiscAtlas.
 		{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B} = {AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiscAtals.Models", "PiscAtals.Models\PiscAtals.Models.csproj", "{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiscAtlas.Models", "PiscAtals.Models\PiscAtlas.Models.csproj", "{AFA7EBA0-F7FA-49A8-98AC-F874DDC34D4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
