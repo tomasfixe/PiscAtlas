@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ namespace PiscAtlas.Models.Models
 
         public double? PesoMinimo { get; set; }
         public double? TamanhoMinimo { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal PrecoInscricao { get; set; }
 
         public virtual ICollection<Inscricao> Inscricoes { get; set; }

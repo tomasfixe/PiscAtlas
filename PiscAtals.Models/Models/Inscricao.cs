@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace PiscAtlas.Models.Models
         public string PescadorNome { get; set; }
 
         public EstadoPagamento EstadoPagamento { get; set; } = EstadoPagamento.Pendente;
+        [Column(TypeName = "decimal(18,2)")] 
         public decimal ValorPago { get; set; }
 
         public int? MelhorCapturaId { get; set; }
