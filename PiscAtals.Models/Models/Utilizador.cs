@@ -8,6 +8,10 @@ namespace PiscAtlas.Models.Models
     {
         [Required]
         [StringLength(50)]
+        public string NomeUtilizador { get; set; }
+
+        [Required]
+        [StringLength(50)]
         public string PrimeiroNome { get; set; }
 
         [Required]

@@ -32,7 +32,12 @@ namespace PiscAtlas.Models.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public string Notas { get; set; }
-        public string PescadorNome { get; set; } // Identificação do autor
+
+        [Required]
+        public string UtilizadorId { get; set; }
+        public virtual Utilizador Utilizador { get; set; }
+
+        public DateTime DataCaptura { get; set; } = DateTime.Now;
 
         // Relacionamento com Denúncias
         public virtual ICollection<Denuncia> Denuncias { get; set; }
