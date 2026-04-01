@@ -1,23 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace PiscAtlas.Models
 {
-    public class ApplicationDbContext : DbContext
+    
+    public class ApplicationDbContext : IdentityDbContext<Utilizador>
     {
-        // Construtor obrigatório para passarmos a configuração mais tarde
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
-        // Declaração as nossas 6 tabelas
+        
         public DbSet<Especie> Especies { get; set; }
         public DbSet<Pesqueiro> Pesqueiros { get; set; }
         public DbSet<Captura> Capturas { get; set; }
@@ -25,9 +19,9 @@ namespace PiscAtlas.Models
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }
 
-        // Esta função previne que apagar uma espécie apague acidentalmente todas as capturas associadas a ela
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Captura>()

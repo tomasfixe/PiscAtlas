@@ -43,5 +43,9 @@ namespace PiscAtlas.WebApp.ViewModels
         [Display(Name = "Confirmar Palavra-passe")]
         [Compare("Password", ErrorMessage = "A palavra-passe e a sua confirmação não correspondem.")]
         public string ConfirmPassword { get; set; }
+
+        // NOVA PROPRIEDADE PARA A FOTO (Opcional)
+        [Display(Name = "Fotografia de Perfil")]
+        public IFormFile? FotoFile { get; set; }
     }
 }

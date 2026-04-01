@@ -53,27 +53,53 @@ namespace PiscAtlas.WebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Cria o objeto Utilizador com os dados do formulário
+                // 1. Define a imagem padrão (Caminho baseado na tua pasta wwwroot/images/Default.jpg)
+                string fotoUrl = "/images/Default.jpg";
+
+                // 2. Só entra aqui se o utilizador realmente tiver selecionado um ficheiro
+                if (model.FotoFile != null && model.FotoFile.Length > 0)
+                {
+                    // Gera um nome único para não haver ficheiros repetidos
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.FotoFile.FileName);
+
+                    // Define o caminho da pasta de uploads
+                    var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/perfis");
+
+                    // Cria a pasta automaticamente se ela ainda não existir
+                    if (!Directory.Exists(uploadPath))
+                    {
+                        Directory.CreateDirectory(uploadPath);
+                    }
+
+                    var filePath = Path.Combine(uploadPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.FotoFile.CopyToAsync(stream);
+                    }
+
+                    // Atualiza a fotoUrl para o novo ficheiro carregado
+                    fotoUrl = "/uploads/perfis/" + fileName;
+                }
+
                 var user = new Utilizador
                 {
-                    UserName = model.Email, // Usamos o Email como UserName de login
+                    UserName = model.Email,
                     Email = model.Email,
                     PrimeiroNome = model.PrimeiroNome,
                     UltimoNome = model.UltimoNome,
-                    NomeUtilizador = model.NomeUtilizador
+                    NomeUtilizador = model.NomeUtilizador,
+                    FotografiaPerfilUrl = fotoUrl // Aqui grava ou a Default.jpg ou a nova foto
                 };
 
-                // Pede à base de dados para criar a conta de forma segura
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    // Se correu bem, inicia a sessão automaticamente
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
 
-                // Se houver erros (ex: email já existe), mostra-os no ecrã
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);

@@ -18,7 +18,7 @@ namespace PiscAtlas.Models.Models
         [StringLength(50)]
         public string UltimoNome { get; set; }
 
-        public string FotografiaPerfilUrl { get; set; }
+        public string? FotografiaPerfilUrl { get; set; }
         public DateTime DataRegisto { get; set; } = DateTime.Now;
         public string NomeCompleto => $"{PrimeiroNome} {UltimoNome}";
 
