@@ -53,12 +53,28 @@
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> O Meu Perfil</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-shield-lock"></i> Admin</a></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Conta" asp-action="Perfil">
+                                            <i class="bi bi-person"></i> O Meu Perfil
+                                        </a>
+                                    </li>
+
+                                    @* ESTA É A CONDIÇÃO CRÍTICA: Só mostra se o utilizador tiver o cargo de Admin *@
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Index">
+                                                <i class="bi bi-shield-lock"></i> Admin
+                                            </a>
+                                        </li>
+                                    }
+
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form class="form-inline" asp-controller="Conta" asp-action="Logout" method="post">
-                                            <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Terminar Sessão</button>
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right"></i> Terminar Sessão
+                                            </button>
                                         </form>
                                     </li>
                                 </ul>
