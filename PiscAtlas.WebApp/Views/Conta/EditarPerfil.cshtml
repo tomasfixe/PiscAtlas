@@ -1,0 +1,78 @@
+@model PiscAtlas.WebApp.ViewModels.EditarPerfilViewModel
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="mb-4">
+            <a asp-action="Perfil" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar ao Perfil
+            </a>
+            <h2 class="fw-bold mt-2">Editar Perfil</h2>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form asp-action="EditarPerfil" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                @* Foto atual + upload *@
+                <div class="text-center mb-4">
+                    @if (!string.IsNullOrEmpty(Model.FotoAtual))
+                    {
+                        <img src="@Model.FotoAtual" alt="Foto atual"
+                             class="rounded-circle mb-2"
+                             style="width: 90px; height: 90px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold"
+                             style="width: 90px; height: 90px; font-size: 2rem;">
+                            @Model.PrimeiroNome?.Substring(0, 1).ToUpper()
+                        </div>
+                    }
+                    <div>
+                        <label asp-for="FotoFile" class="form-label fw-medium small d-block">
+                            Alterar foto de perfil
+                        </label>
+                        <input asp-for="FotoFile" class="form-control form-control-sm" type="file"
+                               accept="image/*" />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PrimeiroNome" class="form-label fw-medium">Primeiro Nome</label>
+                        <input asp-for="PrimeiroNome" class="form-control" />
+                        <span asp-validation-for="PrimeiroNome" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="UltimoNome" class="form-label fw-medium">Último Nome</label>
+                        <input asp-for="UltimoNome" class="form-control" />
+                        <span asp-validation-for="UltimoNome" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="NomeUtilizador" class="form-label fw-medium">Nome de Utilizador</label>
+                    <div class="input-group">
+                        <span class="input-group-text text-muted">@@</span>
+                        <input asp-for="NomeUtilizador" class="form-control" />
+                    </div>
+                    <span asp-validation-for="NomeUtilizador" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Perfil" class="btn btn-outline-secondary flex-fill">Cancelar</a>
+                    <button type="submit" class="btn btn-dark fw-bold flex-fill">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

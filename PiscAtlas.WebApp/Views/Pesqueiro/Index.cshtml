@@ -1,0 +1,90 @@
+@model IEnumerable<PiscAtlas.Models.Models.Pesqueiro>
+@using PiscAtlas.Models.Models
+@{
+    ViewData["Title"] = "Pesqueiros";
+    var tipoSelecionado = ViewBag.TipoSelecionado as TipoPesqueiro?;
+    var tipos = (IEnumerable<TipoPesqueiro>)ViewBag.Tipos;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-geo-alt"></i> Pesqueiros</h2>
+        <p class="text-muted mb-0">Explore os pesqueiros registados em Portugal</p>
+    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Criar" class="btn btn-dark fw-medium">
+            <i class="bi bi-plus-lg"></i> Adicionar Pesqueiro
+        </a>
+    }
+</div>
+
+@* Filtros por tipo *@
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a asp-action="Index" class="btn btn-sm @(tipoSelecionado == null ? "btn-dark" : "btn-outline-dark")">
+        Todos
+    </a>
+    @foreach (var tipo in tipos)
+    {
+        <a asp-action="Index" asp-route-tipo="@tipo"
+           class="btn btn-sm @(tipoSelecionado == tipo ? "btn-dark" : "btn-outline-dark")">
+            @tipo.ToString().Replace("_", " ")
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            <i class="bi bi-geo-alt text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 fw-bold">Sem pesqueiros nesta categoria</h4>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var p in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div style="height: 180px; overflow: hidden; background: #f8f9fa;">
+                        @if (!string.IsNullOrEmpty(p.FotografiaUrl))
+                        {
+                            <img src="@p.FotografiaUrl" alt="@p.Nome"
+                                 class="w-100 h-100" style="object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="bi bi-water text-secondary" style="font-size: 2.5rem;"></i>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h5 class="fw-bold mb-0">@p.Nome</h5>
+                            <span class="badge bg-light text-dark border small">
+                                @p.Tipo.ToString().Replace("_", " ")
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-3">
+                            @(p.Descricao?.Length > 80 ? p.Descricao.Substring(0, 80) + "..." : p.Descricao ?? "Sem descrição.")
+                        </p>
+                        <small class="text-muted">
+                            <i class="bi bi-camera me-1"></i>
+                            @(p.Capturas?.Count ?? 0) capturas registadas
+                        </small>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3 px-3">
+                        <a asp-action="Detalhes" asp-route-id="@p.PesqueiroId"
+                           class="btn btn-sm btn-outline-dark w-100">
+                            Ver Detalhes <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

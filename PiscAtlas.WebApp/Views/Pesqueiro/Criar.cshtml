@@ -1,0 +1,68 @@
+@model PiscAtlas.WebApp.Controllers.PesqueiroViewModel
+@{
+    ViewData["Title"] = "Adicionar Pesqueiro";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="mb-4">
+            <a asp-action="Index" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <h2 class="fw-bold mt-2">Adicionar Pesqueiro</h2>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form asp-action="Criar" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Nome" class="form-label fw-medium">Nome *</label>
+                    <input asp-for="Nome" class="form-control" placeholder="Ex: Barragem de Castelo do Bode" />
+                    <span asp-validation-for="Nome" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Descricao" class="form-label fw-medium">Descrição</label>
+                    <textarea asp-for="Descricao" class="form-control" rows="3"
+                              placeholder="Características, espécies presentes..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Tipo" class="form-label fw-medium">Tipo</label>
+                    <select asp-for="Tipo" class="form-select"
+                            asp-items="Html.GetEnumSelectList<PiscAtlas.Models.Models.TipoPesqueiro>()">
+                    </select>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label asp-for="Latitude" class="form-label fw-medium">Latitude</label>
+                        <input asp-for="Latitude" class="form-control" type="number"
+                               step="0.000001" id="lat" placeholder="39.4915" />
+                    </div>
+                    <div class="col-6">
+                        <label asp-for="Longitude" class="form-label fw-medium">Longitude</label>
+                        <input asp-for="Longitude" class="form-control" type="number"
+                               step="0.000001" id="lng" placeholder="-8.4141" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="FotoFile" class="form-label fw-medium">Fotografia</label>
+                    <input asp-for="FotoFile" class="form-control" type="file" accept="image/*" />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark fw-bold py-2">
+                        <i class="bi bi-check2-circle"></i> Criar Pesqueiro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

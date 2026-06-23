@@ -1,0 +1,79 @@
+@model PiscAtlas.WebApp.Controllers.EventoViewModel
+@{
+    ViewData["Title"] = "Editar Evento";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="mb-4">
+            <a asp-action="Detalhes" asp-route-id="@ViewBag.EventoId" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar ao Evento
+            </a>
+            <h2 class="fw-bold mt-2"><i class="bi bi-pencil"></i> Editar Evento</h2>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form asp-action="Editar" asp-route-id="@ViewBag.EventoId" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Nome" class="form-label fw-medium">Nome do Evento *</label>
+                    <input asp-for="Nome" class="form-control" />
+                    <span asp-validation-for="Nome" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Descricao" class="form-label fw-medium">Descrição</label>
+                    <textarea asp-for="Descricao" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DataInicio" class="form-label fw-medium">Data de Início *</label>
+                        <input asp-for="DataInicio" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="DataInicio" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DataFim" class="form-label fw-medium">Data de Fim *</label>
+                        <input asp-for="DataFim" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="DataFim" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="EspecieAlvoId" class="form-label fw-medium">Espécie-Alvo *</label>
+                    <select asp-for="EspecieAlvoId" asp-items="ViewBag.Especies" class="form-select">
+                        <option value="">-- Selecione uma espécie --</option>
+                    </select>
+                    <span asp-validation-for="EspecieAlvoId" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PesoMinimo" class="form-label fw-medium">Peso Mínimo (kg)</label>
+                        <input asp-for="PesoMinimo" class="form-control" type="number" step="0.01" min="0" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TamanhoMinimo" class="form-label fw-medium">Tamanho Mínimo (cm)</label>
+                        <input asp-for="TamanhoMinimo" class="form-control" type="number" step="0.1" min="0" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="PrecoInscricao" class="form-label fw-medium">Preço de Inscrição (€)</label>
+                    <input asp-for="PrecoInscricao" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark fw-bold py-2">
+                        <i class="bi bi-check2-circle"></i> Guardar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
+using System.Linq;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -9,7 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<Utilizador, IdentityRole>(options =>
 {
-    // Regras das passwords (simplificadas para ser mais fácil testar)
+    // Regras das passwords (simplificadas para ser mais fÃ¡cil testar)
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
@@ -28,7 +29,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -57,7 +57,36 @@ using (var scope = app.Services.CreateScope())
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     }
 
-    // Dá o cargo ao teu email específico
+    // --- Conta de Admin de teste ---
+    const string adminEmail = "admin@piscatlas.pt";
+    const string adminPassword = "Admin123!";
+
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        adminUser = new Utilizador
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
+            PrimeiroNome = "Admin",
+            UltimoNome = "PiscAtlas",
+            NomeUtilizador = "admin"
+        };
+
+        var criarResult = await userManager.CreateAsync(adminUser, adminPassword);
+        if (!criarResult.Succeeded)
+        {
+            var erros = string.Join("; ", criarResult.Errors.Select(e => e.Description));
+            throw new Exception($"Nao foi possivel criar a conta de admin de teste: {erros}");
+        }
+    }
+
+    if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+    {
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
+
     var user = await userManager.FindByEmailAsync("ambmatos193@gmail.com"); // MUDAR AQUI
     if (user != null && !await userManager.IsInRoleAsync(user, "Admin"))
     {

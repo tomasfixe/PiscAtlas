@@ -1,0 +1,130 @@
+@model IEnumerable<PiscAtlas.Models.Models.Evento>
+@{
+    ViewData["Title"] = "Eventos e Torneios";
+    var agora = DateTime.Now;
+}
+
+<div class="mb-5 d-flex justify-content-between align-items-start">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-trophy"></i> Eventos e Torneios</h2>
+        <p class="text-muted">Participe em competições de pesca em Portugal</p>
+    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Criar" class="btn btn-dark fw-medium">
+            <i class="bi bi-plus-lg"></i> Criar Evento
+        </a>
+    }
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@{
+    var eventosAtivos  = Model.Where(e => e.DataFim >= agora).ToList();
+    var eventosPassados = Model.Where(e => e.DataFim < agora).ToList();
+}
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            <i class="bi bi-trophy text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 fw-bold">Sem eventos por enquanto</h4>
+            <p class="text-muted">Fique atento — os próximos torneios serão publicados em breve!</p>
+        </div>
+    </div>
+}
+else
+{
+    @if (eventosAtivos.Any())
+    {
+        <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <span class="badge bg-success rounded-pill fs-6">Abertos</span>
+        </h4>
+        <div class="row g-4 mb-5">
+            @foreach (var evento in eventosAtivos)
+            {
+                bool decorreu = evento.DataInicio <= agora;
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-bold mb-0">@evento.Nome</h5>
+                                @if (decorreu)
+                                {
+                                    <span class="badge bg-primary">Em curso</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Inscrições abertas</span>
+                                }
+                            </div>
+                            <p class="text-muted small mb-3">@evento.Descricao</p>
+
+                            <ul class="list-unstyled small text-muted mb-3">
+                                <li class="mb-1">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    @evento.DataInicio.ToString("dd/MM/yyyy") — @evento.DataFim.ToString("dd/MM/yyyy")
+                                </li>
+                                <li class="mb-1">
+                                    <i class="bi bi-fish me-1"></i> @evento.EspecieAlvo?.Nome
+                                </li>
+                                @if (evento.PesoMinimo.HasValue)
+                                {
+                                    <li class="mb-1">
+                                        <i class="bi bi-arrow-up-circle me-1"></i> Peso mínimo: @evento.PesoMinimo kg
+                                    </li>
+                                }
+                                <li>
+                                    <i class="bi bi-people me-1"></i>
+                                    @evento.Inscricoes?.Count inscrições
+                                </li>
+                            </ul>
+
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark fs-5">@evento.PrecoInscricao €</span>
+                                <a asp-action="Detalhes" asp-route-id="@evento.EventoId"
+                                   class="btn btn-dark btn-sm fw-medium">
+                                    Ver Detalhes <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (eventosPassados.Any())
+    {
+        <h4 class="fw-bold mb-3 text-muted">
+            <i class="bi bi-clock-history"></i> Eventos Anteriores
+        </h4>
+        <div class="row g-3">
+            @foreach (var evento in eventosPassados)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm opacity-75">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-muted mb-1">@evento.Nome</h6>
+                            <small class="text-muted d-block">
+                                @evento.DataInicio.ToString("dd/MM/yyyy") — @evento.DataFim.ToString("dd/MM/yyyy")
+                            </small>
+                            <small class="text-muted">@evento.EspecieAlvo?.Nome</small>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId"
+                               class="btn btn-sm btn-outline-secondary">Ver Resultados</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}

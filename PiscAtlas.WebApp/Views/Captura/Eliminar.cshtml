@@ -1,0 +1,31 @@
+@model PiscAtlas.Models.Models.Captura
+@{
+    ViewData["Title"] = "Eliminar Captura";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm text-center p-4">
+            <div class="mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+            </div>
+            <h4 class="fw-bold">Eliminar Captura</h4>
+            <p class="text-muted">
+                Tem a certeza que quer eliminar a captura de
+                <strong>@Model.Especie?.Nome</strong>
+                em <strong>@Model.Pesqueiro?.Nome</strong>?
+            </p>
+            <p class="small text-danger">Esta ação é permanente e não pode ser desfeita.</p>
+
+            <form asp-action="Eliminar" asp-route-id="@Model.CapturaId" method="post">
+                @Html.AntiForgeryToken()
+                <div class="d-flex gap-2 justify-content-center mt-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancelar</a>
+                    <button type="submit" class="btn btn-danger fw-bold px-4">
+                        <i class="bi bi-trash"></i> Sim, Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

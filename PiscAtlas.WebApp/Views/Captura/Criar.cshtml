@@ -1,0 +1,133 @@
+@model PiscAtlas.WebApp.Controllers.CapturaViewModel
+@{
+    ViewData["Title"] = "Registar Captura";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="mb-4">
+            <a asp-action="Index" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar às Capturas
+            </a>
+            <h2 class="fw-bold mt-2">Registar Nova Captura</h2>
+            <p class="text-muted">Documente a sua pesca com fotografia e detalhes</p>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form asp-action="Criar" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="EspecieId" class="form-label fw-medium">Espécie *</label>
+                        <select asp-for="EspecieId" asp-items="ViewBag.Especies"
+                                class="form-select">
+                            <option value="">-- Selecione uma espécie --</option>
+                        </select>
+                        <span asp-validation-for="EspecieId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="PesqueiroId" class="form-label fw-medium">Pesqueiro *</label>
+                        <select asp-for="PesqueiroId" asp-items="ViewBag.Pesqueiros"
+                                class="form-select">
+                            <option value="">-- Selecione um pesqueiro --</option>
+                        </select>
+                        <span asp-validation-for="PesqueiroId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Peso" class="form-label fw-medium">Peso (kg)</label>
+                        <input asp-for="Peso" class="form-control" type="number"
+                               step="0.01" min="0" placeholder="Ex: 2.5" />
+                        <span asp-validation-for="Peso" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Tamanho" class="form-label fw-medium">Comprimento (cm)</label>
+                        <input asp-for="Tamanho" class="form-control" type="number"
+                               step="0.1" min="0" placeholder="Ex: 45" />
+                        <span asp-validation-for="Tamanho" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notas" class="form-label fw-medium">Notas</label>
+                    <textarea asp-for="Notas" class="form-control" rows="3"
+                              placeholder="Isco utilizado, condições climatéricas, hora..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FotoFile" class="form-label fw-medium">
+                        Fotografia <small class="text-muted">(obrigatória para ranking)</small>
+                    </label>
+                    <input asp-for="FotoFile" class="form-control" type="file"
+                           accept="image/*" id="fotoInput" />
+                    <span asp-validation-for="FotoFile" class="text-danger small"></span>
+                    <div class="mt-2 d-none" id="previewContainer">
+                        <img id="fotoPreview" src="#" alt="Pré-visualização"
+                             class="rounded shadow-sm" style="max-height: 200px; object-fit: cover;" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <p class="fw-medium small text-muted mb-2">
+                    <i class="bi bi-geo-alt"></i> Localização da captura (opcional)
+                </p>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Latitude" class="form-label fw-medium small">Latitude</label>
+                        <input asp-for="Latitude" class="form-control" type="number"
+                               step="0.000001" id="lat" placeholder="Ex: 39.4915" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Longitude" class="form-label fw-medium small">Longitude</label>
+                        <input asp-for="Longitude" class="form-control" type="number"
+                               step="0.000001" id="lng" placeholder="Ex: -8.4141" />
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary mb-4" id="btnLocalizacao">
+                    <i class="bi bi-crosshair"></i> Usar a minha localização atual
+                </button>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark fw-bold py-2">
+                        <i class="bi bi-check2-circle"></i> Registar Captura
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Pré-visualização da foto
+        document.getElementById('fotoInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                document.getElementById('fotoPreview').src = ev.target.result;
+                document.getElementById('previewContainer').classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Geolocalização
+        document.getElementById('btnLocalizacao').addEventListener('click', function () {
+            if (!navigator.geolocation) {
+                alert('O seu browser não suporta geolocalização.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
+                document.getElementById('lng').value = pos.coords.longitude.toFixed(6);
+            }, function () {
+                alert('Não foi possível obter a localização.');
+            });
+        });
+    </script>
+}

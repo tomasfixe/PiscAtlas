@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using PiscAtlas.Models.Models;
 
 namespace PiscAtlas.WebApp.ViewModels
 {
@@ -44,8 +46,33 @@ namespace PiscAtlas.WebApp.ViewModels
         [Compare("Password", ErrorMessage = "A palavra-passe e a sua confirmação não correspondem.")]
         public string ConfirmPassword { get; set; }
 
-        // NOVA PROPRIEDADE PARA A FOTO (Opcional)
         [Display(Name = "Fotografia de Perfil")]
         public IFormFile? FotoFile { get; set; }
+    }
+
+    public class PerfilViewModel
+    {
+        public Utilizador User { get; set; } = null!;
+        public List<Captura> Capturas { get; set; } = new();
+    }
+
+    public class EditarPerfilViewModel
+    {
+        [Required(ErrorMessage = "O Primeiro Nome é obrigatório.")]
+        [Display(Name = "Primeiro Nome")]
+        public string PrimeiroNome { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "O Último Nome é obrigatório.")]
+        [Display(Name = "Último Nome")]
+        public string UltimoNome { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "O Nome de Utilizador é obrigatório.")]
+        [Display(Name = "Nome de Utilizador")]
+        public string NomeUtilizador { get; set; } = string.Empty;
+
+        [Display(Name = "Nova Fotografia de Perfil")]
+        public IFormFile? FotoFile { get; set; }
+
+        public string? FotoAtual { get; set; }
     }
 }

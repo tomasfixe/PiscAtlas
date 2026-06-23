@@ -1,0 +1,86 @@
+@model IEnumerable<PiscAtlas.Models.Models.Utilizador>
+@{
+    ViewData["Title"] = "Admin — Utilizadores";
+    var admins = ViewBag.Admins as HashSet<string>;
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-muted text-decoration-none small">
+        <i class="bi bi-arrow-left"></i> Dashboard
+    </a>
+    <h2 class="fw-bold mt-2">Gestão de Utilizadores</h2>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle"></i> @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Utilizador</th>
+                    <th>Email</th>
+                    <th>Registado em</th>
+                    <th>Cargo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    bool isAdmin = admins?.Contains(u.Id) ?? false;
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrEmpty(u.FotografiaPerfilUrl))
+                                {
+                                    <img src="@u.FotografiaPerfilUrl" alt="Perfil"
+                                         class="rounded-circle" style="width:36px;height:36px;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold"
+                                         style="width:36px;height:36px;font-size:0.8rem;">
+                                        @u.PrimeiroNome?.Substring(0, 1).ToUpper()
+                                    </div>
+                                }
+                                <div>
+                                    <span class="fw-medium">@u.NomeCompleto</span>
+                                    <small class="d-block text-muted">@@u.NomeUtilizador</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-muted small">@u.Email</td>
+                        <td class="text-muted small">@u.DataRegisto.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (isAdmin)
+                            {
+                                <span class="badge bg-dark"><i class="bi bi-shield-lock"></i> Admin</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-dark border">Pescador</span>
+                            }
+                        </td>
+                        <td>
+                            <form asp-action="ToggleAdmin" asp-route-userId="@u.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"
+                                        class="btn btn-sm @(isAdmin ? "btn-outline-danger" : "btn-outline-dark")"
+                                        onclick="return confirm('@(isAdmin ? "Remover cargo Admin?" : "Promover a Admin?")')">
+                                    @(isAdmin ? "Remover Admin" : "Tornar Admin")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
