@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 
 namespace PiscAtlas.WebApp.Controllers
 {
+    [Authorize]
     public class EspecieController : Controller
     {
         private readonly ApplicationDbContext _context;

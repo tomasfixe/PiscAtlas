@@ -126,11 +126,18 @@ namespace PiscAtlas.WebApp.Controllers
 
             // Para cada user, verifica se é Admin
             var admins = new HashSet<string>();
+            var banidos = new HashSet<string>();
             foreach (var u in users)
+            {
                 if (await _userManager.IsInRoleAsync(u, "Admin"))
                     admins.Add(u.Id);
 
+                if (await _userManager.IsLockedOutAsync(u))
+                    banidos.Add(u.Id);
+            }
+
             ViewBag.Admins = admins;
+            ViewBag.Banidos = banidos;
             return View(users);
         }
 
@@ -151,6 +158,70 @@ namespace PiscAtlas.WebApp.Controllers
             TempData["Sucesso"] = isAdmin
                 ? $"{user.NomeCompleto} removido do cargo Admin."
                 : $"{user.NomeCompleto} promovido a Admin.";
+
+            return RedirectToAction(nameof(Utilizadores));
+        }
+
+        // POST: Admin/BanirUtilizador — suspende a conta (impede login) sem a eliminar
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BanirUtilizador(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var idAtual = _userManager.GetUserId(User);
+            if (user.Id == idAtual)
+            {
+                TempData["Erro"] = "Não pode banir a sua própria conta.";
+                return RedirectToAction(nameof(Utilizadores));
+            }
+
+            if (!await _userManager.GetLockoutEnabledAsync(user))
+                await _userManager.SetLockoutEnabledAsync(user, true);
+
+            // Bane "para sempre" (100 anos)
+            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+
+            TempData["Sucesso"] = $"{user.NomeCompleto} foi suspenso e já não pode iniciar sessão.";
+            return RedirectToAction(nameof(Utilizadores));
+        }
+
+        // POST: Admin/DesbanirUtilizador — remove a suspensão
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DesbanirUtilizador(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            await _userManager.SetLockoutEndDateAsync(user, null);
+
+            TempData["Sucesso"] = $"A suspensão de {user.NomeCompleto} foi removida.";
+            return RedirectToAction(nameof(Utilizadores));
+        }
+
+        // POST: Admin/EliminarUtilizador — elimina definitivamente a conta
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarUtilizador(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var idAtual = _userManager.GetUserId(User);
+            if (user.Id == idAtual)
+            {
+                TempData["Erro"] = "Não pode eliminar a sua própria conta.";
+                return RedirectToAction(nameof(Utilizadores));
+            }
+
+            var nome = user.NomeCompleto;
+            var resultado = await _userManager.DeleteAsync(user);
+
+            TempData["Sucesso"] = resultado.Succeeded
+                ? $"A conta de {nome} foi eliminada."
+                : $"Não foi possível eliminar a conta de {nome}.";
 
             return RedirectToAction(nameof(Utilizadores));
         }

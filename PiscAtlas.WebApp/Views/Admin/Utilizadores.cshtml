@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Admin — Utilizadores";
     var admins = ViewBag.Admins as HashSet<string>;
+    var banidos = ViewBag.Banidos as HashSet<string>;
 }
 
 <div class="mb-4">
@@ -18,6 +19,13 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-x-circle"></i> @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
 <div class="card border-0 shadow-sm">
     <div class="table-responsive">
@@ -28,6 +36,7 @@
                     <th>Email</th>
                     <th>Registado em</th>
                     <th>Cargo</th>
+                    <th>Estado</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -35,6 +44,7 @@
                 @foreach (var u in Model)
                 {
                     bool isAdmin = admins?.Contains(u.Id) ?? false;
+                    bool isBanido = banidos?.Contains(u.Id) ?? false;
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-2">
@@ -69,14 +79,55 @@
                             }
                         </td>
                         <td>
-                            <form asp-action="ToggleAdmin" asp-route-userId="@u.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit"
-                                        class="btn btn-sm @(isAdmin ? "btn-outline-danger" : "btn-outline-dark")"
-                                        onclick="return confirm('@(isAdmin ? "Remover cargo Admin?" : "Promover a Admin?")')">
-                                    @(isAdmin ? "Remover Admin" : "Tornar Admin")
-                                </button>
-                            </form>
+                            @if (isBanido)
+                            {
+                                <span class="badge bg-danger"><i class="bi bi-slash-circle"></i> Suspenso</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Ativo</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <form asp-action="ToggleAdmin" asp-route-userId="@u.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm @(isAdmin ? "btn-outline-danger" : "btn-outline-dark")"
+                                            onclick="return confirm('@(isAdmin ? "Remover cargo Admin?" : "Promover a Admin?")')">
+                                        @(isAdmin ? "Remover Admin" : "Tornar Admin")
+                                    </button>
+                                </form>
+
+                                @if (isBanido)
+                                {
+                                    <form asp-action="DesbanirUtilizador" asp-route-userId="@u.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success"
+                                                onclick="return confirm('Remover suspensão de @u.NomeCompleto?')">
+                                            <i class="bi bi-check-circle"></i> Desbanir
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="BanirUtilizador" asp-route-userId="@u.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-warning"
+                                                onclick="return confirm('Suspender a conta de @u.NomeCompleto? Deixará de poder iniciar sessão.')">
+                                            <i class="bi bi-slash-circle"></i> Banir
+                                        </button>
+                                    </form>
+                                }
+
+                                <form asp-action="EliminarUtilizador" asp-route-userId="@u.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Eliminar definitivamente a conta de @u.NomeCompleto? Esta ação não pode ser desfeita.')">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -84,3 +135,4 @@
         </table>
     </div>
 </div>
+

@@ -42,6 +42,12 @@ namespace PiscAtlas.WebApp.Controllers
                 if (result.Succeeded)
                     return RedirectToAction("Index", "Home");
 
+                if (result.IsLockedOut)
+                {
+                    ModelState.AddModelError(string.Empty, "Esta conta foi suspensa pela administração.");
+                    return View(model);
+                }
+
                 ModelState.AddModelError(string.Empty, "Email ou palavra-passe inválidos.");
             }
             return View(model);
