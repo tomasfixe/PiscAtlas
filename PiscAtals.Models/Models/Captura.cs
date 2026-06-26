@@ -29,6 +29,8 @@ namespace PiscAtlas.Models.Models
         public bool PossuiProvasVisuais { get; set; }
         public bool AprovadaPeloAdmin { get; set; } = false; // Admin aprova se houver peso/tamanho
 
+        public bool FraudeConfirmada { get; set; } = false;
+
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public string Notas { get; set; }

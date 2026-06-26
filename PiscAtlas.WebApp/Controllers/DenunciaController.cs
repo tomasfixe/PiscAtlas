@@ -53,7 +53,8 @@ namespace PiscAtlas.WebApp.Controllers
                     CapturaId       = model.CapturaId,
                     DenuncianteEmail = user.Email!,
                     Motivo          = model.Motivo,
-                    Estado          = EstadoDenuncia.Pendente
+                    Estado          = EstadoDenuncia.Pendente,
+                    DecisaoAdmin = ""
                 };
 
                 _context.Denuncias.Add(denuncia);

@@ -67,9 +67,21 @@
                             </div>
                         </div>
                         <div class="card-footer bg-white border-top-0 pt-0">
-                            <button class="btn btn-sm btn-outline-danger w-100">
+                            <button class="btn btn-sm btn-outline-danger w-100" type="button" data-bs-toggle="collapse" data-bs-target="#denuncia-@captura.CapturaId">
                                 <i class="bi bi-flag"></i> Denunciar
                             </button>
+
+                            <div class="collapse mt-2" id="denuncia-@captura.CapturaId">
+                                <form asp-controller="Denuncia" asp-action="Criar" method="post">
+                                    <input type="hidden" name="CapturaId" value="@captura.CapturaId" />
+
+                                    <textarea name="Motivo" class="form-control form-control-sm mb-2" rows="2" placeholder="Qual o motivo? (ex: Foto falsa)" required></textarea>
+
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <i class="bi bi-send"></i> Enviar Denúncia
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
