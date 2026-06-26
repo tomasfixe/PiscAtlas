@@ -82,9 +82,9 @@ namespace PiscAtlas.WebApp.Controllers
                     FotografiaUrl = fotografiaUrl,
                     Peso          = model.Peso,
                     Tamanho       = model.Tamanho,
-                    Notas         = model.Notas,
-                    Latitude      = model.Latitude,
-                    Longitude     = model.Longitude,
+                    Notas         = model.Notas ?? "",
+                    Latitude      = model.Latitude ?? 0,
+                    Longitude     = model.Longitude ?? 0,
                     PossuiProvasVisuais = model.FotoFile != null && model.FotoFile.Length > 0,
                     UtilizadorId  = userId!,
                     DataCaptura   = DateTime.Now
@@ -132,13 +132,13 @@ namespace PiscAtlas.WebApp.Controllers
 
             var model = new CapturaViewModel
             {
-                EspecieId   = captura.EspecieId,
+                EspecieId = captura.EspecieId,
                 PesqueiroId = captura.PesqueiroId,
-                Peso        = captura.Peso,
-                Tamanho     = captura.Tamanho,
-                Notas       = captura.Notas,
-                Latitude    = captura.Latitude,
-                Longitude   = captura.Longitude
+                Peso = captura.Peso,
+                Tamanho = captura.Tamanho,
+                Notas = captura.Notas,
+                Latitude = captura.Latitude,
+                Longitude = captura.Longitude
             };
 
             await PopularSelectLists();
@@ -177,9 +177,9 @@ namespace PiscAtlas.WebApp.Controllers
                 captura.PesqueiroId = model.PesqueiroId;
                 captura.Peso        = model.Peso;
                 captura.Tamanho     = model.Tamanho;
-                captura.Notas       = model.Notas;
-                captura.Latitude    = model.Latitude;
-                captura.Longitude   = model.Longitude;
+                captura.Notas       = model.Notas ?? "";
+                captura.Latitude    = model.Latitude ?? 0;
+                captura.Longitude   = model.Longitude ?? 0;
 
                 _context.Update(captura);
                 await _context.SaveChangesAsync();
@@ -249,8 +249,8 @@ namespace PiscAtlas.WebApp.Controllers
         public double? Peso { get; set; }
         public double? Tamanho { get; set; }
         public string? Notas { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
 
         [System.ComponentModel.DataAnnotations.Display(Name = "Fotografia")]
         public IFormFile? FotoFile { get; set; }

@@ -87,7 +87,7 @@ namespace PiscAtlas.WebApp.Controllers
                 var pesqueiro = new Pesqueiro
                 {
                     Nome         = model.Nome,
-                    Descricao    = model.Descricao,
+                    Descricao    = model.Descricao ?? "",
                     Latitude     = model.Latitude,
                     Longitude    = model.Longitude,
                     Tipo         = model.Tipo,
@@ -144,7 +144,7 @@ namespace PiscAtlas.WebApp.Controllers
                 }
 
                 pesqueiro.Nome      = model.Nome;
-                pesqueiro.Descricao = model.Descricao;
+                pesqueiro.Descricao = model.Descricao ?? "";
                 pesqueiro.Latitude  = model.Latitude;
                 pesqueiro.Longitude = model.Longitude;
                 pesqueiro.Tipo      = model.Tipo;

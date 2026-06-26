@@ -1,10 +1,10 @@
-﻿@model IEnumerable<PiscAtlas.Models.Models.Especie>
+﻿@model PiscAtlas.WebApp.Controllers.CadernetaViewModel
 @{
     ViewData["Title"] = "Caderneta de Espécies";
 }
 
 <div class="mb-4">
-    <h2 class="fw-bold mb-0">Caderneta de Espécies</h2>
+    <h2 class="fw-bold mb-0"><i class="bi bi-book"></i> Caderneta de Espécies</h2>
     <p class="text-muted">Acompanhe o seu progresso de capturas</p>
 </div>
 
@@ -12,24 +12,24 @@
     <div class="card-body">
         <p class="fw-bold mb-2 small">Progresso Geral</p>
         <div class="d-flex justify-content-between mb-1">
-            <small>0 de @Model.Count() espécies capturadas</small>
-            <small>0%</small>
+            <small>@Model.TotalCapturadas de @Model.TotalEspecies espécies capturadas</small>
+            <small>@Model.Percentagem%</small>
         </div>
         <div class="progress" style="height: 10px;">
-            <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%"></div>
+            <div class="progress-bar bg-success" role="progressbar" style="width: @Model.Percentagem%"></div>
         </div>
 
         <div class="row text-center mt-4">
             <div class="col-4 border-end">
-                <h3 class="fw-bold mb-0">0</h3>
+                <h3 class="fw-bold mb-0 text-success">@Model.TotalCapturadas</h3>
                 <small class="text-muted">Capturadas</small>
             </div>
             <div class="col-4 border-end">
-                <h3 class="fw-bold mb-0">@Model.Count()</h3>
+                <h3 class="fw-bold mb-0">@Model.PorFazer</h3>
                 <small class="text-muted">Por Capturar</small>
             </div>
             <div class="col-4">
-                <h3 class="fw-bold mb-0">0</h3>
+                <h3 class="fw-bold mb-0 text-warning">@Model.Pontos</h3>
                 <small class="text-muted">Pontos</small>
             </div>
         </div>
@@ -37,13 +37,24 @@
 </div>
 
 <div class="row g-4">
-    @foreach (var peixe in Model)
+    @foreach (var peixe in Model.TodasEspecies)
     {
+        // Verifica se a espécie atual está na lista de capturas do utilizador
+        bool foiCapturado = Model.EspeciesCapturadasIds.Contains(peixe.EspecieId);
+
         <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm p-2">
+            <div class="card h-100 shadow-sm p-2 @(foiCapturado ? "border-success border-2" : "border-0")">
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-1">
-                        <i class="bi bi-circle text-muted me-2"></i> <h5 class="card-title fw-bold mb-0">@peixe.Nome</h5>
+                        @if (foiCapturado)
+                        {
+                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-circle text-muted me-2"></i>
+                        }
+                        <h5 class="card-title fw-bold mb-0">@peixe.Nome</h5>
                     </div>
                     <p class="text-muted small fst-italic mb-3">@peixe.NomeCientifico</p>
 
