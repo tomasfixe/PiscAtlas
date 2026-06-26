@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
+using Microsoft.AspNetCore.SignalR;
+using PiscAtlas.WebApp.Hubs;
 
 namespace PiscAtlas.WebApp.Controllers
 {
@@ -13,11 +15,13 @@ namespace PiscAtlas.WebApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Utilizador> _userManager;
+        private readonly IHubContext<NotificacaoHub> _hubContext;
 
-        public CapturaController(ApplicationDbContext context, UserManager<Utilizador> userManager)
+        public CapturaController(ApplicationDbContext context, UserManager<Utilizador> userManager, IHubContext<NotificacaoHub> hubContext)
         {
             _context = context;
             _userManager = userManager;
+            _hubContext = hubContext;
         }
 
         // GET: Captura/Index — lista as capturas do utilizador autenticado
@@ -92,6 +96,7 @@ namespace PiscAtlas.WebApp.Controllers
 
                 _context.Capturas.Add(captura);
                 await _context.SaveChangesAsync();
+                await _hubContext.Clients.All.SendAsync("ReceberNotificacao", "Um pescador acabou de registar uma nova captura!");
 
                 TempData["Sucesso"] = "Captura registada com sucesso!";
                 return RedirectToAction(nameof(Index));

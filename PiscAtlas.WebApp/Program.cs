@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
 using System.Linq;
+using PiscAtlas.WebApp.Hubs; 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -29,17 +31,21 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 // Add services to the container.
+builder.Services.AddControllersWithViews(); 
 builder.Services.AddRazorPages();
+builder.Services.AddSignalR(); 
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute("/Home/Erro", "?statusCode={0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -55,6 +61,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapHub<NotificacaoHub>("/notificacaoHub");
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -68,7 +76,6 @@ using (var scope = app.Services.CreateScope())
 
     // --- Conta de Admin de teste ---
     // Cria automaticamente uma conta de admin para testes, caso ainda nao exista.
-    // ATENCAO: alterar a password / remover este bloco antes de ir para producao.
     const string adminEmail = "admin@piscatlas.pt";
     const string adminPassword = "123456";
 
@@ -77,11 +84,11 @@ using (var scope = app.Services.CreateScope())
     {
         adminUser = new Utilizador
         {
-            UserName       = adminEmail,
-            Email          = adminEmail,
+            UserName = adminEmail,
+            Email = adminEmail,
             EmailConfirmed = true,
-            PrimeiroNome   = "Admin",
-            UltimoNome     = "PiscAtlas",
+            PrimeiroNome = "Admin",
+            UltimoNome = "PiscAtlas",
             NomeUtilizador = "admin"
         };
 
@@ -99,7 +106,7 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Da tambem o cargo Admin ao teu email pessoal, se essa conta ja existir
-    var user = await userManager.FindByEmailAsync("ambmatos193@gmail.com"); // MUDAR AQUI
+    var user = await userManager.FindByEmailAsync("ambmatos193@gmail.com");
     if (user != null && !await userManager.IsInRoleAsync(user, "Admin"))
     {
         await userManager.AddToRoleAsync(user, "Admin");

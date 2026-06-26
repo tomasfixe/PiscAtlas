@@ -21,10 +21,11 @@ namespace PiscAtlas.WebApp.Controllers
 
             // 2. Buscar as últimas 50 capturas (incluindo dados do utilizador e espécie)
             var capturas = await _context.Capturas
-            .Include(c => c.Utilizador) // <--- Garante que vai buscar o nome do pescador!
+            .Include(c => c.Utilizador)
             .Include(c => c.Especie)
             .Include(c => c.Pesqueiro)
-            .OrderByDescending(c => c.DataCaptura) 
+            .Where(c => !c.FraudeConfirmada)
+            .OrderByDescending(c => c.DataCaptura)
             .Take(50)
             .ToListAsync();
 
@@ -37,12 +38,38 @@ namespace PiscAtlas.WebApp.Controllers
 
             return View(model);
         }
+
+ 
+
+        // Página de Autores / Créditos
+        public IActionResult Autores()
+        {
+            return View();
+        }
+
+        // Página de Erros Customizada
+        [Route("Home/Erro")]
+        public IActionResult Erro(int? statusCode = null)
+        {
+            if (statusCode.HasValue && statusCode.Value == 404)
+            {
+                ViewData["MensagemErro"] = "O peixe escapou! A página que procura não existe ou foi movida.";
+                ViewData["CodigoErro"] = "404";
+            }
+            else
+            {
+                ViewData["MensagemErro"] = "Ocorreu um problema nas nossas águas. Tente novamente mais tarde.";
+                ViewData["CodigoErro"] = statusCode?.ToString() ?? "500";
+            }
+
+            return View();
+        }
     }
 
     // ViewModel específico para esta página (Agrupa os dados do Mapa e da Grelha)
     public class HomeViewModel
     {
-        public IEnumerable<Pesqueiro> Pesqueiros { get; set; }
-        public IEnumerable<Captura> Capturas { get; set; }
+        public IEnumerable<Pesqueiro> Pesqueiros { get; set; } = new List<Pesqueiro>();
+        public IEnumerable<Captura> Capturas { get; set; } = new List<Captura>();
     }
 }

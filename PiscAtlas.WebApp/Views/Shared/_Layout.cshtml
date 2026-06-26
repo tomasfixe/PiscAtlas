@@ -99,15 +99,57 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted py-4 bg-white mt-auto">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div class="fw-bold text-dark"><i class="bi bi-tsunami"></i> PiscAtlas</div>
-            <small>&copy; 2026 PiscAtlas. Plataforma digital para pescadores em Portugal.</small>
+    <footer class="border-top footer text-muted mt-auto py-3">
+        <div class="container d-flex justify-content-between">
+            <span>&copy; 2026 PiscAtlas. Plataforma digital para pescadores em Portugal.</span>
+            <a asp-controller="Home" asp-action="Autores" class="text-decoration-none fw-bold">Sobre o Projeto / Autores</a>
         </div>
     </footer>
+    <!-- Pop-up de Notificação (Toast) do SignalR -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100">
+        <div id="notificacaoToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold fs-6" id="mensagemToast">
+                    <!-- A mensagem vai aparecer aqui -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Importar a biblioteca do SignalR via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.12/signalr.min.js"></script>
+
+    <!-- Ligar a "Antena" -->
+    <script>
+        // 1. Criar a ligação ao nosso Hub
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificacaoHub")
+            .build();
+
+        // 2. Dizer ao browser o que fazer quando o controlador disparar a "ReceberNotificacao"
+        connection.on("ReceberNotificacao", function (mensagem) {
+
+            // Injetar a mensagem no HTML
+            document.getElementById("mensagemToast").innerText = mensagem;
+
+            // Mostrar o Pop-up usando as regras do Bootstrap
+            const toastElement = document.getElementById('notificacaoToast');
+            const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+            toast.show();
+        });
+
+        // 3. Arrancar a antena
+        connection.start().then(function () {
+            console.log("SignalR Ligado! À escuta de novas capturas...");
+        }).catch(function (err) {
+            console.error(err.toString());
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
