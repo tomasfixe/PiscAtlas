@@ -21,13 +21,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    // Ativa a interface gráfica do Swagger para testar a API
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+
+
+// Ativa a interface gráfica do Swagger para testar a API
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
