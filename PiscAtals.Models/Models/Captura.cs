@@ -14,11 +14,11 @@ namespace PiscAtlas.Models.Models
 
         [Required]
         public int EspecieId { get; set; }
-        public virtual Especie Especie { get; set; }
+        public virtual Especie? Especie { get; set; }
 
         [Required]
         public int PesqueiroId { get; set; }
-        public virtual Pesqueiro Pesqueiro { get; set; }
+        public virtual Pesqueiro? Pesqueiro { get; set; }
 
         [Required]
         public string FotografiaUrl { get; set; }
@@ -37,11 +37,11 @@ namespace PiscAtlas.Models.Models
 
         [Required]
         public string UtilizadorId { get; set; }
-        public virtual Utilizador Utilizador { get; set; }
+        public virtual Utilizador? Utilizador { get; set; }
 
         public DateTime DataCaptura { get; set; } = DateTime.Now;
 
         // Relacionamento com Denúncias
-        public virtual ICollection<Denuncia> Denuncias { get; set; }
+        public virtual ICollection<Denuncia>? Denuncias { get; set; }
     }
 }

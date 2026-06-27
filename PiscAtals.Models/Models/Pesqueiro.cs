@@ -22,6 +22,6 @@ namespace PiscAtlas.Models.Models
         public TipoPesqueiro Tipo { get; set; }
         public string FotografiaUrl { get; set; }
 
-        public virtual ICollection<Captura> Capturas { get; set; }
+        public virtual ICollection<Captura>? Capturas { get; set; }
     }
 }

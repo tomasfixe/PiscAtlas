@@ -27,6 +27,6 @@ namespace PiscAtlas.Models.Models
         public TipoHabitat Habitat { get; set; }
 
         // Relacionamento: Uma espécie pode estar em muitas capturas
-        public virtual ICollection<Captura> Capturas { get; set; }
+        public virtual ICollection<Captura>? Capturas { get; set; }
     }
 }

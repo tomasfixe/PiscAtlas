@@ -20,13 +20,13 @@ namespace PiscAtlas.Models.Models
         public DateTime DataFim { get; set; }
 
         public int EspecieAlvoId { get; set; }
-        public virtual Especie EspecieAlvo { get; set; }
+        public virtual Especie? EspecieAlvo { get; set; }
 
         public double? PesoMinimo { get; set; }
         public double? TamanhoMinimo { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal PrecoInscricao { get; set; }
 
-        public virtual ICollection<Inscricao> Inscricoes { get; set; }
+        public virtual ICollection<Inscricao>? Inscricoes { get; set; }
     }
 }
