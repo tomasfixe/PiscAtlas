@@ -1,0 +1,137 @@
+﻿@page "{id:int?}"
+@model PiscAtlas.WebApp.Pages.Captura.DetalhesModel
+@{
+    ViewData["Title"] = "Detalhes da Captura";
+}
+
+<div class="mb-4">
+    <a href="javascript:history.back()" class="text-muted text-decoration-none small">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="rounded-3 overflow-hidden shadow-sm bg-light" style="height: 380px;">
+            @if (!string.IsNullOrEmpty(Model.Captura.FotografiaUrl))
+            {
+                <img src="@Model.Captura.FotografiaUrl" alt="Captura"
+                     class="w-100 h-100" style="object-fit: cover;" />
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+            <h2 class="fw-bold mb-0">@Model.Captura.Especie?.Nome</h2>
+            @if (Model.Captura.AprovadaPeloAdmin)
+            {
+                <span class="badge bg-success fs-6">
+                    <i class="bi bi-patch-check"></i> Aprovada
+                </span>
+            }
+            else if (Model.Captura.FraudeConfirmada)
+            {
+                <span class="badge bg-danger fs-6">
+                    <i class="bi bi-shield-x"></i> Inválida
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark fs-6">
+                    <i class="bi bi-hourglass-split"></i> Em Análise
+                </span>
+            }
+        </div>
+
+        <p class="text-muted fs-5 mb-4">
+            Pescado por <strong>@Model.Captura.Utilizador?.NomeCompleto</strong>
+        </p>
+
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+                <div class="card bg-light border-0 p-3 h-100">
+                    <small class="text-muted fw-bold text-uppercase">Local</small>
+                    <span class="fs-5">@Model.Captura.Pesqueiro?.Nome</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card bg-light border-0 p-3 h-100">
+                    <small class="text-muted fw-bold text-uppercase">Data</small>
+                    <span class="fs-5">@Model.Captura.DataCaptura.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card bg-light border-0 p-3 h-100">
+                    <small class="text-muted fw-bold text-uppercase">Peso</small>
+                    <span class="fs-5">@(Model.Captura.Peso.HasValue ? $"{Model.Captura.Peso} kg" : "Não registado")</span>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card bg-light border-0 p-3 h-100">
+                    <small class="text-muted fw-bold text-uppercase">Tamanho</small>
+                    <span class="fs-5">@(Model.Captura.Tamanho.HasValue ? $"{Model.Captura.Tamanho} cm" : "Não registado")</span>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Captura.Notas))
+        {
+            <div class="mb-4">
+                <h6 class="fw-bold">Notas do Pescador</h6>
+                <p class="text-muted">@Model.Captura.Notas</p>
+            </div>
+        }
+
+        <div class="d-flex gap-2">
+            @if (User.Identity!.IsAuthenticated && Model.Captura.UtilizadorId != User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+            {
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDenuncia">
+                    <i class="bi bi-flag"></i> Denunciar Captura
+                </button>
+            }
+            @if (User.Identity!.IsAuthenticated && (Model.Captura.UtilizadorId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value || User.IsInRole("Admin")))
+            {
+                <a asp-page="./Editar" asp-route-id="@Model.Captura.CapturaId" class="btn btn-outline-dark">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a asp-page="./Eliminar" asp-route-id="@Model.Captura.CapturaId" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Eliminar
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+@* Modal de denúncia *@
+<div class="modal fade" id="modalDenuncia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Denunciar Captura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Denuncia" asp-action="Criar" method="post">
+                <input type="hidden" name="CapturaId" value="@Model.Captura.CapturaId" />
+                <div class="modal-body">
+                    <p class="text-muted small">Descreva o motivo pelo qual considera esta captura fraudulenta ou inapropriada.</p>
+                    <textarea name="Motivo" class="form-control" rows="4"
+                              placeholder="Ex: O peso indicado não parece credível, imagem parece editada..."
+                              required maxlength="500"></textarea>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger fw-medium">
+                        <i class="bi bi-flag"></i> Submeter Denúncia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -24,7 +24,7 @@ namespace PiscAtlas.WebApp.Pages.Admin
         public int TotalCapturas { get; set; }
         public int TotalPesqueiros { get; set; }
         public int TotalDenunciasPendentes { get; set; }
-        public List<Captura> CapturasRecentes { get; set; } = new();
+        public List<PiscAtlas.Models.Models.Captura> CapturasRecentes { get; set; } = new();
         public List<Denuncia> DenunciasPendentes { get; set; } = new();
 
         public async Task OnGetAsync()

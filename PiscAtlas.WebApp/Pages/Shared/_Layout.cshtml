@@ -26,16 +26,19 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                     <ul class="navbar-nav gap-3 fw-medium">
-                        @* Todos estes continuam a apontar para os teus controladores antigos *@
+                        @* Estes continuam a apontar para os controladores antigos *@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index"><i class="bi bi-geo-alt"></i> Mapa</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Pesqueiro" asp-action="Index"><i class="bi bi-geo"></i> Pesqueiros</a>
                         </li>
+
+                        @* LINK ATUALIZADO PARA RAZOR PAGES *@
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Captura" asp-action="Index"><i class="bi bi-camera"></i> Minhas Capturas</a>
+                            <a class="nav-link text-dark" asp-page="/Captura/Index"><i class="bi bi-camera"></i> Minhas Capturas</a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Especie" asp-action="Index"><i class="bi bi-book"></i> Caderneta</a>
                         </li>
@@ -67,7 +70,8 @@
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <li>
-                                            <a class="dropdown-item" href="/Admin/Index">
+                                            @* LINK ATUALIZADO PARA RAZOR PAGES *@
+                                            <a class="dropdown-item" asp-page="/Admin/Index">
                                                 <i class="bi bi-shield-lock"></i> Admin
                                             </a>
                                         </li>

@@ -17,7 +17,7 @@ namespace PiscAtlas.WebApp.Pages.Admin
             _context = context;
         }
 
-        public List<Captura> Capturas { get; set; } = new();
+        public List<PiscAtlas.Models.Models.Captura> Capturas { get; set; } = new();
         public bool Pendentes { get; set; }
 
         public async Task OnGetAsync(bool? pendentes)
