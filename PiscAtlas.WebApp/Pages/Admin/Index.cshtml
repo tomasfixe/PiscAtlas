@@ -1,4 +1,5 @@
-@model PiscAtlas.WebApp.Controllers.AdminDashboardViewModel
+﻿@page
+@model PiscAtlas.WebApp.Pages.Admin.IndexModel
 @{
     ViewData["Title"] = "Painel de Administração";
 }
@@ -16,7 +17,6 @@
     </div>
 }
 
-@* Estatísticas *@
 <div class="row g-4 mb-5">
     <div class="col-6 col-lg-3">
         <div class="card border-0 shadow-sm p-4 text-center">
@@ -50,39 +50,38 @@
     </div>
 </div>
 
-@* Acesso rápido *@
 <div class="row g-3 mb-5">
     <div class="col-12">
         <h5 class="fw-bold mb-3">Acesso Rápido</h5>
     </div>
     <div class="col-6 col-md-3">
-        <a asp-action="Capturas" asp-route-pendentes="true"
+        <a asp-page="./Capturas" asp-route-pendentes="true"
            class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-clock fs-4 mb-1"></i>
             <small>Capturas a Aprovar</small>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a asp-action="Denuncias" class="btn btn-outline-danger w-100 py-3 d-flex flex-column align-items-center">
+        <a asp-page="./Denuncias" class="btn btn-outline-danger w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-flag fs-4 mb-1"></i>
             <small>Gerir Denúncias</small>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a asp-action="Utilizadores" class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
+        <a asp-page="./Utilizadores" class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-people fs-4 mb-1"></i>
             <small>Utilizadores</small>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a asp-controller="Pesqueiro" asp-action="Criar"
+        <a asp-page="/Pesqueiro/Criar"
            class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-geo-alt-fill fs-4 mb-1"></i>
             <small>Adicionar Pesqueiro</small>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a asp-controller="Evento" asp-action="Criar"
+        <a asp-page="/Evento/Criar"
            class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-calendar-plus fs-4 mb-1"></i>
             <small>Criar Evento / Torneio</small>
@@ -90,7 +89,6 @@
     </div>
 </div>
 
-@* Capturas recentes *@
 <div class="row g-4">
     <div class="col-lg-6">
         <h5 class="fw-bold mb-3">Últimas Capturas</h5>
@@ -116,8 +114,7 @@
                                 }
                                 else if (c.PossuiProvasVisuais)
                                 {
-                                    <form asp-action="AprovarCaptura" asp-route-id="@c.CapturaId" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
+                                    <form asp-page-handler="AprovarCaptura" asp-route-id="@c.CapturaId" method="post" class="d-inline">
                                         <button class="btn btn-xs btn-outline-success btn-sm py-0">
                                             <i class="bi bi-check"></i> Aprovar
                                         </button>
@@ -134,7 +131,7 @@
             }
         </div>
         <div class="text-end mt-2">
-            <a asp-action="Capturas" class="small text-muted text-decoration-none">
+            <a asp-page="./Capturas" class="small text-muted text-decoration-none">
                 Ver todas <i class="bi bi-arrow-right"></i>
             </a>
         </div>
@@ -163,9 +160,7 @@
                             <p class="small text-muted mb-2">
                                 "@(d.Motivo.Length > 60 ? d.Motivo.Substring(0, 60) + "..." : d.Motivo)"
                             </p>
-                            <a asp-action="Detalhes" asp-controller="Denuncia"
-                               asp-route-id="@d.DenunciaId"
-                               class="btn btn-sm btn-outline-danger">
+                            <a asp-page="/Denuncia/Detalhes" asp-route-id="@d.DenunciaId" class="btn btn-sm btn-outline-danger">
                                 Analisar <i class="bi bi-arrow-right"></i>
                             </a>
                         </li>
@@ -174,7 +169,7 @@
             }
         </div>
         <div class="text-end mt-2">
-            <a asp-action="Denuncias" class="small text-muted text-decoration-none">
+            <a asp-page="./Denuncias" class="small text-muted text-decoration-none">
                 Ver todas <i class="bi bi-arrow-right"></i>
             </a>
         </div>

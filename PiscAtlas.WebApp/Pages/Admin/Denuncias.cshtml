@@ -1,34 +1,35 @@
-@model IEnumerable<PiscAtlas.Models.Models.Denuncia>
+﻿@page
+@model PiscAtlas.WebApp.Pages.Admin.DenunciasModel
 @using PiscAtlas.Models.Models
 @{
     ViewData["Title"] = "Admin — Denúncias";
-    var estadoFiltro = ViewBag.EstadoFiltro as EstadoDenuncia?;
+    var estadoFiltro = Model.EstadoFiltro;
 }
 
 <div class="mb-4">
-    <a asp-action="Index" class="text-muted text-decoration-none small">
+    <a asp-page="./Index" class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i> Dashboard
     </a>
     <h2 class="fw-bold mt-2">Gestão de Denúncias</h2>
 </div>
 
 <div class="d-flex gap-2 mb-4">
-    <a asp-action="Denuncias" class="btn btn-sm @(estadoFiltro == null ? "btn-dark" : "btn-outline-dark")">Todas</a>
-    <a asp-action="Denuncias" asp-route-estado="@EstadoDenuncia.Pendente"
+    <a asp-page="./Denuncias" asp-route-estado="" class="btn btn-sm @(estadoFiltro == null ? "btn-dark" : "btn-outline-dark")">Todas</a>
+    <a asp-page="./Denuncias" asp-route-estado="@EstadoDenuncia.Pendente"
        class="btn btn-sm @(estadoFiltro == EstadoDenuncia.Pendente ? "btn-dark" : "btn-outline-dark")">
         Pendentes
     </a>
-    <a asp-action="Denuncias" asp-route-estado="@EstadoDenuncia.Analisada_Valida"
+    <a asp-page="./Denuncias" asp-route-estado="@EstadoDenuncia.Analisada_Valida"
        class="btn btn-sm @(estadoFiltro == EstadoDenuncia.Analisada_Valida ? "btn-dark" : "btn-outline-dark")">
         Válidas
     </a>
-    <a asp-action="Denuncias" asp-route-estado="@EstadoDenuncia.Analisada_Fraude"
+    <a asp-page="./Denuncias" asp-route-estado="@EstadoDenuncia.Analisada_Fraude"
        class="btn btn-sm @(estadoFiltro == EstadoDenuncia.Analisada_Fraude ? "btn-dark" : "btn-outline-dark")">
         Fraude
     </a>
 </div>
 
-@if (!Model.Any())
+@if (!Model.Denuncias.Any())
 {
     <div class="card border-0 shadow-sm text-center py-5">
         <div class="card-body">
@@ -53,7 +54,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var d in Model)
+                    @foreach (var d in Model.Denuncias)
                     {
                         <tr>
                             <td class="text-muted small">@d.DenunciaId</td>
@@ -80,9 +81,7 @@ else
                                 }
                             </td>
                             <td>
-                                <a asp-controller="Denuncia" asp-action="Detalhes"
-                                   asp-route-id="@d.DenunciaId"
-                                   class="btn btn-sm btn-outline-dark">
+                                <a asp-page="/Denuncia/Detalhes" asp-route-id="@d.DenunciaId" class="btn btn-sm btn-outline-dark">
                                     Analisar
                                 </a>
                             </td>
