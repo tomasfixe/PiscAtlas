@@ -1,11 +1,12 @@
-@model IEnumerable<PiscAtlas.Models.Models.Captura>
+﻿@page
+@model PiscAtlas.WebApp.Pages.Admin.CapturasModel
 @{
     ViewData["Title"] = "Admin — Capturas";
-    bool pendentes = ViewBag.Pendentes;
+    bool pendentes = Model.Pendentes;
 }
 
 <div class="mb-4">
-    <a asp-action="Index" class="text-muted text-decoration-none small">
+    <a asp-page="./Index" class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i> Dashboard
     </a>
     <h2 class="fw-bold mt-2">Gestão de Capturas</h2>
@@ -20,9 +21,8 @@
 }
 
 <div class="d-flex gap-2 mb-4">
-    <a asp-action="Capturas" class="btn btn-sm @(!pendentes ? "btn-dark" : "btn-outline-dark")">Todas</a>
-    <a asp-action="Capturas" asp-route-pendentes="true"
-       class="btn btn-sm @(pendentes ? "btn-dark" : "btn-outline-dark")">
+    <a asp-page="./Capturas" asp-route-pendentes="false" class="btn btn-sm @(!pendentes ? "btn-dark" : "btn-outline-dark")">Todas</a>
+    <a asp-page="./Capturas" asp-route-pendentes="true" class="btn btn-sm @(pendentes ? "btn-dark" : "btn-outline-dark")">
         Pendentes de aprovação
     </a>
 </div>
@@ -43,7 +43,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var c in Model)
+                @foreach (var c in Model.Capturas)
                 {
                     <tr>
                         <td>
@@ -76,8 +76,7 @@
                             <div class="d-flex gap-1">
                                 @if (!c.AprovadaPeloAdmin && c.PossuiProvasVisuais)
                                 {
-                                    <form asp-action="AprovarCaptura" asp-route-id="@c.CapturaId" method="post">
-                                        @Html.AntiForgeryToken()
+                                    <form asp-page-handler="AprovarCaptura" asp-route-id="@c.CapturaId" asp-route-pendentes="@pendentes" method="post">
                                         <button class="btn btn-sm btn-outline-success py-0">
                                             <i class="bi bi-check"></i>
                                         </button>
@@ -85,8 +84,7 @@
                                 }
                                 @if (c.AprovadaPeloAdmin)
                                 {
-                                    <form asp-action="RejeitarCaptura" asp-route-id="@c.CapturaId" method="post">
-                                        @Html.AntiForgeryToken()
+                                    <form asp-page-handler="RejeitarCaptura" asp-route-id="@c.CapturaId" asp-route-pendentes="@pendentes" method="post">
                                         <button class="btn btn-sm btn-outline-danger py-0">
                                             <i class="bi bi-x"></i>
                                         </button>

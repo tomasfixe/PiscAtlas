@@ -1,12 +1,13 @@
-@model IEnumerable<PiscAtlas.Models.Models.Utilizador>
+﻿@page
+@model PiscAtlas.WebApp.Pages.Admin.UtilizadoresModel
 @{
     ViewData["Title"] = "Admin — Utilizadores";
-    var admins = ViewBag.Admins as HashSet<string>;
-    var banidos = ViewBag.Banidos as HashSet<string>;
+    var admins = Model.Admins;
+    var banidos = Model.Banidos;
 }
 
 <div class="mb-4">
-    <a asp-action="Index" class="text-muted text-decoration-none small">
+    <a asp-page="./Index" class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i> Dashboard
     </a>
     <h2 class="fw-bold mt-2">Gestão de Utilizadores</h2>
@@ -41,7 +42,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var u in Model)
+                @foreach (var u in Model.Utilizadores)
                 {
                     bool isAdmin = admins?.Contains(u.Id) ?? false;
                     bool isBanido = banidos?.Contains(u.Id) ?? false;
@@ -90,8 +91,7 @@
                         </td>
                         <td>
                             <div class="d-flex gap-2 flex-wrap">
-                                <form asp-action="ToggleAdmin" asp-route-userId="@u.Id" method="post">
-                                    @Html.AntiForgeryToken()
+                                <form asp-page-handler="ToggleAdmin" asp-route-userId="@u.Id" method="post">
                                     <button type="submit"
                                             class="btn btn-sm @(isAdmin ? "btn-outline-danger" : "btn-outline-dark")"
                                             onclick="return confirm('@(isAdmin ? "Remover cargo Admin?" : "Promover a Admin?")')">
@@ -101,8 +101,7 @@
 
                                 @if (isBanido)
                                 {
-                                    <form asp-action="DesbanirUtilizador" asp-route-userId="@u.Id" method="post">
-                                        @Html.AntiForgeryToken()
+                                    <form asp-page-handler="DesbanirUtilizador" asp-route-userId="@u.Id" method="post">
                                         <button type="submit" class="btn btn-sm btn-outline-success"
                                                 onclick="return confirm('Remover suspensão de @u.NomeCompleto?')">
                                             <i class="bi bi-check-circle"></i> Desbanir
@@ -111,8 +110,7 @@
                                 }
                                 else
                                 {
-                                    <form asp-action="BanirUtilizador" asp-route-userId="@u.Id" method="post">
-                                        @Html.AntiForgeryToken()
+                                    <form asp-page-handler="BanirUtilizador" asp-route-userId="@u.Id" method="post">
                                         <button type="submit" class="btn btn-sm btn-outline-warning"
                                                 onclick="return confirm('Suspender a conta de @u.NomeCompleto? Deixará de poder iniciar sessão.')">
                                             <i class="bi bi-slash-circle"></i> Banir
@@ -120,8 +118,7 @@
                                     </form>
                                 }
 
-                                <form asp-action="EliminarUtilizador" asp-route-userId="@u.Id" method="post">
-                                    @Html.AntiForgeryToken()
+                                <form asp-page-handler="EliminarUtilizador" asp-route-userId="@u.Id" method="post">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
                                             onclick="return confirm('Eliminar definitivamente a conta de @u.NomeCompleto? Esta ação não pode ser desfeita.')">
                                         <i class="bi bi-trash"></i> Eliminar
@@ -135,4 +132,3 @@
         </table>
     </div>
 </div>
-
