@@ -34,13 +34,14 @@
                             <a class="nav-link text-dark" asp-controller="Pesqueiro" asp-action="Index"><i class="bi bi-geo"></i> Pesqueiros</a>
                         </li>
 
-                        @* LINK ATUALIZADO PARA RAZOR PAGES *@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Captura/Index"><i class="bi bi-camera"></i> Minhas Capturas</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Especie" asp-action="Index"><i class="bi bi-book"></i> Caderneta</a>
+                            <a class="nav-link text-dark" asp-page="/Especie/Index">
+                                <i class="bi bi-book"></i> Caderneta
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Ranking" asp-action="Index"><i class="bi bi-trophy"></i> Rankings</a>
