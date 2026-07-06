@@ -1,11 +1,12 @@
-@model PiscAtlas.WebApp.ViewModels.PerfilViewModel
+﻿@page
+@model PiscAtlas.WebApp.Pages.Conta.PerfilModel
 @{
     ViewData["Title"] = "O Meu Perfil";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-5">
     <h2 class="fw-bold mb-0"><i class="bi bi-person-circle"></i> O Meu Perfil</h2>
-    <a asp-action="EditarPerfil" class="btn btn-outline-dark fw-medium">
+    <a asp-page="./EditarPerfil" class="btn btn-outline-dark fw-medium">
         <i class="bi bi-pencil"></i> Editar Perfil
     </a>
 </div>
@@ -21,9 +22,9 @@
 <div class="row g-4">
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm p-4 text-center">
-            @if (!string.IsNullOrEmpty(Model.User.FotografiaPerfilUrl))
+            @if (!string.IsNullOrEmpty(Model.PerfilUser.FotografiaPerfilUrl))
             {
-                <img src="@Model.User.FotografiaPerfilUrl"
+                <img src="@Model.PerfilUser.FotografiaPerfilUrl"
                      alt="Foto de Perfil"
                      class="rounded-circle mx-auto mb-3"
                      style="width: 100px; height: 100px; object-fit: cover;" />
@@ -32,13 +33,13 @@
             {
                 <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold"
                      style="width: 100px; height: 100px; font-size: 2.5rem;">
-                    @Model.User.PrimeiroNome?.Substring(0, 1).ToUpper()
+                    @Model.PerfilUser.PrimeiroNome?.Substring(0, 1).ToUpper()
                 </div>
             }
 
-            <h4 class="fw-bold mb-0">@Model.User.NomeCompleto</h4>
-            <p class="text-muted">@@@Model.User.NomeUtilizador</p>
-            <p class="text-muted small">@Model.User.Email</p>
+            <h4 class="fw-bold mb-0">@Model.PerfilUser.NomeCompleto</h4>
+            <p class="text-muted">@@@Model.PerfilUser.NomeUtilizador</p>
+            <p class="text-muted small">@Model.PerfilUser.Email</p>
 
             <hr />
 
@@ -52,7 +53,7 @@
             <div class="mt-3">
                 <small class="text-muted">
                     <i class="bi bi-calendar3 me-1"></i>
-                    Membro desde @Model.User.DataRegisto.ToString("MMMM yyyy", new System.Globalization.CultureInfo("pt-PT"))
+                    Membro desde @Model.PerfilUser.DataRegisto.ToString("MMMM yyyy", new System.Globalization.CultureInfo("pt-PT"))
                 </small>
             </div>
         </div>
@@ -61,8 +62,7 @@
     <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold mb-0">Últimas Capturas</h5>
-            <a asp-controller="Captura" asp-action="Index"
-               class="small text-muted text-decoration-none">
+            <a asp-page="/Captura/Index" class="small text-muted text-decoration-none">
                 Ver todas <i class="bi bi-arrow-right"></i>
             </a>
         </div>
@@ -74,7 +74,7 @@
                     <i class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
                     <h5 class="mt-3 fw-bold">Ainda sem capturas</h5>
                     <p class="text-muted">Registe a sua primeira pesca!</p>
-                    <a asp-controller="Captura" asp-action="Criar" class="btn btn-dark btn-sm">
+                    <a asp-page="/Captura/Criar" class="btn btn-dark btn-sm">
                         <i class="bi bi-plus-lg"></i> Registar Captura
                     </a>
                 </div>
@@ -86,8 +86,7 @@
                 @foreach (var c in Model.Capturas)
                 {
                     <div class="col-6 col-md-4">
-                        <a asp-controller="Captura" asp-action="Detalhes" asp-route-id="@c.CapturaId"
-                           class="text-decoration-none">
+                        <a asp-page="/Captura/Detalhes" asp-route-id="@c.CapturaId" class="text-decoration-none">
                             <div class="card border-0 shadow-sm overflow-hidden">
                                 <div style="height: 120px; background: #f8f9fa;">
                                     @if (!string.IsNullOrEmpty(c.FotografiaUrl))
@@ -104,9 +103,7 @@
                                 </div>
                                 <div class="card-body p-2">
                                     <p class="fw-medium small mb-0 text-dark">@c.Especie?.Nome</p>
-                                    <p class="small text-muted mb-0">
-                                        @c.Pesqueiro?.Nome
-                                    </p>
+                                    <p class="small text-muted mb-0">@c.Pesqueiro?.Nome</p>
                                     @if (c.Peso.HasValue)
                                     {
                                         <span class="badge bg-light text-dark border">@c.Peso kg</span>

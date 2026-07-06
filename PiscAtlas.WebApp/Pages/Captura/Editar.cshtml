@@ -1,0 +1,82 @@
+﻿@page "{id:int}"
+@model PiscAtlas.WebApp.Pages.Captura.EditarModel
+@{
+    ViewData["Title"] = "Editar Captura";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="mb-4">
+            <a asp-page="./Index" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar às Capturas
+            </a>
+            <h2 class="fw-bold mt-2">Editar Captura</h2>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                <input type="hidden" asp-for="CapturaId" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Input.EspecieId" class="form-label fw-medium">Espécie *</label>
+                        <select asp-for="Input.EspecieId" asp-items="Model.Especies" class="form-select">
+                            <option value="">-- Selecione --</option>
+                        </select>
+                        <span asp-validation-for="Input.EspecieId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.PesqueiroId" class="form-label fw-medium">Pesqueiro *</label>
+                        <select asp-for="Input.PesqueiroId" asp-items="Model.Pesqueiros" class="form-select">
+                            <option value="">-- Selecione --</option>
+                        </select>
+                        <span asp-validation-for="Input.PesqueiroId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Input.Peso" class="form-label fw-medium">Peso (kg)</label>
+                        <input asp-for="Input.Peso" class="form-control" type="number" step="0.01" min="0" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.Tamanho" class="form-label fw-medium">Comprimento (cm)</label>
+                        <input asp-for="Input.Tamanho" class="form-control" type="number" step="0.1" min="0" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Notas" class="form-label fw-medium">Notas</label>
+                    <textarea asp-for="Input.Notas" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.FotoFile" class="form-label fw-medium"></label>
+                    @if (!string.IsNullOrEmpty(Model.FotoAtual))
+                    {
+                        <div class="mb-2">
+                            <img src="@Model.FotoAtual" alt="Foto atual"
+                                 class="rounded shadow-sm"
+                                 style="max-height: 150px; object-fit: cover;" />
+                            <small class="d-block text-muted mt-1">Foto atual — substitua se quiser alterar</small>
+                        </div>
+                    }
+                    <input asp-for="Input.FotoFile" class="form-control" type="file" accept="image/*" />
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-page="./Index" class="btn btn-outline-secondary flex-fill">Cancelar</a>
+                    <button type="submit" class="btn btn-dark fw-bold flex-fill">
+                        <i class="bi bi-save"></i> Guardar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
