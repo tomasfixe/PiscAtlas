@@ -30,8 +30,8 @@ namespace PiscAtlas.WebApp.Pages.Captura
 
         public string FotoAtual { get; set; } = string.Empty;
 
-        public SelectList Especies { get; set; }
-        public SelectList Pesqueiros { get; set; }
+        public SelectList Especies { get; set; } = default!;
+        public SelectList Pesqueiros { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {

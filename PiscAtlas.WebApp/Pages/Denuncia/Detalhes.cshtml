@@ -1,0 +1,126 @@
+﻿@page "{id:int?}"
+@model PiscAtlas.WebApp.Pages.Denuncia.DetalhesModel
+@using PiscAtlas.Models.Models
+@{
+    ViewData["Title"] = "Analisar Denúncia";
+}
+
+<div class="mb-4">
+    <a asp-page="/Admin/Denuncias" class="text-muted text-decoration-none small">
+        <i class="bi bi-arrow-left"></i> Voltar às Denúncias
+    </a>
+    <h2 class="fw-bold mt-2">Analisar Denúncia #@Model.DenunciaItem.DenunciaId</h2>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle"></i> @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h5 class="fw-bold mb-3">Captura Denunciada</h5>
+
+            @if (!string.IsNullOrEmpty(Model.DenunciaItem.Captura?.FotografiaUrl))
+            {
+                <img src="@Model.DenunciaItem.Captura.FotografiaUrl" alt="Captura"
+                     class="rounded-3 mb-3 w-100" style="max-height: 250px; object-fit: cover;" />
+            }
+
+            <ul class="list-unstyled small">
+                <li class="mb-2">
+                    <strong>Espécie:</strong> @Model.DenunciaItem.Captura?.Especie?.Nome
+                </li>
+                <li class="mb-2">
+                    <strong>Pescador:</strong> @Model.DenunciaItem.Captura?.Utilizador?.NomeCompleto
+                    <small class="text-muted">(@Model.DenunciaItem.Captura?.Utilizador?.Email)</small>
+                </li>
+                <li class="mb-2">
+                    <strong>Peso declarado:</strong> @(Model.DenunciaItem.Captura?.Peso.HasValue == true ? $"{Model.DenunciaItem.Captura.Peso} kg" : "Não indicado")
+                </li>
+                <li class="mb-2">
+                    <strong>Tamanho declarado:</strong> @(Model.DenunciaItem.Captura?.Tamanho.HasValue == true ? $"{Model.DenunciaItem.Captura.Tamanho} cm" : "Não indicado")
+                </li>
+                <li>
+                    <strong>Data da captura:</strong> @Model.DenunciaItem.Captura?.DataCaptura.ToString("dd/MM/yyyy HH:mm")
+                </li>
+            </ul>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-3">Detalhes da Denúncia</h5>
+            <ul class="list-unstyled small">
+                <li class="mb-2">
+                    <strong>Denunciante:</strong> @Model.DenunciaItem.DenuncianteEmail
+                </li>
+                <li class="mb-3">
+                    <strong>Estado:</strong>
+                    @switch (Model.DenunciaItem.Estado)
+                    {
+                        case EstadoDenuncia.Pendente:
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                            break;
+                        case EstadoDenuncia.Analisada_Valida:
+                            <span class="badge bg-danger">Fraude Confirmada</span>
+                            break;
+                        case EstadoDenuncia.Analisada_Fraude:
+                            <span class="badge bg-secondary">Denúncia Inválida</span>
+                            break;
+                    }
+                </li>
+            </ul>
+            <div class="p-3 bg-light rounded-3">
+                <p class="fw-medium small text-muted mb-1">Motivo da denúncia</p>
+                <p class="mb-0">@Model.DenunciaItem.Motivo</p>
+            </div>
+
+            @if (Model.DenunciaItem.DecisaoAdmin != null)
+            {
+                <div class="p-3 border-start border-3 border-dark mt-3">
+                    <p class="fw-medium small text-muted mb-1">Decisão do Admin</p>
+                    <p class="mb-1">@Model.DenunciaItem.DecisaoAdmin</p>
+                    <small class="text-muted">@Model.DenunciaItem.DataDecisao?.ToString("dd/MM/yyyy HH:mm")</small>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.DenunciaItem.Estado == EstadoDenuncia.Pendente)
+    {
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-4">Registar Decisão</h5>
+
+                <form method="post">
+                    <input type="hidden" name="denunciaId" value="@Model.DenunciaItem.DenunciaId" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Decisão do administrador</label>
+                        <textarea name="decisao" class="form-control" rows="4"
+                                  placeholder="Justificação da decisão..."
+                                  required></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="estado"
+                                value="@EstadoDenuncia.Analisada_Valida"
+                                class="btn btn-danger fw-medium"
+                                onclick="return confirm('Confirma fraude? A captura será marcada como não aprovada.')">
+                            <i class="bi bi-shield-exclamation"></i> Confirmar Fraude
+                        </button>
+                        <button type="submit" name="estado"
+                                value="@EstadoDenuncia.Analisada_Fraude"
+                                class="btn btn-outline-dark fw-medium"
+                                onclick="return confirm('Confirma que esta denúncia é inválida?')">
+                            <i class="bi bi-check-circle"></i> Denúncia Inválida — Captura Legítima
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>

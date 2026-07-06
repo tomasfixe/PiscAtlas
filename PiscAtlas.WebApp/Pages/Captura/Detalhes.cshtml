@@ -117,7 +117,7 @@
                 <h5 class="modal-title fw-bold">Denunciar Captura</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form asp-controller="Denuncia" asp-action="Criar" method="post">
+            <form asp-page="/Denuncia/Criar" method="post">
                 <input type="hidden" name="CapturaId" value="@Model.Captura.CapturaId" />
                 <div class="modal-body">
                     <p class="text-muted small">Descreva o motivo pelo qual considera esta captura fraudulenta ou inapropriada.</p>

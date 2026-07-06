@@ -16,7 +16,7 @@ namespace PiscAtlas.WebApp.Pages.Admin
             _context = context;
         }
 
-        public List<Denuncia> Denuncias { get; set; } = new();
+        public List<PiscAtlas.Models.Models.Denuncia> Denuncias { get; set; } = new();
         public EstadoDenuncia? EstadoFiltro { get; set; }
 
         public async Task OnGetAsync(EstadoDenuncia? estado)
