@@ -15,6 +15,7 @@ namespace PiscAtlas.Models.Models
 
         [Required]
         public string Nome { get; set; }
+        public string? FotografiaUrl { get; set; }
         public string Descricao { get; set; }
         public DateTime DataInicio { get; set; }
         public DateTime DataFim { get; set; }

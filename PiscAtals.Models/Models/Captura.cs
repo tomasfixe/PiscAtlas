@@ -12,9 +12,9 @@ namespace PiscAtlas.Models.Models
         [Key]
         public int CapturaId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Tem de selecionar uma espécie.")]
         public int EspecieId { get; set; }
-        public virtual Especie? Especie { get; set; }
+        public Especie? Especie { get; set; }
 
         [Required]
         public int PesqueiroId { get; set; }
@@ -43,5 +43,7 @@ namespace PiscAtlas.Models.Models
 
         // Relacionamento com Denúncias
         public virtual ICollection<Denuncia>? Denuncias { get; set; }
+        // Isto permite que uma captura tenha N fotografias associadas
+        public ICollection<CapturaFotografia> Fotografias { get; set; } = new List<CapturaFotografia>();
     }
 }
