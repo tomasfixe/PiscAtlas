@@ -26,12 +26,11 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                     <ul class="navbar-nav gap-3 fw-medium">
-                        @* Estes continuam a apontar para os controladores antigos *@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index"><i class="bi bi-geo-alt"></i> Mapa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Pesqueiro" asp-action="Index"><i class="bi bi-geo"></i> Pesqueiros</a>
+                            <a class="nav-link text-dark" asp-page="/Pesqueiro/Index" asp-action="Index"><i class="bi bi-geo"></i> Pesqueiros</a>
                         </li>
 
                         <li class="nav-item">
@@ -61,7 +60,7 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Conta" asp-action="Perfil">
+                                        <a class="dropdown-item" asp-page="/Conta/Perfil">
                                             <i class="bi bi-person"></i> O Meu Perfil
                                         </a>
                                     </li>
@@ -89,7 +88,7 @@
                         }
                         else
                         {
-                            <a asp-controller="Conta" asp-action="Login" class="btn btn-outline-dark fw-medium">Entrar</a>
+                            <a asp-page="/Conta/Login" class="btn btn-outline-dark fw-medium">Entrar</a>
                         }
                     </div>
                 </div>

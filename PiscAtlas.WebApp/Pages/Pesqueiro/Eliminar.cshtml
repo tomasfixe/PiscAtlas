@@ -1,5 +1,5 @@
-﻿@model PiscAtlas.Models.Models.Pesqueiro
-
+﻿@page "{id:int}"
+@model PiscAtlas.WebApp.Pages.Pesqueiro.EliminarModel
 @{
     ViewData["Title"] = "Eliminar Pesqueiro";
 }
@@ -12,18 +12,18 @@
             </div>
             <div class="card-body text-center">
                 <h5 class="card-title mt-3">Tem a certeza que deseja eliminar este pesqueiro?</h5>
-                <p class="text-muted"><strong>@Model.Nome</strong></p>
+                <p class="text-muted"><strong>@Model.PesqueiroItem.Nome</strong></p>
 
-                @if (Model.Capturas != null && Model.Capturas.Any())
+                @if (Model.PesqueiroItem.Capturas != null && Model.PesqueiroItem.Capturas.Any())
                 {
                     <div class="alert alert-warning">
-                        <strong>Aviso:</strong> Este pesqueiro tem @Model.Capturas.Count capturas associadas. Se o eliminar, pode afetar os registos dos utilizadores!
+                        <strong>Aviso:</strong> Este pesqueiro tem @Model.PesqueiroItem.Capturas.Count capturas associadas. Eliminá-lo poderá afetar os registos.
                     </div>
                 }
 
-                <form asp-action="Eliminar" method="post" class="mt-4">
+                <form method="post" class="mt-4">
                     <input type="hidden" asp-for="PesqueiroId" />
-                    <a asp-action="Index" class="btn btn-secondary me-2">Cancelar</a>
+                    <a asp-page="./Index" class="btn btn-secondary me-2">Cancelar</a>
                     <button type="submit" class="btn btn-danger">Sim, Eliminar Definitivamente</button>
                 </form>
             </div>

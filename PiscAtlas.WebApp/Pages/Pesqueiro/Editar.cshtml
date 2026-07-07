@@ -1,0 +1,63 @@
+﻿@page "{id:int}"
+@model PiscAtlas.WebApp.Pages.Pesqueiro.EditarModel
+@{
+    ViewData["Title"] = "Editar Pesqueiro";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Editar Pesqueiro</h2>
+            <a asp-page="./Index" class="btn btn-outline-secondary btn-sm">Voltar à Lista</a>
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <form method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="PesqueiroId" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Input.Nome" class="form-label fw-bold">Nome *</label>
+                        <input asp-for="Input.Nome" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.Tipo" class="form-label fw-bold">Tipo *</label>
+                        <select asp-for="Input.Tipo" asp-items="Html.GetEnumSelectList<PiscAtlas.Models.Models.TipoPesqueiro>()" class="form-select"></select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Descricao" class="form-label fw-bold">Descrição</label>
+                    <textarea asp-for="Input.Descricao" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Input.Latitude" class="form-label fw-bold">Latitude</label>
+                        <input asp-for="Input.Latitude" type="number" step="0.000001" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.Longitude" class="form-label fw-bold">Longitude</label>
+                        <input asp-for="Input.Longitude" type="number" step="0.000001" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.FotoFile" class="form-label fw-bold">Nova Fotografia (Opcional)</label>
+                    <input asp-for="Input.FotoFile" type="file" class="form-control" accept="image/*" />
+                    @if (!string.IsNullOrEmpty(Model.FotoAtual))
+                    {
+                        <div class="mt-2">
+                            <p class="mb-1 small fw-bold">Foto Atual:</p>
+                            <img src="@Model.FotoAtual" alt="Atual" class="img-thumbnail" style="max-height: 100px;" />
+                        </div>
+                    }
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold">Guardar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

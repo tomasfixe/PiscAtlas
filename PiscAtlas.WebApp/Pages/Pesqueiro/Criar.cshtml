@@ -1,0 +1,58 @@
+﻿@page
+@model PiscAtlas.WebApp.Pages.Pesqueiro.CriarModel
+@{
+    ViewData["Title"] = "Adicionar Pesqueiro";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="mb-4">
+            <a asp-page="./Index" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <h2 class="fw-bold mt-2">Adicionar Pesqueiro</h2>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Nome" class="form-label fw-medium">Nome *</label>
+                    <input asp-for="Input.Nome" class="form-control" />
+                    <span asp-validation-for="Input.Nome" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Descricao" class="form-label fw-medium">Descrição</label>
+                    <textarea asp-for="Input.Descricao" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Tipo" class="form-label fw-medium">Tipo *</label>
+                    <select asp-for="Input.Tipo" class="form-select" asp-items="Html.GetEnumSelectList<PiscAtlas.Models.Models.TipoPesqueiro>()"></select>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label asp-for="Input.Latitude" class="form-label fw-medium">Latitude</label>
+                        <input asp-for="Input.Latitude" class="form-control" type="number" step="0.000001" />
+                    </div>
+                    <div class="col-6">
+                        <label asp-for="Input.Longitude" class="form-label fw-medium">Longitude</label>
+                        <input asp-for="Input.Longitude" class="form-control" type="number" step="0.000001" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.FotoFile" class="form-label fw-medium">Fotografia</label>
+                    <input asp-for="Input.FotoFile" class="form-control" type="file" accept="image/*" />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark fw-bold py-2"><i class="bi bi-check2-circle"></i> Criar Pesqueiro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿@page "{id:int}"
+@model PiscAtlas.WebApp.Pages.Pesqueiro.DetalhesModel
+@{
+    ViewData["Title"] = Model.PesqueiroItem.Nome;
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<div class="mb-4">
+    <a asp-page="./Index" class="text-muted text-decoration-none small">
+        <i class="bi bi-arrow-left"></i> Voltar aos Pesqueiros
+    </a>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-lg-5">
+        <div class="rounded-3 overflow-hidden shadow-sm" style="height: 300px; background: #f8f9fa;">
+            @if (!string.IsNullOrEmpty(Model.PesqueiroItem.FotografiaUrl))
+            {
+                <img src="@Model.PesqueiroItem.FotografiaUrl" alt="@Model.PesqueiroItem.Nome" class="w-100 h-100" style="object-fit: cover;" />
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <i class="bi bi-water text-secondary" style="font-size: 3rem;"></i>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <span class="badge bg-dark mb-2">@Model.PesqueiroItem.Tipo.ToString().Replace("_", " ")</span>
+                <h1 class="fw-bold mb-2">@Model.PesqueiroItem.Nome</h1>
+            </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="d-flex gap-2">
+                    <a asp-page="./Editar" asp-route-id="@Model.PesqueiroItem.PesqueiroId" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i></a>
+                    <a asp-page="./Eliminar" asp-route-id="@Model.PesqueiroItem.PesqueiroId" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+                </div>
+            }
+        </div>
+        <p class="text-muted">@Model.PesqueiroItem.Descricao</p>
+        <div class="mt-4">
+            <h5 class="fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Localização</h5>
+            <div id="miniMapa" class="rounded-3 shadow-sm border border-light" style="height: 250px; width: 100%;"></div>
+            <p class="small text-muted mt-2 mb-0">Lat: @Model.PesqueiroItem.Latitude | Lng: @Model.PesqueiroItem.Longitude</p>
+        </div>
+    </div>
+</div>
+
+<div class="mb-5">
+    <h4 class="fw-bold mb-4 border-bottom pb-2">Maiores Capturas Neste Local</h4>
+    @if (!Model.TopCapturas.Any())
+    {
+        <p class="text-muted">Ainda não existem capturas aprovadas registadas neste pesqueiro.</p>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var c in Model.TopCapturas)
+            {
+                <div class="col-6 col-md-3">
+                    <a asp-page="/Captura/Detalhes" asp-route-id="@c.CapturaId" class="text-decoration-none">
+                        <div class="rounded-3 overflow-hidden shadow-sm" style="height: 130px; background: #f8f9fa;">
+                            @if (!string.IsNullOrEmpty(c.FotografiaUrl))
+                            {
+                                <img src="@c.FotografiaUrl" alt="@c.Especie?.Nome" class="w-100 h-100" style="object-fit: cover;" />
+                            }
+                        </div>
+                        <p class="small fw-medium mt-1 mb-0 text-dark">@c.Especie?.Nome</p>
+                        <p class="small text-muted mb-0">@(c.Peso) kg</p>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('miniMapa').setView([@Model.PesqueiroItem.Latitude.ToString().Replace(",", "."), @Model.PesqueiroItem.Longitude.ToString().Replace(",", ".")], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+        L.marker([@Model.PesqueiroItem.Latitude.ToString().Replace(",", "."), @Model.PesqueiroItem.Longitude.ToString().Replace(",", ".")]).addTo(map)
+          .bindPopup("<b>@Model.PesqueiroItem.Nome</b>").openPopup();
+    </script>
+}
