@@ -1,0 +1,81 @@
+﻿@page
+@model PiscAtlas.WebApp.Pages.Evento.CriarModel
+@{
+    ViewData["Title"] = "Criar Evento";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="mb-4">
+            <a asp-page="./Index" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar a Eventos
+            </a>
+            <h2 class="fw-bold mt-2"><i class="bi bi-trophy"></i> Criar Evento / Torneio</h2>
+            <p class="text-muted">Configure um novo evento de pesca</p>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Nome" class="form-label fw-medium">Nome do Evento *</label>
+                    <input asp-for="Input.Nome" class="form-control" placeholder="Ex: Torneio de Robalo da Primavera" />
+                    <span asp-validation-for="Input.Nome" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Descricao" class="form-label fw-medium">Descrição</label>
+                    <textarea asp-for="Input.Descricao" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Input.DataInicio" class="form-label fw-medium">Data Início *</label>
+                        <input asp-for="Input.DataInicio" class="form-control" type="date" />
+                        <span asp-validation-for="Input.DataInicio" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.DataFim" class="form-label fw-medium">Data Fim *</label>
+                        <input asp-for="Input.DataFim" class="form-control" type="date" />
+                        <span asp-validation-for="Input.DataFim" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.EspecieAlvoId" class="form-label fw-medium">Espécie-Alvo *</label>
+                    <select asp-for="Input.EspecieAlvoId" asp-items="Model.Especies" class="form-select">
+                        <option value="">-- Selecione a Espécie --</option>
+                    </select>
+                    <span asp-validation-for="Input.EspecieAlvoId" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Input.PesoMinimo" class="form-label fw-medium">Peso Mínimo (kg)</label>
+                        <input asp-for="Input.PesoMinimo" class="form-control" type="number" step="0.01" min="0" placeholder="Opcional" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.TamanhoMinimo" class="form-label fw-medium">Tamanho Mínimo (cm)</label>
+                        <input asp-for="Input.TamanhoMinimo" class="form-control" type="number" step="0.1" min="0" placeholder="Opcional" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.PrecoInscricao" class="form-label fw-medium">Preço de Inscrição (€)</label>
+                    <input asp-for="Input.PrecoInscricao" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark fw-bold py-2">
+                        <i class="bi bi-check2-circle"></i> Criar Evento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
