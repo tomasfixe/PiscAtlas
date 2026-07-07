@@ -1,0 +1,118 @@
+﻿@page
+@model PiscAtlas.WebApp.Pages.Home.IndexModel
+@{
+    ViewData["Title"] = "PiscAtlas - Início";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<div class="mb-5">
+    <h1 class="display-5 fw-bold text-dark"><i class="bi bi-tsunami"></i> PiscAtlas</h1>
+    <p class="text-muted fs-5">Explore pesqueiros e capturas em Portugal</p>
+</div>
+
+<ul class="nav nav-tabs mb-4" id="piscAtlasTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold text-dark d-flex align-items-center gap-2" id="mapa-tab" data-bs-toggle="tab" data-bs-target="#mapa" type="button" role="tab" aria-selected="true">
+            <i class="bi bi-geo-alt-fill"></i> Mapa Interativo
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold text-dark d-flex align-items-center gap-2" id="capturas-tab" data-bs-toggle="tab" data-bs-target="#capturas" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-camera"></i> Capturas Recentes
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="piscAtlasTabsContent">
+    <div class="tab-pane fade show active" id="mapa" role="tabpanel" tabindex="0">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+            <div id="mapaInterativo" style="height: 600px; width: 100%; z-index: 1;"></div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="capturas" role="tabpanel" tabindex="0">
+        @if (!Model.Capturas.Any())
+        {
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-camera fs-1"></i>
+                <p class="mt-3">Ainda não existem capturas registadas. Seja o primeiro!</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var captura in Model.Capturas)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm h-100 overflow-hidden rounded-4">
+                            <div style="height: 250px; background-color: #f8f9fa;">
+                                @if (!string.IsNullOrEmpty(captura.FotografiaUrl))
+                                {
+                                    <img src="@captura.FotografiaUrl" class="w-100 h-100" style="object-fit: cover;" alt="Captura" />
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="fw-bold mb-0">@captura.Especie?.Nome</h5>
+                                    @if (captura.Peso.HasValue)
+                                    {
+                                        <span class="badge bg-dark">@captura.Peso kg</span>
+                                    }
+                                </div>
+                                <p class="text-muted small mb-3">
+                                    <i class="bi bi-person-fill"></i> @captura.Utilizador?.NomeCompleto<br />
+                                    <i class="bi bi-geo-alt-fill"></i> @captura.Pesqueiro?.Nome
+                                </p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pb-3 px-3">
+                                <a asp-page="/Captura/Detalhes" asp-route-id="@captura.CapturaId" class="btn btn-sm btn-outline-dark w-100">
+                                    Ver Detalhes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var map = L.map('mapaInterativo').setView([39.3999, -8.2245], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap contributors - PiscAtlas'
+            }).addTo(map);
+
+            var pesqueiros = @Html.Raw(Json.Serialize(Model.Pesqueiros.Select(p => new
+            {
+                id = p.PesqueiroId,
+                nome = p.Nome,
+                lat = p.Latitude,
+                lng = p.Longitude
+            })));
+
+            pesqueiros.forEach(function(p) {
+                if(p.lat && p.lng) {
+                    var marker = L.marker([p.lat, p.lng]).addTo(map);
+                    marker.bindPopup("<b>" + p.nome + "</b><br>Clique para ver detalhes.");
+                }
+            });
+
+            document.getElementById('mapa-tab').addEventListener('shown.bs.tab', function () {
+                map.invalidateSize();
+            });
+        });
+    </script>
+}

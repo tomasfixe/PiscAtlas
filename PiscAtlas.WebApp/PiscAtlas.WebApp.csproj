@@ -27,8 +27,4 @@
     <ProjectReference Include="..\PiscAtals.Models\PiscAtlas.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Pesqueiro\" />
-  </ItemGroup>
-
 </Project>

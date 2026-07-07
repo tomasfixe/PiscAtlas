@@ -18,7 +18,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3">
             <div class="container">
                 @* Mantém MVC por agora *@
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand fw-bold" asp-page="/Home/Index">
                     <i class="bi bi-tsunami"></i> PiscAtlas
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -27,7 +27,7 @@
                 <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                     <ul class="navbar-nav gap-3 fw-medium">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index"><i class="bi bi-geo-alt"></i> Mapa</a>
+                            <a class="navbar-brand fw-bold" asp-page="/Home/Index"><i class="bi bi-geo-alt"></i> Mapa</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Pesqueiro/Index" asp-action="Index"><i class="bi bi-geo"></i> Pesqueiros</a>
@@ -105,7 +105,7 @@
     <footer class="border-top footer text-muted mt-auto py-3">
         <div class="container d-flex justify-content-between">
             <span>&copy; 2026 PiscAtlas. Plataforma digital para pescadores em Portugal.</span>
-            <a asp-controller="Home" asp-action="Autores" class="text-decoration-none fw-bold">Sobre o Projeto / Autores</a>
+            <a class="nav-link" asp-page="/Home/Autores">Sobre o Projeto / Autores</a>
         </div>
     </footer>
 
