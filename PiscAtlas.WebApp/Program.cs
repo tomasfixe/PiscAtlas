@@ -3,13 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
 using System.Linq;
-using PiscAtlas.WebApp.Hubs; 
+using PiscAtlas.WebApp.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Configuração da Base de Dados
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 2. Configuração do Identity (Autenticação)
 builder.Services.AddIdentity<Utilizador, IdentityRole>(options =>
 {
     // Regras das passwords (simplificadas para ser mais fácil testar)
@@ -22,29 +24,28 @@ builder.Services.AddIdentity<Utilizador, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Garante que utilizadores nao autenticados (ou banidos) sao
-// redirecionados para a pagina de login correta da aplicacao.
+// Garante que utilizadores nao autenticados sao redirecionados para a pagina de login correta
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Conta/Login";
     options.AccessDeniedPath = "/Conta/Login";
 });
 
-// Add services to the container.
-builder.Services.AddControllersWithViews(); 
+// 3. Adicionar Serviços Core (Apenas Razor Pages e SignalR)
 builder.Services.AddRazorPages();
-builder.Services.AddSignalR(); 
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 4. Configurar o HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Home/Erro");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios.
     app.UseHsts();
 }
 
+// Aponta erros 404, 403, etc., para a nossa página de erro customizada
 app.UseStatusCodePagesWithReExecute("/Home/Erro", "?statusCode={0}");
 
 app.UseHttpsRedirection();
@@ -55,14 +56,17 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
+// 5. Mapeamento de Rotas
 app.MapRazorPages();
-
 app.MapHub<NotificacaoHub>("/notificacaoHub");
 
+// Redireciona a raiz ("/") automaticamente para o teu Index da Home
+app.MapGet("/", context => {
+    context.Response.Redirect("/Home/Index");
+    return Task.CompletedTask;
+});
+
+// 6. Seeding de Dados (Criação do Admin)
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -74,8 +78,7 @@ using (var scope = app.Services.CreateScope())
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     }
 
-    // --- Conta de Admin de teste ---
-    // Cria automaticamente uma conta de admin para testes, caso ainda nao exista.
+    // Cria automaticamente uma conta de admin para testes
     const string adminEmail = "admin@piscatlas.pt";
     const string adminPassword = "123456";
 
@@ -105,7 +108,7 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 
-    // Da tambem o cargo Admin ao teu email pessoal, se essa conta ja existir
+    // Da tambem o cargo Admin ao teu email pessoal
     var user = await userManager.FindByEmailAsync("ambmatos193@gmail.com");
     if (user != null && !await userManager.IsInRoleAsync(user, "Admin"))
     {
