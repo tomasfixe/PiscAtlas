@@ -1,0 +1,33 @@
+﻿@page "{id:int}"
+@model PiscAtlas.WebApp.Pages.Evento.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Evento";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm p-4">
+            <h2 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle"></i> Eliminar Evento</h2>
+            <p class="text-muted">Tem a certeza que deseja eliminar este evento? Esta ação também remove todas as inscrições associadas e não pode ser desfeita.</p>
+
+            <div class=\"card border-0 bg-light p-3 mb-4\">
+                <h5 class="fw-bold mb-1\">@Model.EventoItem.Nome</h5>
+                <p class="text-muted small mb-1">
+                    <i class="bi bi-calendar3"></i> @Model.EventoItem.DataInicio.ToString("dd/MM/yyyy") — @Model.EventoItem.DataFim.ToString("dd/MM/yyyy")
+                </p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-fish"></i> @Model.EventoItem.EspecieAlvo?.Nome ·
+                    <i class="bi bi-people"></i> @(Model.EventoItem.Inscricoes?.Count ?? 0) inscrições
+                </p>
+            </div>
+
+            <form method="post" class="d-flex gap-2">
+                <input type="hidden" asp-for="EventoId" />
+                <a asp-page="./Detalhes" asp-route-id="@Model.EventoId" class="btn btn-outline-secondary flex-fill">Cancelar</a>
+                <button type="submit" class="btn btn-danger fw-bold flex-fill">
+                    <i class="bi bi-trash"></i> Sim, Eliminar Evento
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

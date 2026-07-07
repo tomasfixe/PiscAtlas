@@ -1,4 +1,5 @@
-@model IEnumerable<PiscAtlas.Models.Models.Evento>
+﻿@page
+@model PiscAtlas.WebApp.Pages.Evento.IndexModel
 @{
     ViewData["Title"] = "Eventos e Torneios";
     var agora = DateTime.Now;
@@ -11,7 +12,7 @@
     </div>
     @if (User.IsInRole("Admin"))
     {
-        <a asp-action="Criar" class="btn btn-dark fw-medium">
+        <a asp-page="./Criar" class="btn btn-dark fw-medium">
             <i class="bi bi-plus-lg"></i> Criar Evento
         </a>
     }
@@ -26,17 +27,17 @@
 }
 
 @{
-    var eventosAtivos  = Model.Where(e => e.DataFim >= agora).ToList();
-    var eventosPassados = Model.Where(e => e.DataFim < agora).ToList();
+    var eventosAtivos = Model.Eventos.Where(e => e.DataFim >= agora).ToList();
+    var eventosPassados = Model.Eventos.Where(e => e.DataFim < agora).ToList();
 }
 
-@if (!Model.Any())
+@if (!Model.Eventos.Any())
 {
     <div class="card border-0 shadow-sm text-center py-5">
         <div class="card-body">
-            <i class="bi bi-trophy text-muted" style="font-size: 4rem;"></i>
-            <h4 class="mt-3 fw-bold">Sem eventos por enquanto</h4>
-            <p class="text-muted">Fique atento — os próximos torneios serão publicados em breve!</p>
+            <i class=\"bi bi-trophy text-muted\" style=\"font-size: 4rem;\"></i>
+            <h4 class=\"mt-3 fw-bold\">Sem eventos agendados</h4>
+            <p class=\"text-muted\">De momento não existem torneios a decorrer. Volte mais tarde!</p>
         </div>
     </div>
 }
@@ -44,53 +45,39 @@ else
 {
     @if (eventosAtivos.Any())
     {
-        <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
-            <span class="badge bg-success rounded-pill fs-6">Abertos</span>
-        </h4>
+        <h4 class="fw-bold mb-3"><i class="bi bi-calendar-event"></i> Torneios Ativos</h4>
         <div class="row g-4 mb-5">
             @foreach (var evento in eventosAtivos)
             {
-                bool decorreu = evento.DataInicio <= agora;
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body d-flex flex-column">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                        <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="fw-bold mb-0">@evento.Nome</h5>
-                                @if (decorreu)
+                                @if (evento.DataInicio <= agora && evento.DataFim >= agora)
                                 {
-                                    <span class="badge bg-primary">Em curso</span>
+                                    <span class="badge bg-success shadow-sm">A Decorrer</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-success">Inscrições abertas</span>
+                                    <span class="badge bg-primary shadow-sm">Brevemente</span>
                                 }
                             </div>
-                            <p class="text-muted small mb-3">@evento.Descricao</p>
-
-                            <ul class="list-unstyled small text-muted mb-3">
-                                <li class="mb-1">
-                                    <i class="bi bi-calendar3 me-1"></i>
-                                    @evento.DataInicio.ToString("dd/MM/yyyy") — @evento.DataFim.ToString("dd/MM/yyyy")
-                                </li>
-                                <li class="mb-1">
-                                    <i class="bi bi-fish me-1"></i> @evento.EspecieAlvo?.Nome
-                                </li>
-                                @if (evento.PesoMinimo.HasValue)
-                                {
-                                    <li class="mb-1">
-                                        <i class="bi bi-arrow-up-circle me-1"></i> Peso mínimo: @evento.PesoMinimo kg
-                                    </li>
-                                }
-                                <li>
-                                    <i class="bi bi-people me-1"></i>
-                                    @evento.Inscricoes?.Count inscrições
-                                </li>
-                            </ul>
-
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-dark fs-5">@evento.PrecoInscricao €</span>
-                                <a asp-action="Detalhes" asp-route-id="@evento.EventoId"
-                                   class="btn btn-dark btn-sm fw-medium">
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-calendar3"></i> @evento.DataInicio.ToString("dd/MM/yyyy") — @evento.DataFim.ToString("dd/MM/yyyy")
+                            </p>
+                            <p class="small text-muted mb-3">
+                                @(evento.Descricao?.Length > 80 ? evento.Descricao.Substring(0, 80) + "..." : evento.Descricao)
+                            </p>
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="badge bg-light text-dark border"><i class="bi bi-fish"></i> @evento.EspecieAlvo?.Nome</span>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-people"></i> @(evento.Inscricoes?.Count ?? 0) inscritos</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
+                            <div class="d-grid">
+                                <a asp-page="./Detalhes" asp-route-id="@evento.EventoId"
+                                   class="btn btn-outline-dark fw-medium">
                                     Ver Detalhes <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -119,7 +106,7 @@ else
                             <small class="text-muted">@evento.EspecieAlvo?.Nome</small>
                         </div>
                         <div class="card-footer bg-white border-0">
-                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId"
+                            <a asp-page="./Detalhes" asp-route-id="@evento.EventoId"
                                class="btn btn-sm btn-outline-secondary">Ver Resultados</a>
                         </div>
                     </div>

@@ -1,0 +1,133 @@
+﻿@page "{id:int}"
+@model PiscAtlas.WebApp.Pages.Evento.DetalhesModel
+@{
+    ViewData["Title"] = Model.EventoItem.Nome;
+    bool aberto = Model.EventoItem.DataFim >= DateTime.Now;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <a asp-page="./Index" class="text-muted text-decoration-none small">
+        <i class="bi bi-arrow-left"></i> Voltar aos Eventos
+    </a>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="d-flex gap-2">
+            <a asp-page="./Editar" asp-route-id="@Model.EventoItem.EventoId" class="btn btn-sm btn-outline-dark">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <a asp-page="./Eliminar" asp-route-id="@Model.EventoItem.EventoId" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i> Eliminar
+            </a>
+        </div>
+    }
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle"></i> @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-x-circle"></i> @TempData["Erro"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4 h-100">
+            <h2 class="fw-bold mb-3">@Model.EventoItem.Nome</h2>
+            <div class="d-flex flex-wrap gap-3 mb-4">
+                <span class="badge bg-light text-dark border py-2 px-3 fs-6">
+                    <i class="bi bi-calendar-event"></i> @Model.EventoItem.DataInicio.ToString("dd/MM/yyyy") — @Model.EventoItem.DataFim.ToString("dd/MM/yyyy")
+                </span>
+                <span class="badge bg-light text-dark border py-2 px-3 fs-6">
+                    <i class="bi bi-fish"></i> @Model.EventoItem.EspecieAlvo?.Nome
+                </span>
+            </div>
+
+            <h5 class="fw-bold mb-2">Sobre o Torneio</h5>
+            <p class="text-muted" style="white-space: pre-line">@(string.IsNullOrEmpty(Model.EventoItem.Descricao) ? "Sem descrição disponível." : Model.EventoItem.Descricao)</p>
+
+            <div class="row g-3 mt-2">
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <small class="text-muted d-block fw-medium">Preço Inscrição</small>
+                        <span class="fw-bold fs-5">@(Model.EventoItem.PrecoInscricao > 0 ? $"{Model.EventoItem.PrecoInscricao} €" : "Grátis")</span>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <small class="text-muted d-block fw-medium">Peso Mínimo</small>
+                        <span class="fw-bold fs-5">@(Model.EventoItem.PesoMinimo.HasValue ? $"{Model.EventoItem.PesoMinimo} kg" : "S/ Limite")</span>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <small class="text-muted d-block fw-medium">Tamanho Mínimo</small>
+                        <span class="fw-bold fs-5">@(Model.EventoItem.TamanhoMinimo.HasValue ? $"{Model.EventoItem.TamanhoMinimo} cm" : "S/ Limite")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm p-4 text-center h-100 d-flex justify-content-center">
+            @if (!aberto)
+            {
+                <i class="bi bi-clock-history fs-1 text-muted mb-3"></i>
+                <h4 class="fw-bold text-muted">Evento Terminado</h4>
+                <p class="text-muted small">As inscrições estão encerradas.</p>
+            }
+            else if (!User.Identity!.IsAuthenticated)
+            {
+                <i class="bi bi-person-lock fs-1 text-secondary mb-3"></i>
+                <h5 class="fw-bold">Junte-se à Competição</h5>
+                <p class="text-muted small mb-4">Inicie sessão ou crie conta para se inscrever neste evento.</p>
+                <a asp-page="/Conta/Login" class="btn btn-outline-dark w-100 fw-bold">Iniciar Sessão</a>
+            }
+            else if (Model.JaInscrito)
+            {
+                <i class="bi bi-check-circle-fill fs-1 text-success mb-3"></i>
+                <h5 class="fw-bold text-success">Inscrição Confirmada</h5>
+                <p class="text-muted small">Você está inscrito neste evento. Boa sorte!</p>
+            }
+            else
+            {
+                <form asp-page-handler="Inscrever" asp-route-id="@Model.EventoItem.EventoId" method="post">
+                    <button type="submit" class="btn btn-dark w-100 fw-bold py-2">
+                        <i class="bi bi-trophy"></i> Inscrever-me neste Evento
+                    </button>
+                </form>
+                <p class="text-muted small mt-2">
+                    <i class="bi bi-info-circle"></i> O pagamento é confirmado após inscrição.
+                </p>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.EventoItem.Inscricoes != null && Model.EventoItem.Inscricoes.Any())
+{
+    <div class="mt-5">
+        <h5 class="fw-bold mb-3">Participantes (@Model.EventoItem.Inscricoes.Count)</h5>
+        <div class="card border-0 shadow-sm">
+            <ul class="list-group list-group-flush">
+                @foreach (var i in Model.EventoItem.Inscricoes.Take(20))
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-person-circle me-2 text-muted"></i>@i.PescadorNome</span>
+                        <span class="badge @(i.EstadoPagamento == PiscAtlas.Models.Models.EstadoPagamento.Pago ? "bg-success" : "bg-warning text-dark")">
+                            @i.EstadoPagamento
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
