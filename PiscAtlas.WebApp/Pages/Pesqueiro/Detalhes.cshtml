@@ -4,8 +4,6 @@
     ViewData["Title"] = Model.PesqueiroItem.Nome;
 }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
 <div class="mb-4">
     <a asp-page="./Index" class="text-muted text-decoration-none small">
         <i class="bi bi-arrow-left"></i> Voltar aos Pesqueiros
@@ -42,11 +40,18 @@
             }
         </div>
         <p class="text-muted">@Model.PesqueiroItem.Descricao</p>
-        <div class="mt-4">
-            <h5 class="fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Localização</h5>
-            <div id="miniMapa" class="rounded-3 shadow-sm border border-light" style="height: 250px; width: 100%;"></div>
-            <p class="small text-muted mt-2 mb-0">Lat: @Model.PesqueiroItem.Latitude | Lng: @Model.PesqueiroItem.Longitude</p>
+
+        <div class="mt-4 p-4 bg-light rounded-3 border">
+            <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger"></i> Localização</h5>
+            <p class="mb-3 text-muted">
+                <strong>Latitude:</strong> @Model.PesqueiroItem.Latitude <br />
+                <strong>Longitude:</strong> @Model.PesqueiroItem.Longitude
+            </p>
+            <a asp-page="./VerNoMapa" asp-route-id="@Model.PesqueiroItem.PesqueiroId" class="btn btn-dark w-100 py-2 fw-bold">
+                <i class="bi bi-map"></i> Ver no Mapa Interativo
+            </a>
         </div>
+
     </div>
 </div>
 
@@ -77,13 +82,3 @@
         </div>
     }
 </div>
-
-@section Scripts {
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        var map = L.map('miniMapa').setView([@Model.PesqueiroItem.Latitude.ToString().Replace(",", "."), @Model.PesqueiroItem.Longitude.ToString().Replace(",", ".")], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
-        L.marker([@Model.PesqueiroItem.Latitude.ToString().Replace(",", "."), @Model.PesqueiroItem.Longitude.ToString().Replace(",", ".")]).addTo(map)
-          .bindPopup("<b>@Model.PesqueiroItem.Nome</b>").openPopup();
-    </script>
-}
