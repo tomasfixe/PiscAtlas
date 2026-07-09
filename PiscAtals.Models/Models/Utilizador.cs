@@ -24,5 +24,8 @@ namespace PiscAtlas.Models.Models
 
         public virtual ICollection<Captura> Capturas { get; set; }
         public virtual ICollection<Inscricao> Inscricoes { get; set; }
+
+        public virtual ICollection<Seguidor> Seguidores { get; set; } = new List<Seguidor>();
+        public virtual ICollection<Seguidor> A_Seguir { get; set; } = new List<Seguidor>();
     }
 }

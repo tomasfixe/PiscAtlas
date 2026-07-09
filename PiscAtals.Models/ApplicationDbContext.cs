@@ -18,6 +18,7 @@ namespace PiscAtlas.Models
         public DbSet<Denuncia> Denuncias { get; set; }
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }
+        public DbSet<Seguidor> Seguidores { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,21 @@ namespace PiscAtlas.Models
                 .WithMany(p => p.Capturas)
                 .HasForeignKey(c => c.PesqueiroId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Seguidor>()
+                .HasKey(s => new { s.SeguidorId, s.SeguidoId }); // A chave primária é a junção dos dois IDs
+
+            modelBuilder.Entity<Seguidor>()
+                .HasOne(s => s.UtilizadorSeguidor)
+                .WithMany(u => u.A_Seguir)
+                .HasForeignKey(s => s.SeguidorId)
+                .OnDelete(DeleteBehavior.NoAction); // Impede que ao apagar um utilizador, apague a base de dados inteira em cascata
+
+            modelBuilder.Entity<Seguidor>()
+                .HasOne(s => s.UtilizadorSeguido)
+                .WithMany(u => u.Seguidores)
+                .HasForeignKey(s => s.SeguidoId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
