@@ -31,7 +31,10 @@ namespace PiscAtlas.WebApp.Pages.Admin
                 .AsQueryable();
 
             if (Pendentes)
-                query = query.Where(c => !c.AprovadaPeloAdmin && c.PossuiProvasVisuais);
+            {
+                // CORRIGIDO: Retirado o '&& c.PossuiProvasVisuais'
+                query = query.Where(c => !c.AprovadaPeloAdmin);
+            }
 
             Capturas = await query.OrderByDescending(c => c.DataCaptura).ToListAsync();
         }
@@ -54,11 +57,11 @@ namespace PiscAtlas.WebApp.Pages.Admin
             var captura = await _context.Capturas.FindAsync(id);
             if (captura == null) return NotFound();
 
-            captura.AprovadaPeloAdmin = false;
-            _context.Update(captura);
+            // Ao rejeitar, apaga a captura da BD
+            _context.Capturas.Remove(captura);
             await _context.SaveChangesAsync();
 
-            TempData["Sucesso"] = "Captura rejeitada.";
+            TempData["Sucesso"] = "Captura rejeitada e eliminada!";
             return RedirectToPage(new { pendentes });
         }
     }

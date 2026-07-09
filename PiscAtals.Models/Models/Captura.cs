@@ -33,7 +33,8 @@ namespace PiscAtlas.Models.Models
 
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public string Notas { get; set; }
+        public string? Notas { get; set; }
+        public string? Descricao { get; set; }
 
         [Required]
         public string UtilizadorId { get; set; }

@@ -52,8 +52,9 @@ namespace PiscAtlas.WebApp.Pages.Captura
                 UtilizadorId = utilizadorAtual.Id,
                 Peso = Input.Peso,
                 Tamanho = Input.Comprimento,
+                Descricao = Input.Descricao,
                 DataCaptura = Input.DataCaptura,
-                AprovadaPeloAdmin = false // Fica a aguardar aprovação
+                AprovadaPeloAdmin = !(Input.Peso.HasValue || Input.Comprimento.HasValue)
             };
 
             // Processar múltiplas fotos
@@ -117,6 +118,7 @@ namespace PiscAtlas.WebApp.Pages.Captura
 
             public double? Peso { get; set; }
             public double? Comprimento { get; set; }
+            public string? Descricao { get; set; }
 
             [Required(ErrorMessage = "A data da captura é obrigatória!")]
             public DateTime DataCaptura { get; set; } = DateTime.Now;
