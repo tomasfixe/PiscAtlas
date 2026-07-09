@@ -50,9 +50,22 @@
             }
         </div>
 
-        <p class="text-muted fs-5 mb-4">
-            Pescado por <strong>@Model.Captura.Utilizador?.NomeCompleto</strong>
-        </p>
+        <div class="d-flex align-items-center gap-2 mb-4 mt-3">
+            @if (!string.IsNullOrEmpty(Model.Captura.Utilizador?.FotografiaPerfilUrl))
+            {
+                <img src="@Model.Captura.Utilizador.FotografiaPerfilUrl" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;" alt="Foto" />
+            }
+            else
+            {
+                <i class="bi bi-person-circle text-muted" style="font-size: 2.5rem;"></i>
+            }
+            <div>
+                <small class="text-muted d-block" style="line-height: 1;">Pescador</small>
+                <a asp-page="/Conta/Perfil" asp-route-id="@Model.Captura.UtilizadorId" class="text-dark text-decoration-none fw-bold fs-5">
+                    @Model.Captura.Utilizador?.NomeCompleto
+                </a>
+            </div>
+        </div>
 
         <div class="row g-3 mb-4">
             <div class="col-sm-6">
@@ -81,11 +94,11 @@
             </div>
         </div>
 
-        @if (!string.IsNullOrEmpty(Model.Captura.Notas))
+        @if (!string.IsNullOrEmpty(Model.Captura.Notas) || !string.IsNullOrEmpty(Model.Captura.Descricao))
         {
             <div class="mb-4">
                 <h6 class="fw-bold">Notas do Pescador</h6>
-                <p class="text-muted">@Model.Captura.Notas</p>
+                <p class="text-muted">@(Model.Captura.Descricao ?? Model.Captura.Notas)</p>
             </div>
         }
 
