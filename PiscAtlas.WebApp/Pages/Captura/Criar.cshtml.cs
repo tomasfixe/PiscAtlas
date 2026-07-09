@@ -3,115 +3,128 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
-using PiscAtlas.WebApp.Hubs;
 using System.ComponentModel.DataAnnotations;
 
 namespace PiscAtlas.WebApp.Pages.Captura
 {
-    [Authorize]
+    [Authorize] // Só utilizadores logados podem criar
     public class CriarModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Utilizador> _userManager;
-        private readonly IHubContext<NotificacaoHub> _hubContext;
+        private readonly IWebHostEnvironment _env;
 
-        public CriarModel(ApplicationDbContext context, UserManager<Utilizador> userManager, IHubContext<NotificacaoHub> hubContext)
+        public CriarModel(ApplicationDbContext context, UserManager<Utilizador> userManager, IWebHostEnvironment env)
         {
             _context = context;
             _userManager = userManager;
-            _hubContext = hubContext;
+            _env = env;
         }
 
         [BindProperty]
         public CapturaInputModel Input { get; set; } = new();
 
-        public SelectList Especies { get; set; } = default!;
-        public SelectList Pesqueiros { get; set; } = default!;
+        public SelectList EspeciesList { get; set; } = default!;
+        public SelectList PesqueirosList { get; set; } = default!;
 
-        public async Task OnGetAsync()
+        public void OnGet()
         {
-            await PopularSelectLists();
+            CarregarListas();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (Input.FotoFile == null || Input.FotoFile.Length == 0)
-            {
-                ModelState.AddModelError("Input.FotoFile", "A fotografia é obrigatória.");
-            }
-
             if (!ModelState.IsValid)
             {
-                await PopularSelectLists();
+                CarregarListas();
                 return Page();
             }
 
-            var user = await _userManager.GetUserAsync(User);
-
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Input.FotoFile!.FileName);
-            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/capturas");
-            if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-
-            using (var stream = new FileStream(Path.Combine(uploadPath, fileName), FileMode.Create))
-            {
-                await Input.FotoFile.CopyToAsync(stream);
-            }
+            var utilizadorAtual = await _userManager.GetUserAsync(User);
+            if (utilizadorAtual == null) return Challenge();
 
             var novaCaptura = new PiscAtlas.Models.Models.Captura
             {
                 EspecieId = Input.EspecieId,
                 PesqueiroId = Input.PesqueiroId,
+                UtilizadorId = utilizadorAtual.Id,
                 Peso = Input.Peso,
-                Tamanho = Input.Tamanho,
-                Notas = Input.Notas ?? "",
-                Latitude = Input.Latitude ?? 0,
-                Longitude = Input.Longitude ?? 0,
-                UtilizadorId = user!.Id,
-                FotografiaUrl = "/uploads/capturas/" + fileName,
-                PossuiProvasVisuais = true,
-                AprovadaPeloAdmin = false,
-                DataCaptura = DateTime.Now
+                Tamanho = Input.Comprimento,
+                Descricao = Input.Descricao,
+                DataCaptura = Input.DataCaptura,
+                AprovadaPeloAdmin = !(Input.Peso.HasValue || Input.Comprimento.HasValue)
             };
+
+            // Processar múltiplas fotos
+            if (Input.FotosFiles != null && Input.FotosFiles.Count > 0)
+            {
+                var pasta = Path.Combine(_env.WebRootPath, "images", "capturas");
+                Directory.CreateDirectory(pasta);
+
+                bool isPrimeiraFoto = true;
+
+                foreach (var ficheiro in Input.FotosFiles)
+                {
+                    if (ficheiro.Length > 0)
+                    {
+                        var nomeFicheiro = Guid.NewGuid().ToString() + Path.GetExtension(ficheiro.FileName);
+                        var caminhoCompleto = Path.Combine(pasta, nomeFicheiro);
+
+                        using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
+                        {
+                            await ficheiro.CopyToAsync(stream);
+                        }
+
+                        var urlFoto = "/images/capturas/" + nomeFicheiro;
+
+                        // A primeira foto fica como foto principal da captura (opcional)
+                        if (isPrimeiraFoto)
+                        {
+                            novaCaptura.FotografiaUrl = urlFoto;
+                            isPrimeiraFoto = false;
+                        }
+
+                        // Adicionar à nova tabela de múltiplas fotos
+                        novaCaptura.Fotografias.Add(new CapturaFotografia
+                        {
+                            Url = urlFoto
+                        });
+                    }
+                }
+            }
 
             _context.Capturas.Add(novaCaptura);
             await _context.SaveChangesAsync();
 
-            var especieInfo = await _context.Especies.FindAsync(Input.EspecieId);
-            var pesqueiroInfo = await _context.Pesqueiros.FindAsync(Input.PesqueiroId);
-
-            string mensagem = $"Nova captura! {user.NomeCompleto} acabou de registar um {especieInfo?.Nome} em {pesqueiroInfo?.Nome}.";
-            await _hubContext.Clients.All.SendAsync("ReceberNotificacao", mensagem);
-
-            TempData["Sucesso"] = "Captura registada! Fica a aguardar aprovação se introduziu peso/tamanho.";
-            return RedirectToPage("./Index");
+            // Depois mudamos este redirect para o feed ou perfil
+            return RedirectToPage("/Home/Index");
         }
 
-        private async Task PopularSelectLists()
+        private void CarregarListas()
         {
-            Especies = new SelectList(await _context.Especies.OrderBy(e => e.Nome).ToListAsync(), "EspecieId", "Nome");
-            Pesqueiros = new SelectList(await _context.Pesqueiros.OrderBy(p => p.Nome).ToListAsync(), "PesqueiroId", "Nome");
+            EspeciesList = new SelectList(_context.Especies.OrderBy(e => e.Nome), "EspecieId", "Nome");
+            PesqueirosList = new SelectList(_context.Pesqueiros.OrderBy(p => p.Nome), "PesqueiroId", "Nome");
         }
 
         public class CapturaInputModel
         {
-            [Required(ErrorMessage = "Selecione uma espécie.")]
+            [Required(ErrorMessage = "A espécie é obrigatória!")]
             public int EspecieId { get; set; }
 
-            [Required(ErrorMessage = "Selecione um pesqueiro.")]
+            [Required(ErrorMessage = "O pesqueiro é obrigatório!")]
             public int PesqueiroId { get; set; }
 
             public double? Peso { get; set; }
-            public double? Tamanho { get; set; }
-            public string? Notas { get; set; }
-            public double? Latitude { get; set; }
-            public double? Longitude { get; set; }
+            public double? Comprimento { get; set; }
+            public string? Descricao { get; set; }
 
-            [Display(Name = "Fotografia")]
-            public IFormFile? FotoFile { get; set; }
+            [Required(ErrorMessage = "A data da captura é obrigatória!")]
+            public DateTime DataCaptura { get; set; } = DateTime.Now;
+
+            // NOVA PROPRIEDADE: LISTA DE FICHEIROS
+            public List<IFormFile>? FotosFiles { get; set; }
         }
     }
 }
