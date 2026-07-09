@@ -37,6 +37,13 @@
     </div>
 }
 
+@if (!string.IsNullOrEmpty(Model.EventoItem.FotografiaUrl))
+{
+    <div class="rounded-4 overflow-hidden mb-4 shadow-sm" style="height: 300px; background: #f8f9fa;">
+        <img src="@Model.EventoItem.FotografiaUrl" alt="@Model.EventoItem.Nome" class="w-100 h-100" style="object-fit: cover;" />
+    </div>
+}
+
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm p-4 h-100">

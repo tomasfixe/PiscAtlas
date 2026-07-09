@@ -52,6 +52,12 @@ else
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 border-0 shadow-sm hover-shadow transition">
                         <div class="card-body">
+                            @if (!string.IsNullOrEmpty(evento.FotografiaUrl))
+                            {
+                                <div style="height: 160px; background: #f8f9fa; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);" class="overflow-hidden">
+                                    <img src="@evento.FotografiaUrl" class="w-100 h-100" style="object-fit: cover;" alt="@evento.Nome">
+                                </div>
+                            }
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="fw-bold mb-0">@evento.Nome</h5>
                                 @if (evento.DataInicio <= agora && evento.DataFim >= agora)
@@ -98,6 +104,12 @@ else
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 border-0 shadow-sm opacity-75">
+                        @if (!string.IsNullOrEmpty(evento.FotografiaUrl))
+                        {
+                            <div style="height: 160px; background: #f8f9fa; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);" class="overflow-hidden">
+                                <img src="@evento.FotografiaUrl" class="w-100 h-100" style="object-fit: cover;" alt="@evento.Nome">
+                            </div>
+                        }
                         <div class="card-body">
                             <h6 class="fw-bold text-muted mb-1">@evento.Nome</h6>
                             <small class="text-muted d-block">
