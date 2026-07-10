@@ -18,18 +18,11 @@ namespace PiscAtlas.WebApp.Pages.Home
             _userManager = userManager;
         }
 
-        // CORREÇÃO AQUI: Caminho completo também dentro do List<>
-        public IEnumerable<PiscAtlas.Models.Models.Pesqueiro> Pesqueiros { get; set; } = new List<PiscAtlas.Models.Models.Pesqueiro>();
-
         public List<PiscAtlas.Models.Models.Captura> Capturas { get; set; } = new();
         public HashSet<int> CapturasGostadas { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            // 1. Carrega os Pesqueiros para o Mapa
-            Pesqueiros = await _context.Pesqueiros.ToListAsync();
-
-            // 2. Carrega as últimas 50 capturas com Interações para o Feed
             Capturas = await _context.Capturas
                 .Include(c => c.Utilizador)
                 .Include(c => c.Especie)
@@ -40,7 +33,6 @@ namespace PiscAtlas.WebApp.Pages.Home
                 .Take(50)
                 .ToListAsync();
 
-            // 3. Verifica os Gostos se o utilizador estiver logado
             if (User.Identity?.IsAuthenticated == true)
             {
                 var userId = _userManager.GetUserId(User);
@@ -68,7 +60,7 @@ namespace PiscAtlas.WebApp.Pages.Home
             else _context.Interacoes.Add(new Interacao { CapturaId = capturaId, UtilizadorId = user.Id, Tipo = TipoInteracao.Gosto });
 
             await _context.SaveChangesAsync();
-            return RedirectToPage("./Index", null, "captura-" + capturaId);
+            return Redirect(Url.Page("/Home/Index") + "#captura-" + capturaId);
         }
 
         public async Task<IActionResult> OnPostComentarAsync(int capturaId, string comentarioTexto)
@@ -81,8 +73,7 @@ namespace PiscAtlas.WebApp.Pages.Home
                 _context.Interacoes.Add(new Interacao { CapturaId = capturaId, UtilizadorId = user.Id, Tipo = TipoInteracao.Comentario, Texto = comentarioTexto });
                 await _context.SaveChangesAsync();
             }
-
-            return RedirectToPage("./Index", null, "captura-" + capturaId);
+            return Redirect(Url.Page("/Home/Index") + "#captura-" + capturaId);
         }
     }
 }

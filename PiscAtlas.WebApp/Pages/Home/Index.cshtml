@@ -2,195 +2,136 @@
 @model PiscAtlas.WebApp.Pages.Home.IndexModel
 @using PiscAtlas.Models.Models
 @{
-    ViewData["Title"] = "PiscAtlas - Início";
+    ViewData["Title"] = "Feed da Comunidade";
 }
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<div class="row justify-content-center">
+    <!-- Centrado e com a largura perfeita -->
+    <div class="col-12 col-md-8 col-lg-6">
 
-<div class="mb-4">
-    <h1 class="display-6 fw-bold text-dark"><i class=\"bi bi-tsunami\"></i> PiscAtlas</h1>
-</div>
+        @if (!Model.Capturas.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-camera text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 fw-bold">Ainda não há capturas</h4>
+                <p class="text-muted">Seja o primeiro a partilhar a sua pescaria!</p>
+                <a asp-page="/Captura/Criar" class="btn btn-dark rounded-pill px-4 mt-2">Publicar Captura</a>
+            </div>
+        }
+        else
+        {
+            foreach (var c in Model.Capturas)
+            {
+                bool utilizadorDeuLike = Model.CapturasGostadas.Contains(c.CapturaId);
+                var likes = c.Interacoes.Where(i => i.Tipo == TipoInteracao.Gosto).ToList();
+                var comentarios = c.Interacoes.Where(i => i.Tipo == TipoInteracao.Comentario).OrderBy(i => i.DataInteracao).ToList();
 
-<ul class="nav nav-tabs mb-4 border-bottom-0" id="piscAtlasTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active fw-bold text-dark d-flex align-items-center gap-2 fs-5 border-0 bg-transparent" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed" type="button" role="tab" aria-selected="true">
-            <i class="bi bi-images"></i> Feed da Comunidade
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold text-muted d-flex align-items-center gap-2 fs-5 border-0 bg-transparent" id="mapa-tab" data-bs-toggle="tab" data-bs-target="#mapa" type="button" role="tab" aria-selected="false">
-            <i class="bi bi-geo-alt-fill"></i> Mapa de Pesqueiros
-        </button>
-    </li>
-</ul>
+                <div class="card border-0 shadow-sm mb-5 rounded-4 overflow-hidden" id="captura-@c.CapturaId">
 
-<div class="tab-content" id="piscAtlasTabsContent">
-    <div class="tab-pane fade show active" id="feed" role="tabpanel" tabindex="0">
-        <div class="row justify-content-center">
-            <div class="col-lg-7 col-md-9">
-                @if (!Model.Capturas.Any())
-                {
-                    <div class="text-center py-5">
-                        <i class="bi bi-camera text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="mt-3 fw-bold">Ainda não há capturas</h4>
-                        <p class="text-muted">Seja o primeiro a partilhar a sua pescaria!</p>
-                        <a asp-page="/Captura/Criar" class="btn btn-dark rounded-pill px-4 mt-2">Publicar Captura</a>
-                    </div>
-                }
-                else
-                {
-                    foreach (var c in Model.Capturas)
-                    {
-                        bool utilizadorDeuLike = Model.CapturasGostadas.Contains(c.CapturaId);
-                        var likes = c.Interacoes.Where(i => i.Tipo == TipoInteracao.Gosto).ToList();
-                        var comentarios = c.Interacoes.Where(i => i.Tipo == TipoInteracao.Comentario).OrderBy(i => i.DataInteracao).ToList();
-
-                        <div class="card border-0 shadow-sm mb-5 rounded-4 overflow-hidden" id="captura-@c.CapturaId">
-
-                            <div class="card-header bg-white border-0 p-3 d-flex align-items-center justify-content-between">
-                                <a asp-page="/Conta/Perfil" asp-route-id="@c.UtilizadorId" class="text-decoration-none text-dark d-flex align-items-center gap-2">
-                                    @if (!string.IsNullOrEmpty(c.Utilizador?.FotografiaPerfilUrl))
-                                    {
-                                        <img src="@c.Utilizador.FotografiaPerfilUrl" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;" alt="Foto" />
-                                    }
-                                    else
-                                    {
-                                        <i class="bi bi-person-circle text-muted fs-2" style="line-height: 1;"></i>
-                                    }
-                                    <div style="line-height: 1.2;">
-                                        <span class="fw-bold d-block">@c.Utilizador?.NomeUtilizador</span>
-                                        <small class="text-muted">@c.Pesqueiro?.Nome</small>
-                                    </div>
-                                </a>
-                                <div class="text-muted small">@c.DataCaptura.ToString("dd MMM")</div>
-                            </div>
-
-                            @if (!string.IsNullOrEmpty(c.FotografiaUrl))
+                    <!-- Cabeçalho -->
+                    <div class="card-header bg-white border-0 p-3 d-flex align-items-center justify-content-between">
+                        <a asp-page="/Conta/Perfil" asp-route-id="@c.UtilizadorId" class="text-decoration-none text-dark d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(c.Utilizador?.FotografiaPerfilUrl))
                             {
-                                <div style="background: #f8f9fa; max-height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                    <img src="@c.FotografiaUrl" class="w-100" style="object-fit: cover;" alt="Captura" />
-                                </div>
+                                <img src="@c.Utilizador.FotografiaPerfilUrl" class="rounded-circle border" style="width: 40px; height: 40px; object-fit: cover;" alt="Foto" />
                             }
                             else
                             {
-                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
-                                    <i class="bi bi-image text-secondary" style="font-size: 4rem;"></i>
-                                </div>
+                                <i class="bi bi-person-circle text-muted fs-2" style="line-height: 1;"></i>
                             }
-
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div class="d-flex gap-3 align-items-center">
-                                        @if (User.Identity?.IsAuthenticated == true)
-                                        {
-                                            <form method="post" asp-page-handler="Like" asp-route-capturaId="@c.CapturaId">
-                                                <button type="submit" class="btn btn-link p-0 text-dark text-decoration-none fs-4">
-                                                    <i class="bi @(utilizadorDeuLike ? "bi-heart-fill text-danger" : "bi-heart hover-danger")"></i>
-                                                </button>
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <a asp-page="/Conta/Login" class="btn btn-link p-0 text-dark text-decoration-none fs-4">
-                                                <i class="bi bi-heart hover-danger"></i>
-                                            </a>
-                                        }
-
-                                        <label for="comentario-@c.CapturaId" class="btn btn-link p-0 text-dark text-decoration-none fs-4 mb-0" style="cursor: pointer;">
-                                            <i class="bi bi-chat"></i>
-                                        </label>
-                                    </div>
-                                    <a asp-page="/Captura/Detalhes" asp-route-id="@c.CapturaId" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Ficha Técnica</a>
-                                </div>
-
-                                @if (likes.Any())
-                                {
-                                    <p class="fw-bold mb-1 small">@likes.Count gosto@(likes.Count != 1 ? "s" : "")</p>
-                                }
-
-                                <p class="mb-2 text-dark">
-                                    <a asp-page="/Conta/Perfil" asp-route-id="@c.UtilizadorId" class="text-decoration-none text-dark fw-bold me-1">@c.Utilizador?.NomeUtilizador</a>
-                                    @if (!string.IsNullOrEmpty(c.Notas))
-                                    {
-                                        <span>@c.Notas</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted fst-italic">Capturou um @c.Especie?.Nome!</span>
-                                    }
-                                </p>
-
-                                @if (comentarios.Any())
-                                {
-                                    <div class="mb-3">
-                                        @foreach (var com in comentarios)
-                                        {
-                                            <div class="mb-1 small text-dark">
-                                                <a asp-page="/Conta/Perfil" asp-route-id="@com.UtilizadorId" class="text-decoration-none text-dark fw-bold me-1">@com.Utilizador?.NomeUtilizador</a>
-                                                <span>@com.Texto</span>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-
-                                @if (User.Identity?.IsAuthenticated == true)
-                                {
-                                    <form method="post" asp-page-handler="Comentar" class="mt-3 border-top pt-3 d-flex gap-2 align-items-center">
-                                        <input type="hidden" name="capturaId" value="@c.CapturaId" />
-                                        <input type="text" id="comentario-@c.CapturaId" name="comentarioTexto" class="form-control border-0 px-0 shadow-none small" placeholder="Adicione um comentário..." required autocomplete="off" style="box-shadow: none !important; background: transparent;" />
-                                        <button type="submit" class="btn btn-link text-primary text-decoration-none fw-bold p-0 small">Publicar</button>
-                                    </form>
-                                }
+                            <div style="line-height: 1.2;">
+                                <span class="fw-bold d-block">@c.Utilizador?.NomeUtilizador</span>
+                                <small class="text-muted">@c.Pesqueiro?.Nome</small>
                             </div>
+                        </a>
+                        <div class="text-muted small">@c.DataCaptura.ToString("dd MMM")</div>
+                    </div>
+
+                    <!-- Foto -->
+                    @if (!string.IsNullOrEmpty(c.FotografiaUrl))
+                    {
+                        <div style="background: #f8f9fa; max-height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <img src="@c.FotografiaUrl" class="w-100" style="object-fit: cover;" alt="Captura" />
                         </div>
                     }
-                }
-            </div>
-        </div>
-    </div>
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <i class="bi bi-image text-secondary" style="font-size: 4rem;"></i>
+                        </div>
+                    }
 
-    <div class="tab-pane fade" id="mapa" role="tabpanel" tabindex="0">
-        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
-            <div id="mapaInterativo" style="height: 600px; width: 100%; z-index: 1;"></div>
-        </div>
+                    <!-- Ações -->
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex gap-3 align-items-center">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <form method="post" asp-page-handler="Like" asp-route-capturaId="@c.CapturaId">
+                                        <button type="submit" class="btn btn-link p-0 text-dark text-decoration-none fs-4">
+                                            <i class="bi @(utilizadorDeuLike ? "bi-heart-fill text-danger" : "bi-heart hover-danger")"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a asp-page="/Conta/Login" class="btn btn-link p-0 text-dark text-decoration-none fs-4">
+                                        <i class="bi bi-heart hover-danger"></i>
+                                    </a>
+                                }
+
+                                <label for="comentario-@c.CapturaId" class="btn btn-link p-0 text-dark text-decoration-none fs-4 mb-0" style="cursor: pointer;">
+                                    <i class="bi bi-chat"></i>
+                                </label>
+                            </div>
+                            <a asp-page="/Captura/Detalhes" asp-route-id="@c.CapturaId" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Ficha Técnica</a>
+                        </div>
+
+                        <!-- Gostos -->
+                        @if (likes.Any())
+                        {
+                            <p class="fw-bold mb-1 small">@likes.Count gosto@(likes.Count != 1 ? "s" : "")</p>
+                        }
+
+                        <!-- Legenda -->
+                        <p class="mb-2 text-dark">
+                            <a asp-page="/Conta/Perfil" asp-route-id="@c.UtilizadorId" class="text-decoration-none text-dark fw-bold me-1">@c.Utilizador?.NomeUtilizador</a>
+                            @if (!string.IsNullOrEmpty(c.Notas))
+                            {
+                                <span>@c.Notas</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">Capturou um @c.Especie?.Nome!</span>
+                            }
+                        </p>
+
+                        <!-- Comentários -->
+                        @if (comentarios.Any())
+                        {
+                            <div class="mb-3">
+                                @foreach (var com in comentarios)
+                                {
+                                    <div class="mb-1 small text-dark">
+                                        <a asp-page="/Conta/Perfil" asp-route-id="@com.UtilizadorId" class="text-decoration-none text-dark fw-bold me-1">@com.Utilizador?.NomeUtilizador</a>
+                                        <span>@com.Texto</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <!-- Inserir Comentário -->
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form method="post" asp-page-handler="Comentar" class="mt-3 border-top pt-3 d-flex gap-2 align-items-center">
+                                <input type="hidden" name="capturaId" value="@c.CapturaId" />
+                                <input type="text" id="comentario-@c.CapturaId" name="comentarioTexto" class="form-control border-0 px-0 shadow-none small" placeholder="Adicione um comentário..." required autocomplete="off" style="box-shadow: none !important; background: transparent;" />
+                                <button type="submit" class="btn btn-link text-primary text-decoration-none fw-bold p-0 small">Publicar</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        }
     </div>
 </div>
-
-@section Scripts {
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const feedTab = document.getElementById('feed-tab');
-            const mapaTab = document.getElementById('mapa-tab');
-
-            feedTab.addEventListener('click', function() {
-                feedTab.classList.replace('text-muted', 'text-dark');
-                mapaTab.classList.replace('text-dark', 'text-muted');
-            });
-
-            mapaTab.addEventListener('click', function() {
-                mapaTab.classList.replace('text-muted', 'text-dark');
-                feedTab.classList.replace('text-dark', 'text-muted');
-            });
-
-            // Lógica do Mapa
-            var map = L.map('mapaInterativo').setView([39.3999, -8.2245], 6);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution: '© OpenStreetMap contributors - PiscAtlas'
-            }).addTo(map);
-
-            var pesqueiros = @Html.Raw(Json.Serialize(Model.Pesqueiros.Select(p => new { id = p.PesqueiroId, nome = p.Nome, lat = p.Latitude, lng = p.Longitude })));
-            pesqueiros.forEach(function(p) {
-                if(p.lat && p.lng) {
-                    var marker = L.marker([p.lat, p.lng]).addTo(map);
-                    marker.bindPopup("<b>" + p.nome + "</b><br>Clique para ver detalhes.");
-                }
-            });
-
-            document.getElementById('mapa-tab').addEventListener('shown.bs.tab', function () {
-                map.invalidateSize();
-            });
-        });
-    </script>
-}
