@@ -102,7 +102,7 @@
             </div>
         }
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 mb-4 pb-4 border-bottom">
             @if (User.Identity!.IsAuthenticated && Model.Captura.UtilizadorId != User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
             {
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDenuncia">
@@ -119,10 +119,80 @@
                 </a>
             }
         </div>
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <form method="post" asp-page-handler="Like" asp-route-id="@Model.Captura.CapturaId">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <button type="submit" class="btn btn-sm @(Model.UtilizadorDeuLike ? "btn-danger" : "btn-outline-danger") fw-bold px-3">
+                        <i class="bi @(Model.UtilizadorDeuLike ? "bi-heart-fill" : "bi-heart")"></i> @Model.TotalLikes Gosto@(Model.TotalLikes != 1 ? "s" : "")
+                    </button>
+                }
+                else
+                {
+                    <a asp-page="/Conta/Login" class="btn btn-sm btn-outline-danger fw-bold px-3">
+                        <i class="bi bi-heart"></i> @Model.TotalLikes Gosto@(Model.TotalLikes != 1 ? "s" : "")
+                    </a>
+                }
+            </form>
+            <span class="text-muted fw-medium"><i class="bi bi-chat-dots"></i> @Model.Comentarios.Count Comentário@(Model.Comentarios.Count != 1 ? "s" : "")</span>
+        </div>
+
+        <div class="bg-light p-3 rounded-3 mb-5">
+            <h6 class="fw-bold mb-3">Comentários</h6>
+
+            @if (User.Identity!.IsAuthenticated)
+            {
+                <form method="post" asp-page-handler="Comentar" asp-route-id="@Model.Captura.CapturaId" class="mb-4">
+                    <div class="d-flex gap-2">
+                        <input type="text" asp-for="NovoComentario" class="form-control form-control-sm border-0 shadow-sm" placeholder="Escreva um comentário..." required autocomplete="off" />
+                        <button type="submit" class="btn btn-sm btn-dark fw-bold shadow-sm">Publicar</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-secondary py-2 small text-center mb-4">
+                    <a asp-page="/Conta/Login" class="fw-bold text-dark">Inicie sessão</a> para poder comentar.
+                </div>
+            }
+
+            @if (!Model.Comentarios.Any())
+            {
+                <p class="text-muted small text-center mb-0">Seja o primeiro a comentar nesta captura!</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var comentario in Model.Comentarios)
+                    {
+                        <div class="d-flex gap-2">
+                            @if (!string.IsNullOrEmpty(comentario.Utilizador?.FotografiaPerfilUrl))
+                            {
+                                <img src="@comentario.Utilizador.FotografiaPerfilUrl" class="rounded-circle shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" alt="Foto" />
+                            }
+                            else
+                            {
+                                <i class="bi bi-person-circle text-muted" style="font-size: 2rem; line-height: 1;"></i>
+                            }
+                            <div class="bg-white p-2 px-3 rounded-3 shadow-sm flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <a asp-page="/Conta/Perfil" asp-route-id="@comentario.UtilizadorId" class="fw-bold text-dark text-decoration-none small">
+                                        @comentario.Utilizador?.NomeCompleto
+                                    </a>
+                                    <small class="text-muted" style="font-size: 0.70rem;">@comentario.DataInteracao.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <p class="mb-0 small text-dark">@comentario.Texto</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>
 
-@* Modal de denúncia *@
+@* Modal de denúncia mantem-se exatamente igual *@
 <div class="modal fade" id="modalDenuncia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">

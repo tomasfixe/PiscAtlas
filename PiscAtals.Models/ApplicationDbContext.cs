@@ -19,6 +19,7 @@ namespace PiscAtlas.Models
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Inscricao> Inscricoes { get; set; }
         public DbSet<Seguidor> Seguidores { get; set; }
+        public DbSet<Interacao> Interacoes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,6 +51,13 @@ namespace PiscAtlas.Models
                 .HasOne(s => s.UtilizadorSeguido)
                 .WithMany(u => u.Seguidores)
                 .HasForeignKey(s => s.SeguidoId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Configuração para evitar ciclos de apagar (Cascade Delete) nas Interações
+            modelBuilder.Entity<Interacao>()
+                .HasOne(i => i.Utilizador)
+                .WithMany()
+                .HasForeignKey(i => i.UtilizadorId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
     }

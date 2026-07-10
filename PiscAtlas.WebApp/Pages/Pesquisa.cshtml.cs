@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
 
-namespace PiscAtlas.WebApp.Pages.Pesquisa
+namespace PiscAtlas.WebApp.Pages
 {
-    public class UtilizadoresModel : PageModel
+    public class PesquisaModel : PageModel
     {
         private readonly ApplicationDbContext _context;
 
-        public UtilizadoresModel(ApplicationDbContext context)
+        public PesquisaModel(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -23,11 +23,13 @@ namespace PiscAtlas.WebApp.Pages.Pesquisa
 
             if (!string.IsNullOrWhiteSpace(Query))
             {
-                // Pesquisa por Nome Completo ou por Nome de Utilizador (ignorando maiúsculas/minúsculas)
+                // Agora pesquisa corretamente nas colunas que existem na Base de Dados
                 Resultados = await _context.Users
-                    .Where(u => u.NomeCompleto.Contains(Query) || u.NomeUtilizador.Contains(Query))
-                    .OrderBy(u => u.NomeCompleto)
-                    .Take(20) // Limita a 20 resultados para não pesar
+                    .Where(u => u.PrimeiroNome.Contains(Query) ||
+                                u.UltimoNome.Contains(Query) ||
+                                u.NomeUtilizador.Contains(Query))
+                    .OrderBy(u => u.PrimeiroNome)
+                    .Take(20)
                     .ToListAsync();
             }
         }
