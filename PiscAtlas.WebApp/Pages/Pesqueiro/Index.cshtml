@@ -4,17 +4,26 @@
     ViewData["Title"] = "Pesqueiros";
 }
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="fw-bold mb-0"><i class="bi bi-geo-alt"></i> Pesqueiros</h2>
         <p class="text-muted mb-0">Explore os pesqueiros registados em Portugal</p>
     </div>
-    @if (User.IsInRole("Admin"))
-    {
-        <a asp-page="./Criar" class="btn btn-dark fw-medium">
-            <i class="bi bi-plus-lg"></i> Adicionar Pesqueiro
-        </a>
-    }
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-dark fw-medium d-flex align-items-center gap-2" type="button" data-bs-toggle="collapse" data-bs-target="#secaoMapa" aria-expanded="false" aria-controls="secaoMapa">
+            <i class="bi bi-map-fill"></i> Ver Mapa
+        </button>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-page="./Criar" class="btn btn-dark fw-medium">
+                <i class="bi bi-plus-lg"></i> Adicionar Pesqueiro
+            </a>
+        }
+    </div>
 </div>
 
 <div class="d-flex flex-wrap gap-2 mb-4">
@@ -25,6 +34,18 @@
             @tipo.ToString().Replace("_", " ")
         </a>
     }
+</div>
+
+<div class="collapse mb-5" id="secaoMapa">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3 px-4">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-map me-2"></i>Mapa de Pesqueiros</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#secaoMapa" aria-label="Fechar"></button>
+        </div>
+        <div class="card-body p-0">
+            <div id="mapaPesqueiros" style="height: 500px; width: 100%;"></div>
+        </div>
+    </div>
 </div>
 
 @if (!Model.Pesqueiros.Any())
@@ -71,4 +92,54 @@ else
             </div>
         }
     </div>
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. Inicializar o mapa centrado em Portugal
+            var map = L.map('mapaPesqueiros').setView([39.3999, -8.2245], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap contributors - PiscAtlas'
+            }).addTo(map);
+
+            // 2. Importar os pesqueiros do C# para o Javascript
+            var pesqueiros = @Html.Raw(Json.Serialize(Model.Pesqueiros.Select(p => new
+            {
+                id = p.PesqueiroId,
+                nome = p.Nome,
+                lat = p.Latitude,
+                lng = p.Longitude,
+                tipo = p.Tipo.ToString().Replace("_", " "),
+                capturas = p.Capturas != null ? p.Capturas.Count : 0
+            })));
+
+            // 3. Adicionar os marcadores ao mapa
+            pesqueiros.forEach(function(p) {
+                if (p.lat && p.lng && p.lat !== 0 && p.lng !== 0) {
+                    var marker = L.marker([p.lat, p.lng]).addTo(map);
+                    var popupContent = `
+                        <div class="text-center">
+                            <strong class="fs-6 d-block mb-1">${p.nome}</strong>
+                            <span class="badge bg-light text-dark border mb-2">${p.tipo}</span><br>
+                            <small class="text-muted d-block mb-2"><i class="bi bi-camera me-1"></i>${p.capturas} capturas</small>
+                            <a href="/Pesqueiro/Detalhes?id=${p.id}" class="btn btn-sm btn-dark w-100 py-0" style="font-size: 0.8rem;">Ver Detalhes</a>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                }
+            });
+
+            // 4. Detalhe técnico fundamental: Recalcular o tamanho do mapa quando a gaveta (collapse) se abre
+            var secaoMapa = document.getElementById('secaoMapa');
+            if (secaoMapa) {
+                secaoMapa.addEventListener('shown.bs.collapse', function () {
+                    map.invalidateSize();
+                });
+            }
+        });
+    </script>
 }
