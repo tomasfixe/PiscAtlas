@@ -81,6 +81,14 @@
                 </div>
             </div>
 
+            <!-- O TEU NOVO BOTÃO DE REDIRECT PARA A CADERNETA FICA AQUI -->
+            @if (Model.IsProprioPerfil)
+            {
+                <a asp-page="/Especie/Index" asp-route-userId="@Model.PerfilUser.Id" class="btn btn-dark fw-bold">
+                    <i class="bi bi-book"></i> Ver Caderneta
+                </a>
+            }
+
             <div class="mt-2">
                 <small class="text-muted">
                     <i class="bi bi-calendar3 me-1"></i>

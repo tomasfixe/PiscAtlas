@@ -1,90 +1,66 @@
-﻿@page
-@model PiscAtlas.WebApp.Pages.Especie.IndexModel
-@{
-    ViewData["Title"] = "Caderneta de Espécies";
-}
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using PiscAtlas.Models;
+using PiscAtlas.Models.Models;
 
-<div class="mb-4">
-    <h2 class="fw-bold mb-0"><i class="bi bi-book"></i> Caderneta de Espécies</h2>
-    <p class="text-muted">Acompanhe o seu progresso de capturas</p>
-    @if (User.IsInRole("Admin"))
-    {
-        <div class="mt-3">
-            <a asp-page="./Criar" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg"></i> Adicionar Nova Espécie (Admin)
-            </a>
-        </div>
-    }
-</div>
-
-@if (TempData["Sucesso"] != null)
+namespace PiscAtlas.WebApp.Pages.Especie
 {
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="bi bi-check-circle"></i> @TempData["Sucesso"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <p class="fw-bold mb-2 small">Progresso Geral</p>
-        <div class="d-flex justify-content-between mb-1">
-            <small>@Model.TotalCapturadas de @Model.TotalEspecies espécies capturadas</small>
-            <small>@Model.Percentagem%</small>
-        </div>
-        <div class="progress" style="height: 10px;">
-            <div class="progress-bar bg-success" role="progressbar" style="width: @Model.Percentagem%"></div>
-        </div>
-
-        <div class="row text-center mt-4">
-            <div class="col-4 border-end">
-                <h3 class="fw-bold mb-0 text-success">@Model.TotalCapturadas</h3>
-                <small class="text-muted">Capturadas</small>
-            </div>
-            <div class="col-4 border-end">
-                <h3 class="fw-bold mb-0 text-warning">@Model.PorFazer</h3>
-                <small class="text-muted">Por Descobrir</small>
-            </div>
-            <div class="col-4">
-                <h3 class="fw-bold mb-0 text-primary">@Model.Pontos</h3>
-                <small class="text-muted">Pontos (XP)</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4">
-    @foreach (var peixe in Model.TodasEspecies)
+    [Authorize]
+    public class IndexModel : PageModel
     {
-        bool foiCapturado = Model.EspeciesCapturadasIds.Contains(peixe.EspecieId);
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<Utilizador>
+    _userManager;
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm p-2 @(foiCapturado ? "border-success border-2" : "border-0")">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-1">
-                        @if (foiCapturado)
-                        {
-                            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
-                        }
-                        else
-                        {
-                            <i class="bi bi-circle text-muted me-2"></i>
-                        }
-                        <h5 class="card-title fw-bold mb-0">@peixe.Nome</h5>
-                    </div>
-                    <p class="text-muted small fst-italic mb-3">@peixe.NomeCientifico</p>
+    public IndexModel(ApplicationDbContext context, UserManager<Utilizador>
+        userManager)
+        {
+        _context = context;
+        _userManager = userManager;
+        }
 
-                    <p class="small text-muted mb-3">@(peixe.Descricao?.Length > 60 ? peixe.Descricao.Substring(0, 60) + "..." : peixe.Descricao ?? "Sem descrição.")</p>
+        public List<PiscAtlas.Models.Models.Especie>
+            TodasEspecies { get; set; } = new();
+            public List<int>
+                EspeciesCapturadasIds { get; set; } = new();
 
-                    <span class="badge bg-light text-dark border mb-3 fw-normal">@peixe.Habitat</span>
+                // Propriedades para identificar o utilizador da caderneta
+                public Utilizador? CadernetaUser { get; set; }
+                public bool IsProprio { get; set; }
 
-                    <div class="mt-auto">
-                        <small class="d-block text-muted">Recordes em PT:</small>
-                        <small class="d-block text-muted">Peso: @peixe.PesoRecordPt kg</small>
-                        <small class="d-block text-muted">Tamanho: @peixe.TamanhoRecordPt cm</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-</div>
+                // Propriedades de progresso e estatísticas (AS QUE FALTAVAM AQUI!)
+                public int TotalCapturadas => EspeciesCapturadasIds.Count;
+                public int TotalEspecies => TodasEspecies.Count;
+                public int PorFazer => TotalEspecies - TotalCapturadas;
+                public int Percentagem => TotalEspecies == 0 ? 0 : (int)Math.Round((double)TotalCapturadas / TotalEspecies * 100);
+                public int Pontos => TotalCapturadas * 100; // 100 pontos por cada espécie diferente
+
+                public async Task<IActionResult>
+                    OnGetAsync(string? userId)
+                    {
+                    var currentUserId = _userManager.GetUserId(User);
+
+                    // Se não enviarmos userId no link, assume que é a caderneta do próprio utilizador logado
+                    string targetUserId = string.IsNullOrEmpty(userId) ? currentUserId : userId;
+
+                    CadernetaUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == targetUserId);
+                    if (CadernetaUser == null) return NotFound();
+
+                    IsProprio = (currentUserId == targetUserId);
+
+                    TodasEspecies = await _context.Especies.OrderBy(e => e.Nome).ToListAsync();
+
+                    // Vai buscar as capturas apenas do utilizador alvo (targetUserId)
+                    EspeciesCapturadasIds = await _context.Capturas
+                    .Where(c => c.UtilizadorId == targetUserId && !c.FraudeConfirmada)
+                    .Select(c => c.EspecieId)
+                    .Distinct()
+                    .ToListAsync();
+
+                    return Page();
+                    }
+                    }
+                    }

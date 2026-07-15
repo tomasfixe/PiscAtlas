@@ -17,38 +17,30 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-3">
             <div class="container">
-                <!-- Logo -->
                 <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" asp-page="/Home/Index">
                     <i class="bi bi-tsunami"></i> PiscAtlas
                 </a>
 
-                <!-- Botão Mobile -->
                 <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarPrincipal">
-                    <!-- Links Principais (Esquerda) -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-medium gap-lg-3 ms-lg-4">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Home/Index"><i class="bi bi-images me-1"></i> Feed</a>
                         </li>
                         <li class="nav-item">
-                            <!-- Corrigido de Pesqueiros para Pesqueiro -->
                             <a class="nav-link text-dark" asp-page="/Pesqueiro/Index"><i class="bi bi-geo-alt me-1"></i> Pesqueiros</a>
                         </li>
                         <li class="nav-item">
-                            <!-- Corrigido de Eventos para Evento -->
                             <a class="nav-link text-dark" asp-page="/Evento/Index"><i class="bi bi-calendar-event me-1"></i> Eventos</a>
                         </li>
                         <li class="nav-item">
-                            <!-- Corrigido de Rankings para Ranking -->
                             <a class="nav-link text-dark" asp-page="/Ranking/Index"><i class="bi bi-trophy me-1"></i> Ranking</a>
                         </li>
                     </ul>
 
-                    <!-- Barra de Pesquisa (Centro-Direita) -->
-                    <!-- A ACTION aponta diretamente para o teu ficheiro Pesquisa.cshtml -->
                     <form class="d-flex mx-lg-3 my-3 my-lg-0" method="get" action="/Pesquisa">
                         <div class="input-group">
                             <input class="form-control border-secondary bg-light" type="search" name="q" placeholder="Procurar pescadores..." required>
@@ -58,7 +50,6 @@
                         </div>
                     </form>
 
-                    <!-- Área de Conta (Direita) -->
                     <ul class="navbar-nav ms-lg-2">
                         @if (SignInManager.IsSignedIn(User))
                         {
@@ -67,6 +58,16 @@
                                     <i class="bi bi-person-circle fs-5"></i> Conta
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item py-2 fw-bold text-primary" asp-page="/Admin/Index">
+                                                <i class="bi bi-shield-lock-fill me-2"></i> Painel Admin
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
+
                                     <li>
                                         <a class="dropdown-item py-2" asp-page="/Conta/Perfil">
                                             <i class="bi bi-person me-2"></i> O Meu Perfil
