@@ -46,5 +46,7 @@ namespace PiscAtlas.Models.Models
         public virtual ICollection<Denuncia>? Denuncias { get; set; }
         // Isto permite que uma captura tenha N fotografias associadas
         public ICollection<CapturaFotografia> Fotografias { get; set; } = new List<CapturaFotografia>();
+
+        public virtual ICollection<Interacao> Interacoes { get; set; } = new List<Interacao>();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PiscAtlas.Models;
 
@@ -11,9 +12,11 @@ using PiscAtlas.Models;
 namespace PiscAtlas.Models.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260709144539_AdicionarSistemaSeguidores")]
+    partial class AdicionarSistemaSeguidores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -404,40 +407,6 @@ namespace PiscAtlas.Models.Migrations
                     b.ToTable("Inscricoes");
                 });
 
-            modelBuilder.Entity("PiscAtlas.Models.Models.Interacao", b =>
-                {
-                    b.Property<int>("InteracaoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InteracaoId"));
-
-                    b.Property<int>("CapturaId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DataInteracao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Texto")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UtilizadorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("InteracaoId");
-
-                    b.HasIndex("CapturaId");
-
-                    b.HasIndex("UtilizadorId");
-
-                    b.ToTable("Interacoes");
-                });
-
             modelBuilder.Entity("PiscAtlas.Models.Models.Pesqueiro", b =>
                 {
                     b.Property<int>("PesqueiroId")
@@ -702,25 +671,6 @@ namespace PiscAtlas.Models.Migrations
                     b.Navigation("Evento");
                 });
 
-            modelBuilder.Entity("PiscAtlas.Models.Models.Interacao", b =>
-                {
-                    b.HasOne("PiscAtlas.Models.Models.Captura", "Captura")
-                        .WithMany("Interacoes")
-                        .HasForeignKey("CapturaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PiscAtlas.Models.Models.Utilizador", "Utilizador")
-                        .WithMany()
-                        .HasForeignKey("UtilizadorId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Captura");
-
-                    b.Navigation("Utilizador");
-                });
-
             modelBuilder.Entity("PiscAtlas.Models.Models.Seguidor", b =>
                 {
                     b.HasOne("PiscAtlas.Models.Models.Utilizador", "UtilizadorSeguido")
@@ -745,8 +695,6 @@ namespace PiscAtlas.Models.Migrations
                     b.Navigation("Denuncias");
 
                     b.Navigation("Fotografias");
-
-                    b.Navigation("Interacoes");
                 });
 
             modelBuilder.Entity("PiscAtlas.Models.Models.Especie", b =>

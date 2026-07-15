@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
@@ -19,27 +20,37 @@ namespace PiscAtlas.WebApp.Pages.Especie
             _userManager = userManager;
         }
 
-        // Propriedades da Caderneta (o teu antigo ViewModel)
         public List<PiscAtlas.Models.Models.Especie> TodasEspecies { get; set; } = new();
         public List<int> EspeciesCapturadasIds { get; set; } = new();
 
+        // Estas são as variáveis que faltavam e causavam o erro 1061
+        public Utilizador? CadernetaUser { get; set; }
+        public bool IsProprio { get; set; }
+
         public int TotalCapturadas => EspeciesCapturadasIds.Count;
         public int TotalEspecies => TodasEspecies.Count;
-        public int PorFazer => TotalEspecies - TotalCapturadas;
         public int Percentagem => TotalEspecies == 0 ? 0 : (int)Math.Round((double)TotalCapturadas / TotalEspecies * 100);
-        public int Pontos => TotalCapturadas * 100; // 100 pontos por cada espécie diferente
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string? userId)
         {
-            var userId = _userManager.GetUserId(User);
+            var currentUserId = _userManager.GetUserId(User);
+            // Se userId for nulo (visto no link), usa o do utilizador logado
+            string targetUserId = string.IsNullOrEmpty(userId) ? currentUserId : userId;
+
+            CadernetaUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == targetUserId);
+            if (CadernetaUser == null) return NotFound();
+
+            IsProprio = (currentUserId == targetUserId);
 
             TodasEspecies = await _context.Especies.OrderBy(e => e.Nome).ToListAsync();
 
             EspeciesCapturadasIds = await _context.Capturas
-                .Where(c => c.UtilizadorId == userId)
+                .Where(c => c.UtilizadorId == targetUserId && !c.FraudeConfirmada)
                 .Select(c => c.EspecieId)
                 .Distinct()
                 .ToListAsync();
+
+            return Page();
         }
     }
 }

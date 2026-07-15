@@ -15,81 +15,88 @@
 </head>
 <body class="bg-light">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm py-3">
             <div class="container">
-                @* Mantém MVC por agora *@
-                <a class="navbar-brand fw-bold" asp-page="/Home/Index">
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" asp-page="/Home/Index">
                     <i class="bi bi-tsunami"></i> PiscAtlas
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                    <ul class="navbar-nav gap-3 fw-medium">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Home/Index"><i class="bi bi-geo-alt"></i> Mapa</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Pesqueiro/Index"><i class="bi bi-geo"></i> Pesqueiros</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Captura/Index"><i class="bi bi-camera"></i> Minhas Capturas</a>
-                        </li>
 
+                <div class="collapse navbar-collapse" id="navbarPrincipal">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 fw-medium gap-lg-3 ms-lg-4">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Especie/Index"><i class="bi bi-book"></i> Caderneta</a>
+                            <a class="nav-link text-dark" asp-page="/Home/Index"><i class="bi bi-images me-1"></i> Feed</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Ranking/Index"><i class="bi bi-trophy"></i> Rankings</a>
+                            <a class="nav-link text-dark" asp-page="/Pesqueiro/Index"><i class="bi bi-geo-alt me-1"></i> Pesqueiros</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Evento/Index"><i class="bi bi-calendar-event"></i> Eventos</a>
+                            <a class="nav-link text-dark" asp-page="/Evento/Index"><i class="bi bi-calendar-event me-1"></i> Eventos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-page="/Ranking/Index"><i class="bi bi-trophy me-1"></i> Ranking</a>
                         </li>
                     </ul>
-                </div>
-                <div class="d-flex">
-                    <div class="d-flex gap-2 align-items-center">
+
+                    <form class="d-flex mx-lg-3 my-3 my-lg-0" method="get" action="/Pesquisa">
+                        <div class="input-group">
+                            <input class="form-control border-secondary bg-light" type="search" name="q" placeholder="Procurar pescadores..." required>
+                            <button class="btn btn-outline-secondary bg-light" type="submit">
+                                <i class="bi bi-search text-dark"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <ul class="navbar-nav ms-lg-2">
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <div class="dropdown">
-                                <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold;">
-                                        @User.Identity?.Name?.Substring(0, 1).ToUpper()
-                                    </div>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle fw-bold text-dark d-flex align-items-center gap-2" href="#" id="menuConta" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle fs-5"></i> Conta
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser">
-                                    <li>
-                                        <a class="dropdown-item" asp-page="/Conta/Perfil">
-                                            <i class="bi bi-person"></i> O Meu Perfil
-                                        </a>
-                                    </li>
-
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <li>
-                                            @* LINK ATUALIZADO PARA RAZOR PAGES *@
-                                            <a class="dropdown-item" asp-page="/Admin/Index">
-                                                <i class="bi bi-shield-lock"></i> Admin
+                                            <a class="dropdown-item py-2 fw-bold text-primary" asp-page="/Admin/Index">
+                                                <i class="bi bi-shield-lock-fill me-2"></i> Painel Admin
                                             </a>
                                         </li>
+                                        <li><hr class="dropdown-divider"></li>
                                     }
 
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-page="/Conta/Perfil">
+                                            <i class="bi bi-person me-2"></i> O Meu Perfil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" asp-page="/Conta/EditarPerfil">
+                                            <i class="bi bi-gear me-2"></i> Definições
+                                        </a>
+                                    </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <form class="form-inline" asp-page="/Conta/Logout" method="post">
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-box-arrow-right"></i> Terminar Sessão
+                                        <form method="post" asp-page="/Conta/Logout" class="m-0 p-0">
+                                            <button type="submit" class="dropdown-item text-danger py-2">
+                                                <i class="bi bi-box-arrow-right me-2"></i> Sair
                                             </button>
                                         </form>
                                     </li>
                                 </ul>
-                            </div>
+                            </li>
                         }
                         else
                         {
-                            <a asp-page="/Conta/Login" class="btn btn-outline-dark fw-medium">Entrar</a>
+                            <li class="nav-item d-flex gap-2">
+                                <a class="btn btn-outline-dark fw-bold" asp-page="/Conta/Login">Entrar</a>
+                                <a class="btn btn-dark fw-bold" asp-page="/Conta/Registar">Registar</a>
+                            </li>
                         }
-                    </div>
+                    </ul>
                 </div>
             </div>
         </nav>

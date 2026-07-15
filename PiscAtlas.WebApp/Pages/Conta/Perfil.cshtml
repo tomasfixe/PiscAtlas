@@ -1,14 +1,38 @@
-﻿@page
+﻿@page "{id?}"
 @model PiscAtlas.WebApp.Pages.Conta.PerfilModel
 @{
-    ViewData["Title"] = "O Meu Perfil";
+    ViewData["Title"] = Model.IsProprioPerfil ? "O Meu Perfil" : "Perfil - " + Model.PerfilUser.NomeCompleto;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-5">
-    <h2 class="fw-bold mb-0"><i class="bi bi-person-circle"></i> O Meu Perfil</h2>
-    <a asp-page="./EditarPerfil" class="btn btn-outline-dark fw-medium">
-        <i class="bi bi-pencil"></i> Editar Perfil
-    </a>
+    <h2 class="fw-bold mb-0">
+        <i class="bi bi-person-circle"></i>
+        @(Model.IsProprioPerfil ? "O Meu Perfil" : Model.PerfilUser.NomeCompleto)
+    </h2>
+
+    @if (Model.IsProprioPerfil)
+    {
+        <a asp-page="./EditarPerfil" class="btn btn-outline-dark fw-medium">
+            <i class="bi bi-pencil"></i> Editar Perfil
+        </a>
+    }
+    else if (User.Identity?.IsAuthenticated == true)
+    {
+        <form method="post" asp-page-handler="ToggleSeguir" asp-route-id="@Model.PerfilUser.Id">
+            @if (Model.IsSeguindo)
+            {
+                <button type="submit" class="btn btn-outline-dark fw-bold">
+                    <i class="bi bi-person-check-fill"></i> A Seguir
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary fw-bold">
+                    Seguir
+                </button>
+            }
+        </form>
+    }
 </div>
 
 @if (TempData["Sucesso"] != null)
@@ -27,30 +51,45 @@
                 <img src="@Model.PerfilUser.FotografiaPerfilUrl"
                      alt="Foto de Perfil"
                      class="rounded-circle mx-auto mb-3"
-                     style="width: 100px; height: 100px; object-fit: cover;" />
+                     style="width: 120px; height: 120px; object-fit: cover;" />
             }
             else
             {
                 <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold"
-                     style="width: 100px; height: 100px; font-size: 2.5rem;">
+                     style="width: 120px; height: 120px; font-size: 3rem;">
                     @Model.PerfilUser.PrimeiroNome?.Substring(0, 1).ToUpper()
                 </div>
             }
 
             <h4 class="fw-bold mb-0">@Model.PerfilUser.NomeCompleto</h4>
             <p class="text-muted">@@@Model.PerfilUser.NomeUtilizador</p>
-            <p class="text-muted small">@Model.PerfilUser.Email</p>
 
             <hr />
 
-            <div class="row text-center">
-                <div class="col-12 mb-2">
-                    <h3 class="fw-bold mb-0">@Model.Capturas.Count</h3>
+            <div class="d-flex justify-content-center gap-4 mb-3">
+                <div class="text-center">
+                    <h4 class="fw-bold mb-0">@Model.Capturas.Count</h4>
                     <small class="text-muted">Capturas</small>
+                </div>
+                <div class="text-center">
+                    <h4 class="fw-bold mb-0">@Model.TotalSeguidores</h4>
+                    <small class="text-muted">Seguidores</small>
+                </div>
+                <div class="text-center">
+                    <h4 class="fw-bold mb-0">@Model.TotalASeguir</h4>
+                    <small class="text-muted">A Seguir</small>
                 </div>
             </div>
 
-            <div class="mt-3">
+            <!-- O TEU NOVO BOTÃO DE REDIRECT PARA A CADERNETA FICA AQUI -->
+            @if (Model.IsProprioPerfil)
+            {
+                <a asp-page="/Especie/Index" asp-route-userId="@Model.PerfilUser.Id" class="btn btn-dark fw-bold">
+                    <i class="bi bi-book"></i> Ver Caderneta
+                </a>
+            }
+
+            <div class="mt-2">
                 <small class="text-muted">
                     <i class="bi bi-calendar3 me-1"></i>
                     Membro desde @Model.PerfilUser.DataRegisto.ToString("MMMM yyyy", new System.Globalization.CultureInfo("pt-PT"))
@@ -60,12 +99,9 @@
     </div>
 
     <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">Últimas Capturas</h5>
-            <a asp-page="/Captura/Index" class="small text-muted text-decoration-none">
-                Ver todas <i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
+        <h5 class="fw-bold mb-3">
+            @(Model.IsProprioPerfil ? "As Minhas Capturas" : "Galeria de Capturas")
+        </h5>
 
         @if (!Model.Capturas.Any())
         {
@@ -73,10 +109,13 @@
                 <div class="card-body">
                     <i class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
                     <h5 class="mt-3 fw-bold">Ainda sem capturas</h5>
-                    <p class="text-muted">Registe a sua primeira pesca!</p>
-                    <a asp-page="/Captura/Criar" class="btn btn-dark btn-sm">
-                        <i class="bi bi-plus-lg"></i> Registar Captura
-                    </a>
+                    @if (Model.IsProprioPerfil)
+                    {
+                        <p class="text-muted">Registe a sua primeira pesca!</p>
+                        <a asp-page="/Captura/Criar" class="btn btn-dark btn-sm">
+                            <i class="bi bi-plus-lg"></i> Registar Captura
+                        </a>
+                    }
                 </div>
             </div>
         }
@@ -87,8 +126,8 @@
                 {
                     <div class="col-6 col-md-4">
                         <a asp-page="/Captura/Detalhes" asp-route-id="@c.CapturaId" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm overflow-hidden">
-                                <div style="height: 120px; background: #f8f9fa;">
+                            <div class="card border-0 shadow-sm overflow-hidden hover-shadow transition">
+                                <div style="height: 150px; background: #f8f9fa;">
                                     @if (!string.IsNullOrEmpty(c.FotografiaUrl))
                                     {
                                         <img src="@c.FotografiaUrl" alt="@c.Especie?.Nome"
@@ -101,12 +140,11 @@
                                         </div>
                                     }
                                 </div>
-                                <div class="card-body p-2">
-                                    <p class="fw-medium small mb-0 text-dark">@c.Especie?.Nome</p>
-                                    <p class="small text-muted mb-0">@c.Pesqueiro?.Nome</p>
+                                <div class="card-body p-2 text-center">
+                                    <p class="fw-bold small mb-0 text-dark">@c.Especie?.Nome</p>
                                     @if (c.Peso.HasValue)
                                     {
-                                        <span class="badge bg-light text-dark border">@c.Peso kg</span>
+                                        <span class="badge bg-light text-dark border mt-1">@c.Peso kg</span>
                                     }
                                 </div>
                             </div>
