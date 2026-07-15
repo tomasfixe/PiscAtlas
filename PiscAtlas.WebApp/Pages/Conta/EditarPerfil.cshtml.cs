@@ -11,90 +11,167 @@ namespace PiscAtlas.WebApp.Pages.Conta
     public class EditarPerfilModel : PageModel
     {
         private readonly UserManager<Utilizador> _userManager;
+        private readonly SignInManager<Utilizador> _signInManager;
 
-        public EditarPerfilModel(UserManager<Utilizador> userManager)
+        public EditarPerfilModel(UserManager<Utilizador> userManager, SignInManager<Utilizador> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        [BindProperty]
-        public EditarPerfilInputModel Input { get; set; } = new();
+        public Utilizador UtilizadorAtual { get; set; } = default!;
 
-        public string FotoAtual { get; set; } = string.Empty;
-        public string Iniciais { get; set; } = string.Empty;
+        // Formulário de Perfil
+        [BindProperty]
+        public InputPerfilModel InputPerfil { get; set; } = new();
+
+        public class InputPerfilModel
+        {
+            [Required(ErrorMessage = "O primeiro nome é obrigatório.")]
+            [Display(Name = "Primeiro Nome")]
+            public string PrimeiroNome { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "O último nome é obrigatório.")]
+            [Display(Name = "Último Nome")]
+            public string UltimoNome { get; set; } = string.Empty;
+
+            [Display(Name = "Nome de Utilizador")]
+            public string NomeUtilizador { get; set; } = string.Empty;
+
+            [EmailAddress(ErrorMessage = "Email inválido.")]
+            [Display(Name = "Email")]
+            public string Email { get; set; } = string.Empty;
+
+            [Phone(ErrorMessage = "Número de telefone inválido.")]
+            [Display(Name = "Telefone")]
+            public string? Telefone { get; set; }
+
+            [Url(ErrorMessage = "Insira um URL válido para a imagem.")]
+            [Display(Name = "URL da Fotografia de Perfil")]
+            public string? FotografiaPerfilUrl { get; set; }
+        }
+
+        // Formulário de Password
+        [BindProperty]
+        public InputPasswordModel InputPassword { get; set; } = new();
+
+        public class InputPasswordModel
+        {
+            [Required(ErrorMessage = "Insira a palavra-passe atual.")]
+            [DataType(DataType.Password)]
+            [Display(Name = "Palavra-passe Atual")]
+            public string PasswordAtual { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Insira a nova palavra-passe.")]
+            [StringLength(100, ErrorMessage = "A {0} deve ter pelo menos {2} caracteres.", MinimumLength = 6)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Nova Palavra-passe")]
+            public string NovaPassword { get; set; } = string.Empty;
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirmar Nova Palavra-passe")]
+            [Compare("NovaPassword", ErrorMessage = "A nova palavra-passe e a confirmação não coincidem.")]
+            public string ConfirmarPassword { get; set; } = string.Empty;
+        }
 
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Challenge();
+            if (user == null) return NotFound();
 
-            FotoAtual = user.FotografiaPerfilUrl ?? "";
-            Iniciais = user.PrimeiroNome?.Substring(0, 1).ToUpper() ?? "";
+            UtilizadorAtual = user;
 
-            Input = new EditarPerfilInputModel
+            InputPerfil = new InputPerfilModel
             {
-                PrimeiroNome = user.PrimeiroNome,
-                UltimoNome = user.UltimoNome,
-                NomeUtilizador = user.NomeUtilizador
+                PrimeiroNome = user.PrimeiroNome ?? string.Empty,
+                UltimoNome = user.UltimoNome ?? string.Empty,
+                NomeUtilizador = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Telefone = user.PhoneNumber,
+                FotografiaPerfilUrl = user.FotografiaPerfilUrl
             };
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostPerfilAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Challenge();
+            if (user == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                FotoAtual = user.FotografiaPerfilUrl ?? "";
-                Iniciais = user.PrimeiroNome?.Substring(0, 1).ToUpper() ?? "";
+                UtilizadorAtual = user;
                 return Page();
             }
 
-            if (Input.FotoFile != null && Input.FotoFile.Length > 0)
-            {
-                var fileName = Guid.NewGuid() + Path.GetExtension(Input.FotoFile.FileName);
-                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/perfis");
-                if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+            user.PrimeiroNome = InputPerfil.PrimeiroNome;
+            user.UltimoNome = InputPerfil.UltimoNome;
+            user.PhoneNumber = InputPerfil.Telefone;
+            user.FotografiaPerfilUrl = InputPerfil.FotografiaPerfilUrl;
 
-                using var stream = new FileStream(Path.Combine(uploadPath, fileName), FileMode.Create);
-                await Input.FotoFile.CopyToAsync(stream);
-                user.FotografiaPerfilUrl = "/uploads/perfis/" + fileName;
+            // Mudar Username se foi alterado
+            if (user.UserName != InputPerfil.NomeUtilizador)
+            {
+                var setUsernameResult = await _userManager.SetUserNameAsync(user, InputPerfil.NomeUtilizador);
+                if (!setUsernameResult.Succeeded)
+                {
+                    foreach (var error in setUsernameResult.Errors) ModelState.AddModelError(string.Empty, error.Description);
+                    UtilizadorAtual = user;
+                    return Page();
+                }
             }
 
-            user.PrimeiroNome = Input.PrimeiroNome;
-            user.UltimoNome = Input.UltimoNome;
-            user.NomeUtilizador = Input.NomeUtilizador;
+            // Mudar Email se foi alterado
+            if (user.Email != InputPerfil.Email)
+            {
+                var setEmailResult = await _userManager.SetEmailAsync(user, InputPerfil.Email);
+                if (!setEmailResult.Succeeded)
+                {
+                    foreach (var error in setEmailResult.Errors) ModelState.AddModelError(string.Empty, error.Description);
+                    UtilizadorAtual = user;
+                    return Page();
+                }
+            }
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
+                await _signInManager.RefreshSignInAsync(user);
                 TempData["Sucesso"] = "Perfil atualizado com sucesso!";
-                return RedirectToPage("./Perfil");
+                return RedirectToPage();
             }
 
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
-
-            FotoAtual = user.FotografiaPerfilUrl ?? "";
-            Iniciais = user.PrimeiroNome?.Substring(0, 1).ToUpper() ?? "";
+            foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
+            UtilizadorAtual = user;
             return Page();
         }
 
-        public class EditarPerfilInputModel
+        public async Task<IActionResult> OnPostPasswordAsync()
         {
-            [Required(ErrorMessage = "O Primeiro Nome é obrigatório.")]
-            public string PrimeiroNome { get; set; } = string.Empty;
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
 
-            [Required(ErrorMessage = "O Último Nome é obrigatório.")]
-            public string UltimoNome { get; set; } = string.Empty;
+            if (!ModelState.IsValid)
+            {
+                UtilizadorAtual = user;
+                return Page();
+            }
 
-            [Required(ErrorMessage = "O Nome de Utilizador é obrigatório.")]
-            public string NomeUtilizador { get; set; } = string.Empty;
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, InputPassword.PasswordAtual, InputPassword.NovaPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                foreach (var error in changePasswordResult.Errors)
+                {
+                    ModelState.AddModelError("InputPassword." + error.Code, error.Description);
+                }
+                UtilizadorAtual = user;
+                return Page();
+            }
 
-            public IFormFile? FotoFile { get; set; }
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["Sucesso"] = "Palavra-passe alterada com sucesso!";
+            return RedirectToPage();
         }
     }
 }
