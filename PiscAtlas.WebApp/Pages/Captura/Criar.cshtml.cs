@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PiscAtlas.WebApp.Pages.Captura
 {
-    [Authorize] // Só utilizadores logados podem criar
+    [Authorize]
     public class CriarModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -54,14 +54,15 @@ namespace PiscAtlas.WebApp.Pages.Captura
                 Tamanho = Input.Comprimento,
                 Descricao = Input.Descricao,
                 DataCaptura = Input.DataCaptura,
-                AprovadaPeloAdmin = !(Input.Peso.HasValue || Input.Comprimento.HasValue)
+                AprovadaPeloAdmin = !(Input.Peso.HasValue || Input.Comprimento.HasValue),
+                FotografiaUrl = "" // Vai ser preenchido abaixo
             };
 
             // Processar múltiplas fotos
             if (Input.FotosFiles != null && Input.FotosFiles.Count > 0)
             {
                 var pasta = Path.Combine(_env.WebRootPath, "images", "capturas");
-                Directory.CreateDirectory(pasta);
+                if (!Directory.Exists(pasta)) Directory.CreateDirectory(pasta);
 
                 bool isPrimeiraFoto = true;
 
@@ -79,7 +80,7 @@ namespace PiscAtlas.WebApp.Pages.Captura
 
                         var urlFoto = "/images/capturas/" + nomeFicheiro;
 
-                        // A primeira foto fica como foto principal da captura (opcional)
+                        // A primeira foto fica como foto principal da captura
                         if (isPrimeiraFoto)
                         {
                             novaCaptura.FotografiaUrl = urlFoto;
@@ -93,12 +94,13 @@ namespace PiscAtlas.WebApp.Pages.Captura
                         });
                     }
                 }
+                novaCaptura.PossuiProvasVisuais = true;
             }
 
             _context.Capturas.Add(novaCaptura);
             await _context.SaveChangesAsync();
 
-            // Depois mudamos este redirect para o feed ou perfil
+            TempData["Sucesso"] = "Captura registada com sucesso!";
             return RedirectToPage("/Home/Index");
         }
 
@@ -123,8 +125,8 @@ namespace PiscAtlas.WebApp.Pages.Captura
             [Required(ErrorMessage = "A data da captura é obrigatória!")]
             public DateTime DataCaptura { get; set; } = DateTime.Now;
 
-            // NOVA PROPRIEDADE: LISTA DE FICHEIROS
-            public List<IFormFile>? FotosFiles { get; set; }
+            [Required(ErrorMessage = "Tem de enviar pelo menos uma fotografia.")]
+            public List<IFormFile> FotosFiles { get; set; } = new();
         }
     }
 }

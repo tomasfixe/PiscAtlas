@@ -27,6 +27,7 @@ namespace PiscAtlas.WebApp.Pages.Home
                 .Include(c => c.Utilizador)
                 .Include(c => c.Especie)
                 .Include(c => c.Pesqueiro)
+                .Include(c => c.Fotografias)
                 .Include(c => c.Interacoes).ThenInclude(i => i.Utilizador)
                 .Where(c => c.AprovadaPeloAdmin)
                 .OrderByDescending(c => c.DataCaptura)

@@ -7,8 +7,8 @@
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <div class="mb-4">
-            <a asp-page="./Index" class="text-muted text-decoration-none small">
-                <i class="bi bi-arrow-left"></i> Voltar às Capturas
+            <a asp-page="/Conta/Perfil" class="text-muted text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Voltar ao Perfil
             </a>
             <h2 class="fw-bold mt-2">Editar Captura</h2>
         </div>
@@ -47,27 +47,49 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-4">
                     <label asp-for="Input.Notas" class="form-label fw-medium">Notas</label>
                     <textarea asp-for="Input.Notas" class="form-control" rows="3"></textarea>
                 </div>
 
+                <hr />
+
+                <!-- Galeria de Fotos Atuais -->
                 <div class="mb-4">
-                    <label asp-for="Input.FotoFile" class="form-label fw-medium"></label>
-                    @if (!string.IsNullOrEmpty(Model.FotoAtual))
+                    <label class="form-label fw-bold">Fotografias Atuais</label>
+                    @if (Model.FotografiasAtuais.Any())
                     {
-                        <div class="mb-2">
-                            <img src="@Model.FotoAtual" alt="Foto atual"
-                                 class="rounded shadow-sm"
-                                 style="max-height: 150px; object-fit: cover;" />
-                            <small class="d-block text-muted mt-1">Foto atual — substitua se quiser alterar</small>
+                        <div class="row g-3">
+                            @foreach (var foto in Model.FotografiasAtuais)
+                            {
+                                <div class="col-4 col-md-3 text-center">
+                                    <img src="@foto.Url" class="img-fluid rounded shadow-sm mb-2" style="height: 100px; width: 100%; object-fit: cover;" />
+                                    <div class="form-check d-flex justify-content-center align-items-center">
+                                        <input class="form-check-input border-danger me-2" type="checkbox" name="Input.FotosParaRemover" value="@foto.Id" id="rem_@foto.Id">
+                                        <label class="form-check-label text-danger small fw-bold" for="rem_@foto.Id">
+                                            Eliminar
+                                        </label>
+                                    </div>
+                                </div>
+                            }
                         </div>
+                        <small class="d-block text-muted mt-2">Selecione a checkbox das fotografias que deseja apagar.</small>
                     }
-                    <input asp-for="Input.FotoFile" class="form-control" type="file" accept="image/*" />
+                    else
+                    {
+                        <p class="text-muted small">Sem fotografias de momento.</p>
+                    }
                 </div>
 
-                <div class="d-flex gap-2">
-                    <a asp-page="./Index" class="btn btn-outline-secondary flex-fill">Cancelar</a>
+                <!-- Adicionar Novas Fotos -->
+                <div class="mb-4 bg-light p-3 rounded">
+                    <label asp-for="Input.NovasFotos" class="form-label fw-bold text-dark">Adicionar Novas Fotografias</label>
+                    <input asp-for="Input.NovasFotos" class="form-control" type="file" accept="image/*" multiple />
+                    <div class="form-text">Pressione CTRL para selecionar múltiplas fotos.</div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-page="/Conta/Perfil" class="btn btn-outline-secondary flex-fill">Cancelar</a>
                     <button type="submit" class="btn btn-dark fw-bold flex-fill">
                         <i class="bi bi-save"></i> Guardar Alterações
                     </button>

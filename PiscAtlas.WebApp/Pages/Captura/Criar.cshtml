@@ -50,8 +50,9 @@
                 </div>
 
                 <div class="mb-4">
-                    <label asp-for="Input.FotosFiles" class="form-label fw-bold">Fotografias</label>
+                    <label asp-for="Input.FotosFiles" class="form-label fw-bold">Fotografias *</label>
                     <input asp-for="Input.FotosFiles" type="file" class="form-control" accept="image/*" multiple />
+                    <span asp-validation-for="Input.FotosFiles" class="text-danger small"></span>
                     <div class="form-text">Pode selecionar várias fotografias ao mesmo tempo (Pressione CTRL ao clicar nas fotos).</div>
                 </div>
 
@@ -64,3 +65,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
