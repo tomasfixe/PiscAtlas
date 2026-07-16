@@ -27,5 +27,11 @@ namespace PiscAtlas.Models.Models
 
         public virtual ICollection<Seguidor> Seguidores { get; set; } = new List<Seguidor>();
         public virtual ICollection<Seguidor> A_Seguir { get; set; } = new List<Seguidor>();
+        public bool ContaPrivada { get; set; } = false;
+        public bool ListaSeguidoresPrivada { get; set; } = false;
+        public bool CadernetaPrivada { get; set; } = false;
+
+        public string TemaVisual { get; set; } = "Claro"; // Opções: Claro, Escuro, Sistema
+        public bool AlertasSignalR { get; set; } = true;
     }
 }

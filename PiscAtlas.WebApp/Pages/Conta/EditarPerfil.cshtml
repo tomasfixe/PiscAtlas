@@ -1,77 +1,323 @@
 ﻿@page
 @model PiscAtlas.WebApp.Pages.Conta.EditarPerfilModel
 @{
-    ViewData["Title"] = "Editar Perfil";
+    ViewData["Title"] = "Definições da Conta";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="mb-4">
-            <a asp-page="./Perfil" class="text-muted text-decoration-none small">
-                <i class="bi bi-arrow-left"></i> Voltar ao Perfil
-            </a>
-            <h2 class="fw-bold mt-2">Editar Perfil</h2>
+<div class="mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-gear-fill"></i> Definições da Conta</h2>
+    <p class="text-muted">Gerencie as suas informações pessoais, privacidade, segurança e tema visual.</p>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Sucesso"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-2 bg-body-tertiary">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2" id="tab-perfil" data-bs-toggle="pill" data-bs-target="#content-perfil" type="button" role="tab">
+                    <i class="bi bi-person-badge fs-5"></i> Perfil Público
+                </button>
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-body" id="tab-privacidade" data-bs-toggle="pill" data-bs-target="#content-privacidade" type="button" role="tab">
+                    <i class="bi bi-eye-slash fs-5"></i> Privacidade
+                </button>
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-body" id="tab-seguranca" data-bs-toggle="pill" data-bs-target="#content-seguranca" type="button" role="tab">
+                    <i class="bi bi-shield-lock fs-5"></i> Segurança
+                </button>
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-body" id="tab-aparencia" data-bs-toggle="pill" data-bs-target="#content-aparencia" type="button" role="tab">
+                    <i class="bi bi-palette fs-5"></i> Aparência & Tema
+                </button>
+                <hr class="my-2">
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-danger" id="tab-perigo" data-bs-toggle="pill" data-bs-target="#content-perigo" type="button" role="tab">
+                    <i class="bi bi-exclamation-triangle fs-5"></i> Zona Perigosa
+                </button>
+            </div>
         </div>
+    </div>
 
-        <div class="card border-0 shadow-sm p-4">
-            <form method="post" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+    <div class="col-lg-9">
+        <div class="tab-content" id="v-pills-tabContent">
 
-                <div class="text-center mb-4">
-                    @if (!string.IsNullOrEmpty(Model.FotoAtual))
-                    {
-                        <img src="@Model.FotoAtual" alt="Foto atual"
-                             class="rounded-circle mb-2"
-                             style="width: 90px; height: 90px; object-fit: cover;" />
-                    }
-                    else
-                    {
-                        <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold"
-                             style="width: 90px; height: 90px; font-size: 2rem;">
-                            @Model.Iniciais
+            <div class="tab-pane fade show active" id="content-perfil" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
+                    <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-person me-2"></i>Informações Pessoais</h4>
+
+                    <form method="post" asp-page-handler="Perfil">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="d-flex align-items-center gap-4 mb-4 bg-body p-3 rounded-4 border">
+                            <div class="flex-shrink-0">
+                                @if (!string.IsNullOrEmpty(Model.InputPerfil.FotografiaPerfilUrl))
+                                {
+                                    <img src="@Model.InputPerfil.FotografiaPerfilUrl" id="previewFoto" class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="Foto" />
+                                }
+                                else
+                                {
+                                    <div id="previewFotoDefault" class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center shadow-sm fw-bold fs-3" style="width: 80px; height: 80px;">
+                                        @(Model.InputPerfil.PrimeiroNome?.FirstOrDefault() ?? 'U')
+                                    </div>
+                                    <img src="" id="previewFoto" class="rounded-circle border shadow-sm d-none" style="width: 80px; height: 80px; object-fit: cover;" alt="Foto" />
+                                }
+                            </div>
+                            <div class="flex-grow-1">
+                                <label asp-for="InputPerfil.FotografiaPerfilUrl" class="form-label fw-bold small">URL da Imagem de Perfil</label>
+                                <input asp-for="InputPerfil.FotografiaPerfilUrl" class="form-control" id="inputFotoUrl" placeholder="https://exemplo.com/minha-foto.jpg" />
+                                <span asp-validation-for="InputPerfil.FotografiaPerfilUrl" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">Cole o link de uma imagem para atualizar o seu avatar.</small>
+                            </div>
                         </div>
-                    }
-                    <div>
-                        <label asp-for="Input.FotoFile" class="form-label fw-medium small d-block">
-                            Alterar foto de perfil
-                        </label>
-                        <input asp-for="Input.FotoFile" class="form-control form-control-sm" type="file" accept="image/*" />
-                    </div>
-                </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label asp-for="Input.PrimeiroNome" class="form-label fw-medium">Primeiro Nome</label>
-                        <input asp-for="Input.PrimeiroNome" class="form-control" />
-                        <span asp-validation-for="Input.PrimeiroNome" class="text-danger small"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="Input.UltimoNome" class="form-label fw-medium">Último Nome</label>
-                        <input asp-for="Input.UltimoNome" class="form-control" />
-                        <span asp-validation-for="Input.UltimoNome" class="text-danger small"></span>
-                    </div>
-                </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="InputPerfil.PrimeiroNome" class="form-label fw-bold small"></label>
+                                <input asp-for="InputPerfil.PrimeiroNome" class="form-control" />
+                                <span asp-validation-for="InputPerfil.PrimeiroNome" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="InputPerfil.UltimoNome" class="form-label fw-bold small"></label>
+                                <input asp-for="InputPerfil.UltimoNome" class="form-control" />
+                                <span asp-validation-for="InputPerfil.UltimoNome" class="text-danger small"></span>
+                            </div>
+                        </div>
 
-                <div class="mb-4">
-                    <label asp-for="Input.NomeUtilizador" class="form-label fw-medium">Nome de Utilizador</label>
-                    <div class="input-group">
-                        <span class="input-group-text text-muted">@@</span>
-                        <input asp-for="Input.NomeUtilizador" class="form-control" />
-                    </div>
-                    <span asp-validation-for="Input.NomeUtilizador" class="text-danger small"></span>
-                </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="InputPerfil.NomeUtilizador" class="form-label fw-bold small">Nome de Utilizador (@@)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-body border-end-0">@@</span>
+                                    <input asp-for="InputPerfil.NomeUtilizador" class="form-control border-start-0" />
+                                </div>
+                                <span asp-validation-for="InputPerfil.NomeUtilizador" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="InputPerfil.Email" class="form-label fw-bold small"></label>
+                                <input asp-for="InputPerfil.Email" class="form-control" />
+                                <span asp-validation-for="InputPerfil.Email" class="text-danger small"></span>
+                            </div>
+                        </div>
 
-                <div class="d-flex gap-2">
-                    <a asp-page="./Perfil" class="btn btn-outline-secondary flex-fill">Cancelar</a>
-                    <button type="submit" class="btn btn-dark fw-bold flex-fill">
-                        <i class="bi bi-save"></i> Guardar
-                    </button>
+                        <div class="mb-4">
+                            <label asp-for="InputPerfil.Telefone" class="form-label fw-bold small"></label>
+                            <input asp-for="InputPerfil.Telefone" class="form-control" placeholder="Ex: +351 912 345 678" />
+                            <span asp-validation-for="InputPerfil.Telefone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
+                                <i class="bi bi-floppy me-1"></i> Guardar Alterações
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+
+            <div class="tab-pane fade" id="content-privacidade" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
+                    <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-lock me-2"></i>Privacidade e Visibilidade</h4>
+
+                    <form method="post" asp-page-handler="Privacidade">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h6 class="fw-bold mb-1">Conta Privada</h6>
+                                <small class="text-muted">Se ativar, apenas os seguidores que aprovar poderão ver o seu perfil e capturas.</small>
+                            </div>
+                            <div class="form-check form-switch fs-4">
+                                <input asp-for="InputPrivacidade.ContaPrivada" class="form-check-input" type="checkbox" role="switch">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h6 class="fw-bold mb-1">Ocultar Lista de Seguidores e "A Seguir"</h6>
+                                <small class="text-muted">Impedir que outros utilizadores vejam quem o segue ou quem você está a seguir.</small>
+                            </div>
+                            <div class="form-check form-switch fs-4">
+                                <input asp-for="InputPrivacidade.ListaSeguidoresPrivada" class="form-check-input" type="checkbox" role="switch">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h6 class="fw-bold mb-1">Caderneta de Espécies Privada</h6>
+                                <small class="text-muted">Ocultar o seu progresso de espécies e pontuação de outros pescadores.</small>
+                            </div>
+                            <div class="form-check form-switch fs-4">
+                                <input asp-for="InputPrivacidade.CadernetaPrivada" class="form-check-input" type="checkbox" role="switch">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
+                                <i class="bi bi-shield-lock me-1"></i> Guardar Privacidade
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-seguranca" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
+                    <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-key me-2"></i>Alterar Palavra-passe</h4>
+
+                    <form method="post" asp-page-handler="Password">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="InputPassword.PasswordAtual" class="form-label fw-bold small"></label>
+                            <input asp-for="InputPassword.PasswordAtual" class="form-control" />
+                            <span asp-validation-for="InputPassword.PasswordAtual" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="InputPassword.NovaPassword" class="form-label fw-bold small"></label>
+                                <input asp-for="InputPassword.NovaPassword" class="form-control" />
+                                <span asp-validation-for="InputPassword.NovaPassword" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="InputPassword.ConfirmarPassword" class="form-label fw-bold small"></label>
+                                <input asp-for="InputPassword.ConfirmarPassword" class="form-control" />
+                                <span asp-validation-for="InputPassword.ConfirmarPassword" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
+                                <i class="bi bi-shield-check me-1"></i> Atualizar Palavra-passe
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-aparencia" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
+                    <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-palette me-2"></i>Aparência e Tema Visual</h4>
+
+                    <form method="post" asp-page-handler="Aparencia">
+                        <label class="form-label fw-bold small mb-3">Escolha o Tema de Cores da Plataforma:</label>
+
+                        <div class="row g-3 mb-5">
+                            <div class="col-md-4">
+                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Claro" class="btn-check" id="temaClaro" autocomplete="off" onchange="mudarTemaInstante('light')">
+                                <label class="btn btn-outline-secondary p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaClaro">
+                                    <i class="bi bi-sun-fill fs-2 d-block mb-2 text-warning"></i>
+                                    <strong class="d-block">Modo Claro</strong>
+                                    <small class="text-muted">Ideal para pescaria diurna</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Escuro" class="btn-check" id="temaEscuro" autocomplete="off" onchange="mudarTemaInstante('dark')">
+                                <label class="btn btn-outline-secondary p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaEscuro">
+                                    <i class="bi bi-moon-stars-fill fs-2 d-block mb-2 text-primary"></i>
+                                    <strong class="d-block">Modo Escuro</strong>
+                                    <small class="text-muted">Descanso para os olhos</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Sistema" class="btn-check" id="temaSistema" autocomplete="off" onchange="mudarTemaInstante('system')">
+                                <label class="btn btn-outline-secondary p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaSistema">
+                                    <i class="bi bi-laptop fs-2 d-block mb-2 text-info"></i>
+                                    <strong class="d-block">Sistema</strong>
+                                    <small class="text-muted">Segue o seu dispositivo</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-3 border-top pt-4">Notificações e Alertas</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h6 class="fw-bold mb-1">Alertas Pop-up em Tempo Real (SignalR)</h6>
+                                <small class="text-muted">Receber notificações no canto do ecrã quando há novas capturas registadas.</small>
+                            </div>
+                            <div class="form-check form-switch fs-4">
+                                <input asp-for="InputAparencia.AlertasSignalR" class="form-check-input" type="checkbox" role="switch">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
+                                <i class="bi bi-check2-circle me-1"></i> Guardar Aparência
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-perigo" role="tabpanel">
+                <div class="card border-danger shadow-sm rounded-4 p-4 bg-body-tertiary">
+                    <h4 class="fw-bold text-danger mb-4 border-bottom border-danger pb-3"><i class="bi bi-exclamation-octagon me-2"></i>Zona Perigosa</h4>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                        <div>
+                            <h6 class="fw-bold mb-1">Terminar Sessão em Todos os Dispositivos</h6>
+                            <small class="text-muted">Se acha que deixou a conta aberta num computador público ou telemóvel antigo.</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger fw-bold" onclick="alert('Sessões terminadas com sucesso.');">
+                            Encerrar Sessões
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold text-danger mb-1">Eliminar a Minha Conta</h6>
+                            <small class="text-muted">Apaga definitivamente o seu perfil, capturas registadas e caderneta. Não pode ser desfeito.</small>
+                        </div>
+                        <button type="button" class="btn btn-danger fw-bold" onclick="if(confirm('Tem a certeza absoluta? Esta ação é irreversível!')) { alert('Por razões de segurança, contacte um Administrador para eliminar o registo.'); }">
+                            Eliminar Conta
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Função ultrarrápida chamada diretamente pelo clique na caixa!
+        function mudarTemaInstante(tema) {
+            if (tema === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else if (tema === 'light') {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-bs-theme');
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Script para pré-visualizar a foto ao colar o URL
+            const inputUrl = document.getElementById("inputFotoUrl");
+            const previewFoto = document.getElementById("previewFoto");
+            const previewDefault = document.getElementById("previewFotoDefault");
+
+            if (inputUrl) {
+                inputUrl.addEventListener("input", function () {
+                    const url = this.value.trim();
+                    if (url.length > 10 && (url.startsWith("http://") || url.startsWith("https://"))) {
+                        previewFoto.src = url;
+                        previewFoto.classList.remove("d-none");
+                        if (previewDefault) previewDefault.classList.add("d-none");
+                    } else if (url.length === 0) {
+                        if (previewDefault) {
+                            previewFoto.classList.add("d-none");
+                            previewDefault.classList.remove("d-none");
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 }

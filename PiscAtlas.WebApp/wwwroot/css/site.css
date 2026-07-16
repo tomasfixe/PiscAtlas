@@ -1,22 +1,84 @@
+/* ==========================================================================
+   ESTILOS BASE DO PROJETO (ORIGINAIS MANTIDOS)
+   ========================================================================== */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ==========================================================================
+   CORREÇÃO AUTOMÁTICA DE CONTRASTE PARA O MODO ESCURO (BOOTSTRAP 5)
+   ========================================================================== */
+
+/* 1. Transforma tudo o que era texto preto em texto claro e legível */
+[data-bs-theme="dark"] .text-dark {
+    color: #f8f9fa !important;
+}
+
+/* 2. Transforma todos os fundos brancos/claros em cinzento escuro de interface */
+[data-bs-theme="dark"] .bg-white,
+[data-bs-theme="dark"] .bg-light {
+    background-color: #212529 !important;
+    color: #f8f9fa !important;
+}
+
+/* 3. Garante que os cartões (Cards do Feed, Pesqueiros e Caderneta) ficam com as cores certas */
+[data-bs-theme="dark"] .card {
+    background-color: #2b3035 !important;
+    border-color: #373b3e !important;
+    color: #f8f9fa !important;
+}
+
+/* 4. Ajusta os cabeçalhos dos cartões que usam fundos cinzentos claros no modo diurno */
+[data-bs-theme="dark"] .card-header,
+[data-bs-theme="dark"] .card-footer {
+    background-color: #212529 !important;
+    border-color: #373b3e !important;
+}
+
+/* 5. Acerta a visibilidade das Badges e Etiquetas (ex: pesos dos peixes, tipos de pesqueiro) */
+[data-bs-theme="dark"] .badge.bg-light.text-dark {
+    background-color: #343a40 !important;
+    color: #e9ecef !important;
+    border: 1px solid #495057 !important;
+}
+
+/* 6. Ajusta a barra de navegação e rodapés para um tom escuro suave */
+[data-bs-theme="dark"] .bg-body-tertiary {
+    background-color: #1a1d20 !important;
+}
+
+/* 7. Garante que as divisórias e bordas não ficam em branco brilhante */
+[data-bs-theme="dark"] .border,
+[data-bs-theme="dark"] .border-top,
+[data-bs-theme="dark"] .border-bottom,
+[data-bs-theme="dark"] .border-end,
+[data-bs-theme="dark"] .border-start {
+    border-color: #373b3e !important;
+}
+
+/* 8. Garante que botões outline escuros passam a claros no modo escuro */
+[data-bs-theme="dark"] .btn-outline-dark {
+    color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+    [data-bs-theme="dark"] .btn-outline-dark:hover {
+        background-color: #f8f9fa;
+        color: #212529 !important;
+    }
