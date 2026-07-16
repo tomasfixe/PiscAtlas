@@ -5,7 +5,7 @@
 }
 
 <div class="mb-4">
-    <h2 class="fw-bold mb-0"><i class="bi bi-gear-fill text-dark"></i> Definições da Conta</h2>
+    <h2 class="fw-bold mb-0"><i class="bi bi-gear-fill"></i> Definições da Conta</h2>
     <p class="text-muted">Gerencie as suas informações pessoais, privacidade, segurança e tema visual.</p>
 </div>
 
@@ -18,20 +18,19 @@
 }
 
 <div class="row g-4">
-    <!-- Coluna Esquerda: Menu Lateral das Definições (5 Abas Agora!) -->
     <div class="col-lg-3">
-        <div class="card border-0 shadow-sm rounded-4 p-2">
+        <div class="card border-0 shadow-sm rounded-4 p-2 bg-body-tertiary">
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <button class="nav-link active text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2" id="tab-perfil" data-bs-toggle="pill" data-bs-target="#content-perfil" type="button" role="tab">
                     <i class="bi bi-person-badge fs-5"></i> Perfil Público
                 </button>
-                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-dark" id="tab-privacidade" data-bs-toggle="pill" data-bs-target="#content-privacidade" type="button" role="tab">
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-body" id="tab-privacidade" data-bs-toggle="pill" data-bs-target="#content-privacidade" type="button" role="tab">
                     <i class="bi bi-eye-slash fs-5"></i> Privacidade
                 </button>
-                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-dark" id="tab-seguranca" data-bs-toggle="pill" data-bs-target="#content-seguranca" type="button" role="tab">
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-body" id="tab-seguranca" data-bs-toggle="pill" data-bs-target="#content-seguranca" type="button" role="tab">
                     <i class="bi bi-shield-lock fs-5"></i> Segurança
                 </button>
-                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-dark" id="tab-aparencia" data-bs-toggle="pill" data-bs-target="#content-aparencia" type="button" role="tab">
+                <button class="nav-link text-start fw-bold py-3 px-3 rounded-3 d-flex align-items-center gap-2 text-body" id="tab-aparencia" data-bs-toggle="pill" data-bs-target="#content-aparencia" type="button" role="tab">
                     <i class="bi bi-palette fs-5"></i> Aparência & Tema
                 </button>
                 <hr class="my-2">
@@ -42,19 +41,17 @@
         </div>
     </div>
 
-    <!-- Coluna Direita: Conteúdo das Abas -->
     <div class="col-lg-9">
         <div class="tab-content" id="v-pills-tabContent">
 
-            <!-- 1. ABA PERFIL PÚBLICO -->
             <div class="tab-pane fade show active" id="content-perfil" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
                     <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-person me-2"></i>Informações Pessoais</h4>
 
                     <form method="post" asp-page-handler="Perfil">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <div class="d-flex align-items-center gap-4 mb-4 bg-light p-3 rounded-4 border">
+                        <div class="d-flex align-items-center gap-4 mb-4 bg-body p-3 rounded-4 border">
                             <div class="flex-shrink-0">
                                 @if (!string.IsNullOrEmpty(Model.InputPerfil.FotografiaPerfilUrl))
                                 {
@@ -93,7 +90,7 @@
                             <div class="col-md-6">
                                 <label asp-for="InputPerfil.NomeUtilizador" class="form-label fw-bold small">Nome de Utilizador (@@)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0">@@</span>
+                                    <span class="input-group-text bg-body border-end-0">@@</span>
                                     <input asp-for="InputPerfil.NomeUtilizador" class="form-control border-start-0" />
                                 </div>
                                 <span asp-validation-for="InputPerfil.NomeUtilizador" class="text-danger small"></span>
@@ -112,7 +109,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-dark fw-bold px-4 py-2">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
                                 <i class="bi bi-floppy me-1"></i> Guardar Alterações
                             </button>
                         </div>
@@ -120,39 +117,35 @@
                 </div>
             </div>
 
-            <!-- 2. ABA PRIVACIDADE DA CONTA (NOVA!) -->
             <div class="tab-pane fade" id="content-privacidade" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
                     <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-lock me-2"></i>Privacidade e Visibilidade</h4>
 
                     <form method="post" asp-page-handler="Privacidade">
-                        <!-- Toggle 1: Conta Privada -->
                         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                             <div>
                                 <h6 class="fw-bold mb-1">Conta Privada</h6>
-                                <small class="text-muted">Se ativar, apenas os seguidores que aprovar poderão ver o seu perfil, capturas e locais de pesca.</small>
+                                <small class="text-muted">Se ativar, apenas os seguidores que aprovar poderão ver o seu perfil e capturas.</small>
                             </div>
                             <div class="form-check form-switch fs-4">
                                 <input asp-for="InputPrivacidade.ContaPrivada" class="form-check-input" type="checkbox" role="switch">
                             </div>
                         </div>
 
-                        <!-- Toggle 2: Ocultar Seguidores e A Seguir -->
                         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                             <div>
                                 <h6 class="fw-bold mb-1">Ocultar Lista de Seguidores e "A Seguir"</h6>
-                                <small class="text-muted">Impedir que outros utilizadores vejam quem o segue ou quem você está a seguir no PiscAtlas.</small>
+                                <small class="text-muted">Impedir que outros utilizadores vejam quem o segue ou quem você está a seguir.</small>
                             </div>
                             <div class="form-check form-switch fs-4">
                                 <input asp-for="InputPrivacidade.ListaSeguidoresPrivada" class="form-check-input" type="checkbox" role="switch">
                             </div>
                         </div>
 
-                        <!-- Toggle 3: Caderneta Privada -->
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h6 class="fw-bold mb-1">Caderneta de Espécies Privada</h6>
-                                <small class="text-muted">Ocultar o seu progresso de espécies, recordes de peso e pontuação de XP de outros pescadores.</small>
+                                <small class="text-muted">Ocultar o seu progresso de espécies e pontuação de outros pescadores.</small>
                             </div>
                             <div class="form-check form-switch fs-4">
                                 <input asp-for="InputPrivacidade.CadernetaPrivada" class="form-check-input" type="checkbox" role="switch">
@@ -160,7 +153,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-dark fw-bold px-4 py-2">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
                                 <i class="bi bi-shield-lock me-1"></i> Guardar Privacidade
                             </button>
                         </div>
@@ -168,9 +161,8 @@
                 </div>
             </div>
 
-            <!-- 3. ABA SEGURANÇA (PASSWORD) -->
             <div class="tab-pane fade" id="content-seguranca" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
                     <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-key me-2"></i>Alterar Palavra-passe</h4>
 
                     <form method="post" asp-page-handler="Password">
@@ -204,36 +196,34 @@
                 </div>
             </div>
 
-            <!-- 4. ABA APARÊNCIA & TEMA (NOVA!) -->
             <div class="tab-pane fade" id="content-aparencia" role="tabpanel">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
                     <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-palette me-2"></i>Aparência e Tema Visual</h4>
 
                     <form method="post" asp-page-handler="Aparencia">
                         <label class="form-label fw-bold small mb-3">Escolha o Tema de Cores da Plataforma:</label>
 
-                        <!-- Seletores de Tema em Cartão (Radio Buttons Ocultos) -->
                         <div class="row g-3 mb-5">
                             <div class="col-md-4">
-                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Claro" class="btn-check" id="temaClaro" autocomplete="off">
-                                <label class="btn btn-outline-dark p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaClaro" id="cardTemaClaro">
+                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Claro" class="btn-check" id="temaClaro" autocomplete="off" onchange="mudarTemaInstante('light')">
+                                <label class="btn btn-outline-secondary p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaClaro">
                                     <i class="bi bi-sun-fill fs-2 d-block mb-2 text-warning"></i>
                                     <strong class="d-block">Modo Claro</strong>
                                     <small class="text-muted">Ideal para pescaria diurna</small>
                                 </label>
                             </div>
                             <div class="col-md-4">
-                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Escuro" class="btn-check" id="temaEscuro" autocomplete="off">
-                                <label class="btn btn-outline-dark p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaEscuro" id="cardTemaEscuro">
+                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Escuro" class="btn-check" id="temaEscuro" autocomplete="off" onchange="mudarTemaInstante('dark')">
+                                <label class="btn btn-outline-secondary p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaEscuro">
                                     <i class="bi bi-moon-stars-fill fs-2 d-block mb-2 text-primary"></i>
                                     <strong class="d-block">Modo Escuro</strong>
                                     <small class="text-muted">Descanso para os olhos</small>
                                 </label>
                             </div>
                             <div class="col-md-4">
-                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Sistema" class="btn-check" id="temaSistema" autocomplete="off">
-                                <label class="btn btn-outline-dark p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaSistema" id="cardTemaSistema">
-                                    <i class="bi bi-laptop fs-2 d-block mb-2 text-secondary"></i>
+                                <input type="radio" asp-for="InputAparencia.TemaVisual" value="Sistema" class="btn-check" id="temaSistema" autocomplete="off" onchange="mudarTemaInstante('system')">
+                                <label class="btn btn-outline-secondary p-3 w-100 rounded-4 text-center d-block cursor-pointer border-2" for="temaSistema">
+                                    <i class="bi bi-laptop fs-2 d-block mb-2 text-info"></i>
                                     <strong class="d-block">Sistema</strong>
                                     <small class="text-muted">Segue o seu dispositivo</small>
                                 </label>
@@ -244,7 +234,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h6 class="fw-bold mb-1">Alertas Pop-up em Tempo Real (SignalR)</h6>
-                                <small class="text-muted">Receber notificações no canto do ecrã quando há novas capturas registadas na sua zona.</small>
+                                <small class="text-muted">Receber notificações no canto do ecrã quando há novas capturas registadas.</small>
                             </div>
                             <div class="form-check form-switch fs-4">
                                 <input asp-for="InputAparencia.AlertasSignalR" class="form-check-input" type="checkbox" role="switch">
@@ -252,7 +242,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-dark fw-bold px-4 py-2">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 py-2">
                                 <i class="bi bi-check2-circle me-1"></i> Guardar Aparência
                             </button>
                         </div>
@@ -260,9 +250,8 @@
                 </div>
             </div>
 
-            <!-- 5. ZONA PERIGOSA -->
             <div class="tab-pane fade" id="content-perigo" role="tabpanel">
-                <div class="card border-danger shadow-sm rounded-4 p-4">
+                <div class="card border-danger shadow-sm rounded-4 p-4 bg-body-tertiary">
                     <h4 class="fw-bold text-danger mb-4 border-bottom border-danger pb-3"><i class="bi bi-exclamation-octagon me-2"></i>Zona Perigosa</h4>
 
                     <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
@@ -294,8 +283,22 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // Função ultrarrápida chamada diretamente pelo clique na caixa!
+        function mudarTemaInstante(tema) {
+            if (tema === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else if (tema === 'light') {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-bs-theme');
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                }
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
-            // 1. Script para pré-visualizar a foto ao colar o URL
+            // Script para pré-visualizar a foto ao colar o URL
             const inputUrl = document.getElementById("inputFotoUrl");
             const previewFoto = document.getElementById("previewFoto");
             const previewDefault = document.getElementById("previewFotoDefault");
@@ -315,24 +318,6 @@
                     }
                 });
             }
-
-            // 2. Magia do Modo Escuro: Alternar o tema do site instantaneamente ao clicar nas opções!
-            const radiosTema = document.querySelectorAll('input[name="InputAparencia.TemaVisual"]');
-            radiosTema.forEach(function (radio) {
-                radio.addEventListener('change', function () {
-                    if (this.value === 'Escuro') {
-                        document.documentElement.setAttribute('data-bs-theme', 'dark');
-                        document.body.classList.replace('bg-light', 'bg-dark');
-                    } else if (this.value === 'Claro') {
-                        document.documentElement.setAttribute('data-bs-theme', 'light');
-                        document.body.classList.replace('bg-dark', 'bg-light');
-                    } else {
-                        // Sistema (remove o atributo forçado)
-                        document.documentElement.removeAttribute('data-bs-theme');
-                        document.body.classList.replace('bg-dark', 'bg-light');
-                    }
-                });
-            });
         });
     </script>
 }

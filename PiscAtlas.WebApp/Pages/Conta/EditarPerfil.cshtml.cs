@@ -121,19 +121,19 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 FotografiaPerfilUrl = user.FotografiaPerfilUrl
             };
 
-            // Carregar preferências de Privacidade (Valores por defeito se a coluna ainda não existir na BD)
+            // AGORA LÊ AS PREFERÊNCIAS DIRETAMENTE DA BASE DE DADOS:
             InputPrivacidade = new InputPrivacidadeModel
             {
-                ContaPrivada = false,
-                ListaSeguidoresPrivada = false,
-                CadernetaPrivada = false
+                ContaPrivada = user.ContaPrivada,
+                ListaSeguidoresPrivada = user.ListaSeguidoresPrivada,
+                CadernetaPrivada = user.CadernetaPrivada
             };
 
-            // Carregar preferências de Aparência
+            // AGORA LÊ AS PREFERÊNCIAS DE APARÊNCIA DIRETAMENTE DA BASE DE DADOS:
             InputAparencia = new InputAparenciaModel
             {
-                TemaVisual = "Claro",
-                AlertasSignalR = true
+                TemaVisual = user.TemaVisual ?? "Claro",
+                AlertasSignalR = user.AlertasSignalR
             };
 
             return Page();
@@ -177,16 +177,19 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return Page();
         }
 
-        // HANDLER 2: GUARDAR PRIVACIDADE (NOVO!)
+        // HANDLER 2: GUARDAR PRIVACIDADE (GRAVA NA BASE DE DADOS REAL)
         public async Task<IActionResult> OnPostPrivacidadeAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            // Aqui no futuro podes guardar diretamente nas novas colunas da BD (ex: user.ContaPrivada = InputPrivacidade.ContaPrivada)
+            user.ContaPrivada = InputPrivacidade.ContaPrivada;
+            user.ListaSeguidoresPrivada = InputPrivacidade.ListaSeguidoresPrivada;
+            user.CadernetaPrivada = InputPrivacidade.CadernetaPrivada;
+
             await _userManager.UpdateAsync(user);
 
-            TempData["Sucesso"] = "Definições de privacidade atualizadas!";
+            TempData["Sucesso"] = "Definições de privacidade guardadas com sucesso!";
             return RedirectToPage();
         }
 
@@ -211,14 +214,18 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return RedirectToPage();
         }
 
-        // HANDLER 4: GUARDAR APARÊNCIA (NOVO!)
+        // HANDLER 4: GUARDAR APARÊNCIA (GRAVA NA BASE DE DADOS REAL)
         public async Task<IActionResult> OnPostAparenciaAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            // Guardar preferências de tema
-            TempData["Sucesso"] = $"Preferências de visualização guardadas (Tema: {InputAparencia.TemaVisual})!";
+            user.TemaVisual = InputAparencia.TemaVisual;
+            user.AlertasSignalR = InputAparencia.AlertasSignalR;
+
+            await _userManager.UpdateAsync(user);
+
+            TempData["Sucesso"] = $"Preferências guardadas! O tema '{user.TemaVisual}' está agora ativo.";
             return RedirectToPage();
         }
     }
