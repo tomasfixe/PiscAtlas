@@ -23,19 +23,22 @@ namespace PiscAtlas.WebApp.Pages.Especie
         public List<PiscAtlas.Models.Models.Especie> TodasEspecies { get; set; } = new();
         public List<int> EspeciesCapturadasIds { get; set; } = new();
 
-        // Estas são as variáveis que faltavam e causavam o erro 1061
         public Utilizador? CadernetaUser { get; set; }
         public bool IsProprio { get; set; }
 
+        // AS PROPRIEDADES QUE RESOLVEM OS DOIS ERROS CS1061:
         public int TotalCapturadas => EspeciesCapturadasIds.Count;
         public int TotalEspecies => TodasEspecies.Count;
+        public int PorFazer => TotalEspecies - TotalCapturadas;
         public int Percentagem => TotalEspecies == 0 ? 0 : (int)Math.Round((double)TotalCapturadas / TotalEspecies * 100);
+        public int Pontos => TotalCapturadas * 100;
 
         public async Task<IActionResult> OnGetAsync(string? userId)
         {
             var currentUserId = _userManager.GetUserId(User);
-            // Se userId for nulo (visto no link), usa o do utilizador logado
             string targetUserId = string.IsNullOrEmpty(userId) ? currentUserId : userId;
+
+            if (string.IsNullOrEmpty(targetUserId)) return NotFound();
 
             CadernetaUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == targetUserId);
             if (CadernetaUser == null) return NotFound();

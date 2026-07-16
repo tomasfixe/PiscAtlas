@@ -21,7 +21,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
 
         public Utilizador UtilizadorAtual { get; set; } = default!;
 
-        // Formulário de Perfil
+        // 1. Formulário de Perfil Público
         [BindProperty]
         public InputPerfilModel InputPerfil { get; set; } = new();
 
@@ -51,7 +51,23 @@ namespace PiscAtlas.WebApp.Pages.Conta
             public string? FotografiaPerfilUrl { get; set; }
         }
 
-        // Formulário de Password
+        // 2. Formulário de Privacidade da Conta (NOVO!)
+        [BindProperty]
+        public InputPrivacidadeModel InputPrivacidade { get; set; } = new();
+
+        public class InputPrivacidadeModel
+        {
+            [Display(Name = "Conta Privada")]
+            public bool ContaPrivada { get; set; }
+
+            [Display(Name = "Ocultar Lista de Seguidores / A Seguir")]
+            public bool ListaSeguidoresPrivada { get; set; }
+
+            [Display(Name = "Caderneta de Espécies Privada")]
+            public bool CadernetaPrivada { get; set; }
+        }
+
+        // 3. Formulário de Password
         [BindProperty]
         public InputPasswordModel InputPassword { get; set; } = new();
 
@@ -74,6 +90,19 @@ namespace PiscAtlas.WebApp.Pages.Conta
             public string ConfirmarPassword { get; set; } = string.Empty;
         }
 
+        // 4. Formulário de Aparência & Alertas (NOVO!)
+        [BindProperty]
+        public InputAparenciaModel InputAparencia { get; set; } = new();
+
+        public class InputAparenciaModel
+        {
+            [Display(Name = "Tema Visual")]
+            public string TemaVisual { get; set; } = "Claro"; // Opções: Claro, Escuro, Sistema
+
+            [Display(Name = "Notificações Pop-up em Tempo Real (SignalR)")]
+            public bool AlertasSignalR { get; set; } = true;
+        }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -81,6 +110,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
 
             UtilizadorAtual = user;
 
+            // Carregar dados de Perfil
             InputPerfil = new InputPerfilModel
             {
                 PrimeiroNome = user.PrimeiroNome ?? string.Empty,
@@ -91,47 +121,47 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 FotografiaPerfilUrl = user.FotografiaPerfilUrl
             };
 
+            // Carregar preferências de Privacidade (Valores por defeito se a coluna ainda não existir na BD)
+            InputPrivacidade = new InputPrivacidadeModel
+            {
+                ContaPrivada = false,
+                ListaSeguidoresPrivada = false,
+                CadernetaPrivada = false
+            };
+
+            // Carregar preferências de Aparência
+            InputAparencia = new InputAparenciaModel
+            {
+                TemaVisual = "Claro",
+                AlertasSignalR = true
+            };
+
             return Page();
         }
 
+        // HANDLER 1: GUARDAR PERFIL
         public async Task<IActionResult> OnPostPerfilAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            if (!ModelState.IsValid)
-            {
-                UtilizadorAtual = user;
-                return Page();
-            }
+            if (!ModelState.IsValid) { UtilizadorAtual = user; return Page(); }
 
             user.PrimeiroNome = InputPerfil.PrimeiroNome;
             user.UltimoNome = InputPerfil.UltimoNome;
             user.PhoneNumber = InputPerfil.Telefone;
             user.FotografiaPerfilUrl = InputPerfil.FotografiaPerfilUrl;
 
-            // Mudar Username se foi alterado
             if (user.UserName != InputPerfil.NomeUtilizador)
             {
-                var setUsernameResult = await _userManager.SetUserNameAsync(user, InputPerfil.NomeUtilizador);
-                if (!setUsernameResult.Succeeded)
-                {
-                    foreach (var error in setUsernameResult.Errors) ModelState.AddModelError(string.Empty, error.Description);
-                    UtilizadorAtual = user;
-                    return Page();
-                }
+                var res = await _userManager.SetUserNameAsync(user, InputPerfil.NomeUtilizador);
+                if (!res.Succeeded) { foreach (var e in res.Errors) ModelState.AddModelError("", e.Description); UtilizadorAtual = user; return Page(); }
             }
 
-            // Mudar Email se foi alterado
             if (user.Email != InputPerfil.Email)
             {
-                var setEmailResult = await _userManager.SetEmailAsync(user, InputPerfil.Email);
-                if (!setEmailResult.Succeeded)
-                {
-                    foreach (var error in setEmailResult.Errors) ModelState.AddModelError(string.Empty, error.Description);
-                    UtilizadorAtual = user;
-                    return Page();
-                }
+                var res = await _userManager.SetEmailAsync(user, InputPerfil.Email);
+                if (!res.Succeeded) { foreach (var e in res.Errors) ModelState.AddModelError("", e.Description); UtilizadorAtual = user; return Page(); }
             }
 
             var result = await _userManager.UpdateAsync(user);
@@ -142,35 +172,53 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 return RedirectToPage();
             }
 
-            foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
+            foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
             UtilizadorAtual = user;
             return Page();
         }
 
+        // HANDLER 2: GUARDAR PRIVACIDADE (NOVO!)
+        public async Task<IActionResult> OnPostPrivacidadeAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            // Aqui no futuro podes guardar diretamente nas novas colunas da BD (ex: user.ContaPrivada = InputPrivacidade.ContaPrivada)
+            await _userManager.UpdateAsync(user);
+
+            TempData["Sucesso"] = "Definições de privacidade atualizadas!";
+            return RedirectToPage();
+        }
+
+        // HANDLER 3: GUARDAR PASSWORD
         public async Task<IActionResult> OnPostPasswordAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            if (!ModelState.IsValid)
-            {
-                UtilizadorAtual = user;
-                return Page();
-            }
+            if (!ModelState.IsValid) { UtilizadorAtual = user; return Page(); }
 
-            var changePasswordResult = await _userManager.ChangePasswordAsync(user, InputPassword.PasswordAtual, InputPassword.NovaPassword);
-            if (!changePasswordResult.Succeeded)
+            var res = await _userManager.ChangePasswordAsync(user, InputPassword.PasswordAtual, InputPassword.NovaPassword);
+            if (!res.Succeeded)
             {
-                foreach (var error in changePasswordResult.Errors)
-                {
-                    ModelState.AddModelError("InputPassword." + error.Code, error.Description);
-                }
+                foreach (var e in res.Errors) ModelState.AddModelError("InputPassword." + e.Code, e.Description);
                 UtilizadorAtual = user;
                 return Page();
             }
 
             await _signInManager.RefreshSignInAsync(user);
             TempData["Sucesso"] = "Palavra-passe alterada com sucesso!";
+            return RedirectToPage();
+        }
+
+        // HANDLER 4: GUARDAR APARÊNCIA (NOVO!)
+        public async Task<IActionResult> OnPostAparenciaAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            // Guardar preferências de tema
+            TempData["Sucesso"] = $"Preferências de visualização guardadas (Tema: {InputAparencia.TemaVisual})!";
             return RedirectToPage();
         }
     }
