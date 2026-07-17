@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.SignalR;
+using PiscAtlas.WebApp.Hubs;
 
 namespace PiscAtlas.WebApp.Pages.Pesqueiro
 {
@@ -12,11 +14,13 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly IHubContext<NotificacaoHub> _hubContext;
 
-        public CriarModel(ApplicationDbContext context, IWebHostEnvironment env)
+        public CriarModel(ApplicationDbContext context, IWebHostEnvironment env, IHubContext<NotificacaoHub> hubContext)
         {
             _context = context;
             _env = env;
+            _hubContext = hubContext;
         }
 
         [BindProperty]
@@ -54,6 +58,15 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
 
             _context.Pesqueiros.Add(pesqueiro);
             await _context.SaveChangesAsync();
+
+            // DISPARAR NOTIFICAÇÃO DE NOVO PESQUEIRO
+            await _hubContext.Clients.All.SendAsync(
+                "ReceberNovidade",
+                "Pesqueiro",
+                "Novo Pesqueiro!",
+                $"O pesqueiro '{pesqueiro.Nome}' foi adicionado ao mapa."
+            );
+
             return RedirectToPage("./Index");
         }
 

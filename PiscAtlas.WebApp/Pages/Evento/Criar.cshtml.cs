@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR; 
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
+using PiscAtlas.WebApp.Hubs; 
 using System.ComponentModel.DataAnnotations;
 
 namespace PiscAtlas.WebApp.Pages.Evento
@@ -13,11 +15,14 @@ namespace PiscAtlas.WebApp.Pages.Evento
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly IHubContext<NotificacaoHub> _hubContext; 
 
-        public CriarModel(ApplicationDbContext context, IWebHostEnvironment env)
+        
+        public CriarModel(ApplicationDbContext context, IWebHostEnvironment env, IHubContext<NotificacaoHub> hubContext)
         {
             _context = context;
-            _env = env; // Permite guardar a foto na pasta do site
+            _env = env;
+            _hubContext = hubContext;
         }
 
         [BindProperty]
@@ -68,6 +73,14 @@ namespace PiscAtlas.WebApp.Pages.Evento
             _context.Eventos.Add(evento);
             await _context.SaveChangesAsync();
 
+            // DISPARAR NOTIFICAÇÃO DE NOVO EVENTO
+            await _hubContext.Clients.All.SendAsync(
+                "ReceberNovidade",
+                "Evento",
+                "Novo Evento Criado!",
+                $"O evento '{evento.Nome}' já se encontra disponível."
+            );
+
             TempData["Sucesso"] = "Evento criado com sucesso!";
             return RedirectToPage("./Index");
         }
@@ -91,7 +104,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
             public double? PesoMinimo { get; set; }
             public double? TamanhoMinimo { get; set; }
             public double? PrecoInscricao { get; set; }
-            public IFormFile? FotoFile { get; set; } // O novo campo para a foto
+            public IFormFile? FotoFile { get; set; }
         }
     }
 }

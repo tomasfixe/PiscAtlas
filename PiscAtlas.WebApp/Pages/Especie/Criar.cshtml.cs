@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using PiscAtlas.Models;
+using PiscAtlas.WebApp.Hubs;
 
 namespace PiscAtlas.WebApp.Pages.Especie
 {
@@ -9,10 +11,12 @@ namespace PiscAtlas.WebApp.Pages.Especie
     public class CriarModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<NotificacaoHub> _hubContext;
 
-        public CriarModel(ApplicationDbContext context)
+        public CriarModel(ApplicationDbContext context, IHubContext<NotificacaoHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         [BindProperty]
@@ -42,6 +46,14 @@ namespace PiscAtlas.WebApp.Pages.Especie
 
             _context.Especies.Add(NovaEspecie);
             await _context.SaveChangesAsync();
+
+            // Signal R para notificar todos os clientes conectados sobre a nova espécie adicionada
+            await _hubContext.Clients.All.SendAsync(
+                "ReceberNovidade",
+                "Especie",
+                "Nova Espécie!",
+                $"A espécie '{NovaEspecie.Nome}' foi adicionada."
+            );
 
             TempData["Sucesso"] = "Nova espécie adicionada com sucesso à caderneta!";
             return RedirectToPage("./Index");
