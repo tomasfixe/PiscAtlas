@@ -50,7 +50,7 @@ namespace PiscAtlas.WebApp.Pages.Denuncia
                 if (captura.UtilizadorId == user!.Id)
                 {
                     TempData["Erro"] = "Não pode denunciar a sua própria captura.";
-                    return RedirectToPage("/Index");
+                    return RedirectToPage("/Home/Index");
                 }
 
                 bool jaDenunciou = await _context.Denuncias
@@ -59,7 +59,7 @@ namespace PiscAtlas.WebApp.Pages.Denuncia
                 if (jaDenunciou)
                 {
                     TempData["Erro"] = "Já denunciou esta captura anteriormente.";
-                    return RedirectToPage("/Index");
+                    return RedirectToPage("/Home/Index");
                 }
 
                 var denuncia = new PiscAtlas.Models.Models.Denuncia
@@ -86,7 +86,7 @@ namespace PiscAtlas.WebApp.Pages.Denuncia
             if (!string.IsNullOrEmpty(referer))
                 return Redirect(referer);
 
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Home/Index");
         }
     }
 }

@@ -21,24 +21,39 @@ namespace PiscAtlas.WebApp.Pages.Home
         public List<PiscAtlas.Models.Models.Captura> Capturas { get; set; } = new();
         public HashSet<int> CapturasGostadas { get; set; } = new();
 
+        // Propriedade para saber qual aba está ativa (por defeito é global)
+        [BindProperty(SupportsGet = true)]
+        public string Aba { get; set; } = "global";
+
         public async Task OnGetAsync()
         {
-            Capturas = await _context.Capturas
+            // 1. Iniciar a query base (com os Includes necessários)
+            var query = _context.Capturas
                 .Include(c => c.Utilizador)
                 .Include(c => c.Especie)
                 .Include(c => c.Pesqueiro)
                 .Include(c => c.Fotografias)
                 .Include(c => c.Interacoes).ThenInclude(i => i.Utilizador)
-                .Where(c => c.AprovadaPeloAdmin)
-                .OrderByDescending(c => c.DataCaptura)
-                .Take(50)
-                .ToListAsync();
+                .Where(c => c.AprovadaPeloAdmin);
 
+            // 2. Lógica para utilizadores autenticados
             if (User.Identity?.IsAuthenticated == true)
             {
                 var userId = _userManager.GetUserId(User);
                 if (userId != null)
                 {
+                    // Se o utilizador escolheu a aba "A Seguir", aplicamos o filtro
+                    if (Aba == "seguindo")
+                    {
+                        var seguidosIds = await _context.Seguidores
+                            .Where(s => s.SeguidorId == userId)
+                            .Select(s => s.SeguidoId)
+                            .ToListAsync();
+
+                        query = query.Where(c => seguidosIds.Contains(c.UtilizadorId));
+                    }
+
+                    // Carregar os gostos do utilizador atual (para o coração vermelho)
                     var gostos = await _context.Interacoes
                         .Where(i => i.UtilizadorId == userId && i.Tipo == TipoInteracao.Gosto)
                         .Select(i => i.CapturaId)
@@ -47,9 +62,21 @@ namespace PiscAtlas.WebApp.Pages.Home
                     CapturasGostadas = new HashSet<int>(gostos);
                 }
             }
+            else
+            {
+                // Garante que visitantes não logados veem sempre o global
+                Aba = "global";
+            }
+
+            // 3. Executar a query final ordenando pelas mais recentes
+            Capturas = await query
+                .OrderByDescending(c => c.DataCaptura)
+                .Take(50)
+                .ToListAsync();
         }
 
-        public async Task<IActionResult> OnPostLikeAsync(int capturaId)
+        // Adicionado o parâmetro 'aba' para não saltar para a aba global após um Like
+        public async Task<IActionResult> OnPostLikeAsync(int capturaId, string aba = "global")
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
@@ -61,10 +88,11 @@ namespace PiscAtlas.WebApp.Pages.Home
             else _context.Interacoes.Add(new Interacao { CapturaId = capturaId, UtilizadorId = user.Id, Tipo = TipoInteracao.Gosto });
 
             await _context.SaveChangesAsync();
-            return Redirect(Url.Page("/Home/Index") + "#captura-" + capturaId);
+            return Redirect(Url.Page("/Home/Index", new { aba = aba }) + "#captura-" + capturaId);
         }
 
-        public async Task<IActionResult> OnPostComentarAsync(int capturaId, string comentarioTexto)
+        // Adicionado o parâmetro 'aba' para não saltar para a aba global após Comentar
+        public async Task<IActionResult> OnPostComentarAsync(int capturaId, string comentarioTexto, string aba = "global")
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
@@ -74,7 +102,7 @@ namespace PiscAtlas.WebApp.Pages.Home
                 _context.Interacoes.Add(new Interacao { CapturaId = capturaId, UtilizadorId = user.Id, Tipo = TipoInteracao.Comentario, Texto = comentarioTexto });
                 await _context.SaveChangesAsync();
             }
-            return Redirect(Url.Page("/Home/Index") + "#captura-" + capturaId);
+            return Redirect(Url.Page("/Home/Index", new { aba = aba }) + "#captura-" + capturaId);
         }
     }
 }

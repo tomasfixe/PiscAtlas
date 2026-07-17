@@ -6,16 +6,40 @@
 }
 
 <div class="row justify-content-center">
-    <!-- Centrado e com a largura perfeita -->
     <div class="col-12 col-md-8 col-lg-6">
+
+        <!-- Abas de Navegação (Só aparecem para quem tem sessão iniciada) -->
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="d-flex justify-content-center mb-4">
+                <div class="btn-group bg-body-tertiary p-1 rounded-pill shadow-sm" role="group">
+                    <a asp-page="/Home/Index" asp-route-aba="global" class="btn rounded-pill @(Model.Aba != "seguindo" ? "btn-dark shadow" : "btn-outline-secondary border-0 text-dark") px-4 fw-bold">
+                        <i class="bi bi-globe-europe-africa me-1"></i> Global
+                    </a>
+                    <a asp-page="/Home/Index" asp-route-aba="seguindo" class="btn rounded-pill @(Model.Aba == "seguindo" ? "btn-dark shadow" : "btn-outline-secondary border-0 text-dark") px-4 fw-bold">
+                        <i class="bi bi-people-fill me-1"></i> A Seguir
+                    </a>
+                </div>
+            </div>
+        }
 
         @if (!Model.Capturas.Any())
         {
             <div class="text-center py-5">
                 <i class="bi bi-camera text-muted" style="font-size: 4rem;"></i>
-                <h4 class="mt-3 fw-bold">Ainda não há capturas</h4>
-                <p class="text-muted">Seja o primeiro a partilhar a sua pescaria!</p>
-                <a asp-page="/Captura/Criar" class="btn btn-dark rounded-pill px-4 mt-2">Publicar Captura</a>
+
+                @if (Model.Aba == "seguindo")
+                {
+                    <h4 class="mt-3 fw-bold">O teu feed está silencioso</h4>
+                    <p class="text-muted">As pessoas que segues ainda não partilharam capturas recentemente.</p>
+                    <a asp-page="/Pesquisa" class="btn btn-outline-dark rounded-pill px-4 mt-2"><i class="bi bi-search me-1"></i> Encontrar Pescadores</a>
+                }
+                else
+                {
+                    <h4 class="mt-3 fw-bold">Ainda não há capturas</h4>
+                    <p class="text-muted">Seja o primeiro a partilhar a sua pescaria!</p>
+                    <a asp-page="/Captura/Criar" class="btn btn-dark rounded-pill px-4 mt-2">Publicar Captura</a>
+                }
             </div>
         }
         else
@@ -63,7 +87,6 @@
                             }
                             else
                             {
-                                <!-- Fallback para capturas antigas que só tenham a foto principal -->
                                 <div class="carousel-item active">
                                     <img src="@c.FotografiaUrl" class="d-block w-100" style="object-fit: cover; height: 350px;" alt="Captura">
                                 </div>
@@ -89,7 +112,7 @@
                             <div class="d-flex gap-3 align-items-center">
                                 @if (User.Identity?.IsAuthenticated == true)
                                 {
-                                    <form method="post" asp-page-handler="Like" asp-route-capturaId="@c.CapturaId">
+                                    <form method="post" asp-page-handler="Like" asp-route-capturaId="@c.CapturaId" asp-route-aba="@Model.Aba">
                                         <button type="submit" class="btn btn-link p-0 text-dark text-decoration-none fs-4">
                                             <i class="bi @(utilizadorDeuLike ? "bi-heart-fill text-danger" : "bi-heart hover-danger")"></i>
                                         </button>
@@ -147,6 +170,7 @@
                         {
                             <form method="post" asp-page-handler="Comentar" class="mt-3 border-top pt-3 d-flex gap-2 align-items-center">
                                 <input type="hidden" name="capturaId" value="@c.CapturaId" />
+                                <input type="hidden" name="aba" value="@Model.Aba" />
                                 <input type="text" id="comentario-@c.CapturaId" name="comentarioTexto" class="form-control border-0 px-0 shadow-none small" placeholder="Adicione um comentário..." required autocomplete="off" style="box-shadow: none !important; background: transparent;" />
                                 <button type="submit" class="btn btn-link text-primary text-decoration-none fw-bold p-0 small">Publicar</button>
                             </form>

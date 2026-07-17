@@ -54,33 +54,44 @@
     <div class="col-12">
         <h5 class="fw-bold mb-3">Acesso Rápido</h5>
     </div>
-    <div class="col-6 col-md-3">
+
+    <!-- PRIMEIRA LINHA DE BOTÕES -->
+    <div class="col-6 col-md-4">
         <a asp-page="./Capturas" asp-route-pendentes="true"
            class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-clock fs-4 mb-1"></i>
             <small>Capturas a Aprovar</small>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
         <a asp-page="./Denuncias" class="btn btn-outline-danger w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-flag fs-4 mb-1"></i>
             <small>Gerir Denúncias</small>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
         <a asp-page="./Utilizadores" class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-people fs-4 mb-1"></i>
             <small>Utilizadores</small>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+
+    <!-- SEGUNDA LINHA DE BOTÕES (Criações) -->
+    <div class="col-6 col-md-4">
+        <a asp-page="/Especie/Criar"
+           class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
+            <i class="bi bi-droplet-half fs-4 mb-1"></i>
+            <small>Adicionar Espécie</small>
+        </a>
+    </div>
+    <div class="col-6 col-md-4">
         <a asp-page="/Pesqueiro/Criar"
            class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-geo-alt-fill fs-4 mb-1"></i>
             <small>Adicionar Pesqueiro</small>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
         <a asp-page="/Evento/Criar"
            class="btn btn-outline-dark w-100 py-3 d-flex flex-column align-items-center">
             <i class="bi bi-calendar-plus fs-4 mb-1"></i>
