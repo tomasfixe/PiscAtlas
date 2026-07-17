@@ -12,11 +12,13 @@ namespace PiscAtlas.WebApp.Pages.Conta
     {
         private readonly UserManager<Utilizador> _userManager;
         private readonly SignInManager<Utilizador> _signInManager;
+        private readonly IWebHostEnvironment _env;
 
-        public EditarPerfilModel(UserManager<Utilizador> userManager, SignInManager<Utilizador> signInManager)
+        public EditarPerfilModel(UserManager<Utilizador> userManager, SignInManager<Utilizador> signInManager, IWebHostEnvironment env)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _env = env;
         }
 
         public Utilizador UtilizadorAtual { get; set; } = default!;
@@ -46,12 +48,13 @@ namespace PiscAtlas.WebApp.Pages.Conta
             [Display(Name = "Telefone")]
             public string? Telefone { get; set; }
 
-            [Url(ErrorMessage = "Insira um URL válido para a imagem.")]
-            [Display(Name = "URL da Fotografia de Perfil")]
-            public string? FotografiaPerfilUrl { get; set; }
+            [Display(Name = "Fotografia de Perfil")]
+            public IFormFile? FotoFile { get; set; }
+
+            public string? FotografiaPerfilUrlAtual { get; set; }
         }
 
-        // 2. Formulário de Privacidade da Conta (NOVO!)
+        // 2. Formulário de Privacidade da Conta
         [BindProperty]
         public InputPrivacidadeModel InputPrivacidade { get; set; } = new();
 
@@ -90,14 +93,14 @@ namespace PiscAtlas.WebApp.Pages.Conta
             public string ConfirmarPassword { get; set; } = string.Empty;
         }
 
-        // 4. Formulário de Aparência & Alertas (NOVO!)
+        // 4. Formulário de Aparência & Alertas
         [BindProperty]
         public InputAparenciaModel InputAparencia { get; set; } = new();
 
         public class InputAparenciaModel
         {
             [Display(Name = "Tema Visual")]
-            public string TemaVisual { get; set; } = "Claro"; // Opções: Claro, Escuro, Sistema
+            public string TemaVisual { get; set; } = "Claro";
 
             [Display(Name = "Notificações Pop-up em Tempo Real (SignalR)")]
             public bool AlertasSignalR { get; set; } = true;
@@ -110,7 +113,6 @@ namespace PiscAtlas.WebApp.Pages.Conta
 
             UtilizadorAtual = user;
 
-            // Carregar dados de Perfil
             InputPerfil = new InputPerfilModel
             {
                 PrimeiroNome = user.PrimeiroNome ?? string.Empty,
@@ -118,10 +120,9 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 NomeUtilizador = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 Telefone = user.PhoneNumber,
-                FotografiaPerfilUrl = user.FotografiaPerfilUrl
+                FotografiaPerfilUrlAtual = user.FotografiaPerfilUrl
             };
 
-            // AGORA LÊ AS PREFERÊNCIAS DIRETAMENTE DA BASE DE DADOS:
             InputPrivacidade = new InputPrivacidadeModel
             {
                 ContaPrivada = user.ContaPrivada,
@@ -129,7 +130,6 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 CadernetaPrivada = user.CadernetaPrivada
             };
 
-            // AGORA LÊ AS PREFERÊNCIAS DE APARÊNCIA DIRETAMENTE DA BASE DE DADOS:
             InputAparencia = new InputAparenciaModel
             {
                 TemaVisual = user.TemaVisual ?? "Claro",
@@ -145,12 +145,34 @@ namespace PiscAtlas.WebApp.Pages.Conta
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            if (!ModelState.IsValid) { UtilizadorAtual = user; return Page(); }
+            ModelState.Clear();
+            if (!TryValidateModel(InputPerfil, nameof(InputPerfil)))
+            {
+                UtilizadorAtual = user;
+                InputPerfil.FotografiaPerfilUrlAtual = user.FotografiaPerfilUrl;
+                return Page();
+            }
 
             user.PrimeiroNome = InputPerfil.PrimeiroNome;
             user.UltimoNome = InputPerfil.UltimoNome;
             user.PhoneNumber = InputPerfil.Telefone;
-            user.FotografiaPerfilUrl = InputPerfil.FotografiaPerfilUrl;
+
+            // Lógica de Upload da Nova Foto
+            if (InputPerfil.FotoFile != null && InputPerfil.FotoFile.Length > 0)
+            {
+                var pasta = Path.Combine(_env.WebRootPath, "images", "perfis");
+                if (!Directory.Exists(pasta)) Directory.CreateDirectory(pasta);
+
+                var nomeFicheiro = Guid.NewGuid().ToString() + Path.GetExtension(InputPerfil.FotoFile.FileName);
+                var caminhoCompleto = Path.Combine(pasta, nomeFicheiro);
+
+                using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
+                {
+                    await InputPerfil.FotoFile.CopyToAsync(stream);
+                }
+
+                user.FotografiaPerfilUrl = "/images/perfis/" + nomeFicheiro;
+            }
 
             if (user.UserName != InputPerfil.NomeUtilizador)
             {
@@ -174,14 +196,18 @@ namespace PiscAtlas.WebApp.Pages.Conta
 
             foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
             UtilizadorAtual = user;
+            InputPerfil.FotografiaPerfilUrlAtual = user.FotografiaPerfilUrl;
             return Page();
         }
 
-        // HANDLER 2: GUARDAR PRIVACIDADE (GRAVA NA BASE DE DADOS REAL)
+        // HANDLER 2: GUARDAR PRIVACIDADE
         public async Task<IActionResult> OnPostPrivacidadeAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
+
+            ModelState.Clear();
+            if (!TryValidateModel(InputPrivacidade, nameof(InputPrivacidade))) { UtilizadorAtual = user; return Page(); }
 
             user.ContaPrivada = InputPrivacidade.ContaPrivada;
             user.ListaSeguidoresPrivada = InputPrivacidade.ListaSeguidoresPrivada;
@@ -199,12 +225,25 @@ namespace PiscAtlas.WebApp.Pages.Conta
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            if (!ModelState.IsValid) { UtilizadorAtual = user; return Page(); }
+            ModelState.Clear();
+            if (!TryValidateModel(InputPassword, nameof(InputPassword))) { UtilizadorAtual = user; return Page(); }
 
             var res = await _userManager.ChangePasswordAsync(user, InputPassword.PasswordAtual, InputPassword.NovaPassword);
             if (!res.Succeeded)
             {
-                foreach (var e in res.Errors) ModelState.AddModelError("InputPassword." + e.Code, e.Description);
+                foreach (var e in res.Errors)
+                {
+                    // Traduz o erro mais comum ou exibe a mensagem padrão
+                    if (e.Code == "PasswordMismatch")
+                    {
+                        ModelState.AddModelError(string.Empty, "A palavra-passe atual está incorreta.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, e.Description);
+                    }
+                }
+
                 UtilizadorAtual = user;
                 return Page();
             }
@@ -214,11 +253,14 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return RedirectToPage();
         }
 
-        // HANDLER 4: GUARDAR APARÊNCIA (GRAVA NA BASE DE DADOS REAL)
+        // HANDLER 4: GUARDAR APARÊNCIA
         public async Task<IActionResult> OnPostAparenciaAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
+
+            ModelState.Clear();
+            if (!TryValidateModel(InputAparencia, nameof(InputAparencia))) { UtilizadorAtual = user; return Page(); }
 
             user.TemaVisual = InputAparencia.TemaVisual;
             user.AlertasSignalR = InputAparencia.AlertasSignalR;

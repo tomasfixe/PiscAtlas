@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
 
 namespace PiscAtlas.WebApp.Pages.Admin
@@ -11,10 +12,12 @@ namespace PiscAtlas.WebApp.Pages.Admin
     public class UtilizadoresModel : PageModel
     {
         private readonly UserManager<Utilizador> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UtilizadoresModel(UserManager<Utilizador> userManager)
+        public UtilizadoresModel(UserManager<Utilizador> userManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
 
         public List<Utilizador> Utilizadores { get; set; } = new();
@@ -92,19 +95,51 @@ namespace PiscAtlas.WebApp.Pages.Admin
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
-            var idAtual = _userManager.GetUserId(User);
-            if (user.Id == idAtual)
+            // 1. Apagar todas as relações de Seguidores
+            var seguidores = await _context.Seguidores
+                .Where(s => s.SeguidorId == userId || s.SeguidoId == userId)
+                .ToListAsync();
+            _context.Seguidores.RemoveRange(seguidores);
+
+            // 2. Encontrar todas as Capturas do utilizador
+            var capturas = await _context.Capturas
+                .Where(c => c.UtilizadorId == userId)
+                .ToListAsync();
+
+            if (capturas.Any())
             {
-                TempData["Erro"] = "Não pode eliminar a sua própria conta.";
-                return RedirectToPage();
+                var capturasIds = capturas.Select(c => c.CapturaId).ToList();
+
+                // 3. CORREÇÃO: Usar o Set<CapturaFotografia>() para a pesquisa e _context.RemoveRange para apagar
+                var fotografias = await _context.Set<CapturaFotografia>()
+                    .Where(f => capturasIds.Contains(f.CapturaId))
+                    .ToListAsync();
+                _context.RemoveRange(fotografias);
+
+                // 4. CORREÇÃO: Usar o Set<Interacao>() pelo mesmo motivo (precaução)
+                var interacoes = await _context.Set<Interacao>()
+                    .Where(i => capturasIds.Contains(i.CapturaId) || i.UtilizadorId == userId)
+                    .ToListAsync();
+                _context.RemoveRange(interacoes);
+
+                // 5. Finalmente, apagar as Capturas
+                _context.Capturas.RemoveRange(capturas);
             }
 
-            var nome = user.NomeCompleto;
+            // Gravar todas estas eliminações na base de dados ANTES de apagar o utilizador
+            await _context.SaveChangesAsync();
+
+            // 6. Agora sim, eliminar o utilizador com segurança
             var resultado = await _userManager.DeleteAsync(user);
 
-            TempData["Sucesso"] = resultado.Succeeded
-                ? $"A conta de {nome} foi eliminada."
-                : $"Não foi possível eliminar a conta de {nome}.";
+            if (resultado.Succeeded)
+            {
+                TempData["Sucesso"] = "Utilizador e todos os seus dados foram eliminados com sucesso.";
+            }
+            else
+            {
+                TempData["Erro"] = "Ocorreu um erro ao tentar eliminar a conta do utilizador.";
+            }
 
             return RedirectToPage();
         }

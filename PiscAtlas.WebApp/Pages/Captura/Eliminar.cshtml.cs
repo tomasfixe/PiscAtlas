@@ -57,7 +57,7 @@ namespace PiscAtlas.WebApp.Pages.Captura
             await _context.SaveChangesAsync();
 
             TempData["Sucesso"] = "Captura eliminada.";
-            return RedirectToPage("./Index");
+            return RedirectToPage("/Home/Index");
         }
     }
 }

@@ -48,14 +48,18 @@
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-body-tertiary">
                     <h4 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-person me-2"></i>Informações Pessoais</h4>
 
-                    <form method="post" asp-page-handler="Perfil">
+                    <!-- ADICIONADO enctype="multipart/form-data" -->
+                    <form method="post" asp-page-handler="Perfil" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="d-flex align-items-center gap-4 mb-4 bg-body p-3 rounded-4 border">
                             <div class="flex-shrink-0">
-                                @if (!string.IsNullOrEmpty(Model.InputPerfil.FotografiaPerfilUrl))
+                                @if (!string.IsNullOrEmpty(Model.InputPerfil.FotografiaPerfilUrlAtual))
                                 {
-                                    <img src="@Model.InputPerfil.FotografiaPerfilUrl" id="previewFoto" class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="Foto" />
+                                    <img src="@Model.InputPerfil.FotografiaPerfilUrlAtual" id="previewFoto" class="rounded-circle border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="Foto" />
+                                    <div id="previewFotoDefault" class="rounded-circle bg-dark text-white align-items-center justify-content-center shadow-sm fw-bold fs-3 d-none" style="width: 80px; height: 80px;">
+                                        @(Model.InputPerfil.PrimeiroNome?.FirstOrDefault() ?? 'U')
+                                    </div>
                                 }
                                 else
                                 {
@@ -66,10 +70,10 @@
                                 }
                             </div>
                             <div class="flex-grow-1">
-                                <label asp-for="InputPerfil.FotografiaPerfilUrl" class="form-label fw-bold small">URL da Imagem de Perfil</label>
-                                <input asp-for="InputPerfil.FotografiaPerfilUrl" class="form-control" id="inputFotoUrl" placeholder="https://exemplo.com/minha-foto.jpg" />
-                                <span asp-validation-for="InputPerfil.FotografiaPerfilUrl" class="text-danger small"></span>
-                                <small class="text-muted d-block mt-1">Cole o link de uma imagem para atualizar o seu avatar.</small>
+                                <label asp-for="InputPerfil.FotoFile" class="form-label fw-bold small">Upload de Fotografia de Perfil</label>
+                                <input asp-for="InputPerfil.FotoFile" type="file" accept="image/*" class="form-control" id="inputFotoFile" />
+                                <span asp-validation-for="InputPerfil.FotoFile" class="text-danger small"></span>
+                                <small class="text-muted d-block mt-1">Selecione uma imagem do seu dispositivo para atualizar o seu avatar.</small>
                             </div>
                         </div>
 
@@ -283,7 +287,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Função ultrarrápida chamada diretamente pelo clique na caixa!
         function mudarTemaInstante(tema) {
             if (tema === 'dark') {
                 document.documentElement.setAttribute('data-bs-theme', 'dark');
@@ -298,23 +301,21 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            // Script para pré-visualizar a foto ao colar o URL
-            const inputUrl = document.getElementById("inputFotoUrl");
+            const inputFile = document.getElementById("inputFotoFile");
             const previewFoto = document.getElementById("previewFoto");
             const previewDefault = document.getElementById("previewFotoDefault");
 
-            if (inputUrl) {
-                inputUrl.addEventListener("input", function () {
-                    const url = this.value.trim();
-                    if (url.length > 10 && (url.startsWith("http://") || url.startsWith("https://"))) {
-                        previewFoto.src = url;
-                        previewFoto.classList.remove("d-none");
-                        if (previewDefault) previewDefault.classList.add("d-none");
-                    } else if (url.length === 0) {
-                        if (previewDefault) {
-                            previewFoto.classList.add("d-none");
-                            previewDefault.classList.remove("d-none");
+            if (inputFile) {
+                inputFile.addEventListener("change", function () {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            previewFoto.src = e.target.result;
+                            previewFoto.classList.remove("d-none");
+                            if (previewDefault) previewDefault.classList.add("d-none");
                         }
+                        reader.readAsDataURL(file);
                     }
                 });
             }

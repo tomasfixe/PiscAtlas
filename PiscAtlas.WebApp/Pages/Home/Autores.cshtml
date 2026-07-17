@@ -4,43 +4,87 @@
     ViewData["Title"] = "Sobre o Projeto";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <h1 class="fw-bold mb-4"><i class="bi bi-info-circle"></i> Sobre o Projeto</h1>
-            ```
+<div class="container py-5">
+    <h2 class="fw-bold mb-4"><i class="bi bi-info-square text-primary"></i> Ficha Técnica do Projeto</h2>
 
-            ---
+    <!-- 1. Contexto Académico -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-dark text-white fw-bold">
+            <i class="bi bi-mortarboard"></i> Contexto Académico
+        </div>
+        <div class="card-body">
+            <p><strong>Curso:</strong> Engenharia Informática</p>
+            <p><strong>Disciplina:</strong> Desenvolvimento Web</p>
+            <p class="mb-0"><strong>Ano Letivo:</strong> 2025/2026</p>
+        </div>
+    </div>
 
-            ### 3. A Página de Erro Customizada
+    <!-- 2. Autores -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-dark text-white fw-bold">
+            <i class="bi bi-people"></i> Autores do Trabalho
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="bi bi-person-badge me-2"></i><strong>Nº 24991</strong> - António Matos
+                    
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-person-badge me-2"></i><strong>Nº 26066</strong> - Tomás Teixeira Faria
+                </li>
+            </ul>
+        </div>
+    </div>
 
-            **`Erro.cshtml.cs`**
-            ```csharp
-            using Microsoft.AspNetCore.Mvc;
-            using Microsoft.AspNetCore.Mvc.RazorPages;
+    <!-- 3. Tecnologias e Bibliotecas -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-dark text-white fw-bold">
+            <i class="bi bi-tools"></i> Tecnologias, Frameworks e Bibliotecas
+        </div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li><strong>Backend & Arquitetura:</strong> C# com ASP.NET Core (Razor Pages)</li>
+                <li><strong>Base de Dados:</strong> SQL Server via Entity Framework Core</li>
+                <li><strong>Frontend & UI:</strong> HTML5, CSS3, Bootstrap 5 e Bootstrap Icons</li>
+                <li><strong>Funcionalidades de Tempo Real:</strong> SignalR (para notificações)</li>
+                <li><strong>Autenticação & Segurança:</strong> ASP.NET Core Identity</li>
+            </ul>
+        </div>
+    </div>
 
-            namespace PiscAtlas.WebApp.Pages.Home
-            {
-            public class ErroModel : PageModel
-            {
-            [BindProperty(SupportsGet = true)]
-            public int? StatusCode { get; set; }
+    <!-- 4. Credenciais de Acesso -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-key"></i> Credenciais de Acesso (Avaliação)
+        </div>
+        <div class="card-body">
 
-            public string MensagemErro { get; set; } = string.Empty;
-            public string CodigoErro { get; set; } = string.Empty;
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                        <h5 class="fw-bold text-danger">Administrador</h5>
+                        <ul class="list-unstyled mb-0 mt-2">
+                            <li><strong>Login/Email:</strong> admin@piscatlas.pt</li>
+                            <li><strong>Password:</strong> 123456</li>
+                        </ul>
+                    </div>
+                </div>
 
-            public void OnGet()
-            {
-            if (StatusCode.HasValue && StatusCode.Value == 404)
-            {
-            MensagemErro = "O peixe escapou! A página que procura não existe ou foi movida.";
-            CodigoErro = "404";
-            }
-            else
-            {
-            MensagemErro = "Ocorreu um problema nas nossas águas. Tente novamente mais tarde.";
-            CodigoErro = StatusCode?.ToString() ?? "500";
-            }
-            }
-            }
-            }
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                        <h5 class="fw-bold text-primary">Utilizador Normal</h5>
+                        <ul class="list-unstyled mb-0 mt-2">
+                            <li><strong>Login/Email:</strong> teste@gmail.com</li>
+                            <li><strong>Password:</strong> 123qwe</li>
+                        </ul>
+                        <ul class="list-unstyled mb-0 mt-2">
+                            <li><strong>Login/Email:</strong> teste2@gmail.com</li>
+                            <li><strong>Password:</strong> 123456</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
