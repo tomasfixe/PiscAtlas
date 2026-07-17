@@ -21,13 +21,13 @@ namespace PiscAtlas.WebApp.Pages.Home
         public List<PiscAtlas.Models.Models.Captura> Capturas { get; set; } = new();
         public HashSet<int> CapturasGostadas { get; set; } = new();
 
-        // Propriedade para saber qual aba está ativa (por defeito é global)
+        // Propriedade para saber qual aba está ativa 
         [BindProperty(SupportsGet = true)]
         public string Aba { get; set; } = "global";
 
         public async Task OnGetAsync()
         {
-            // 1. Iniciar a query base (com os Includes necessários)
+            // Iniciar a query base 
             var query = _context.Capturas
                 .Include(c => c.Utilizador)
                 .Include(c => c.Especie)
@@ -36,7 +36,7 @@ namespace PiscAtlas.WebApp.Pages.Home
                 .Include(c => c.Interacoes).ThenInclude(i => i.Utilizador)
                 .Where(c => c.AprovadaPeloAdmin);
 
-            // 2. Lógica para utilizadores autenticados
+            // Lógica para utilizadores autenticados
             if (User.Identity?.IsAuthenticated == true)
             {
                 var userId = _userManager.GetUserId(User);
@@ -53,7 +53,7 @@ namespace PiscAtlas.WebApp.Pages.Home
                         query = query.Where(c => seguidosIds.Contains(c.UtilizadorId));
                     }
 
-                    // Carregar os gostos do utilizador atual (para o coração vermelho)
+                    // Carregar os gostos do utilizador atual
                     var gostos = await _context.Interacoes
                         .Where(i => i.UtilizadorId == userId && i.Tipo == TipoInteracao.Gosto)
                         .Select(i => i.CapturaId)
@@ -68,7 +68,7 @@ namespace PiscAtlas.WebApp.Pages.Home
                 Aba = "global";
             }
 
-            // 3. Executar a query final ordenando pelas mais recentes
+            // Executar a query final ordenando pelas mais recentes
             Capturas = await query
                 .OrderByDescending(c => c.DataCaptura)
                 .Take(50)

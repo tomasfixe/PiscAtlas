@@ -30,12 +30,14 @@ namespace PiscAtlas.WebApp.Pages.Captura
             if (id == null) return NotFound();
 
             var userId = _userManager.GetUserId(User);
+            // Carrega a captura e dados associados para confirmação
             var captura = await _context.Capturas
                 .Include(c => c.Especie)
                 .Include(c => c.Pesqueiro)
                 .FirstOrDefaultAsync(c => c.CapturaId == id);
 
             if (captura == null) return NotFound();
+            // Permissão: apenas o autor ou um administrador pode eliminar
             if (captura.UtilizadorId != userId && !User.IsInRole("Admin"))
                 return Forbid();
 
@@ -50,9 +52,12 @@ namespace PiscAtlas.WebApp.Pages.Captura
             var captura = await _context.Capturas.FindAsync(CapturaId);
 
             if (captura == null) return NotFound();
+
+            // Verificação de segurança antes de eliminar
             if (captura.UtilizadorId != userId && !User.IsInRole("Admin"))
                 return Forbid();
 
+            // Remove a captura da base de dados
             _context.Capturas.Remove(captura);
             await _context.SaveChangesAsync();
 

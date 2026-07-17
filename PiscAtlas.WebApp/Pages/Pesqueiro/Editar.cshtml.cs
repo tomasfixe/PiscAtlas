@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
 
 namespace PiscAtlas.WebApp.Pages.Pesqueiro
 {
+    
     [Authorize(Roles = "Admin")]
     public class EditarModel : PageModel
     {
@@ -34,6 +36,8 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
 
             PesqueiroId = pesqueiro.PesqueiroId;
             FotoAtual = pesqueiro.FotografiaUrl;
+
+            // Preenche o formulário com os dados atuais do pesqueiro
             Input = new CriarModel.PesqueiroInputModel
             {
                 Nome = pesqueiro.Nome,
@@ -52,12 +56,14 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
             var pesqueiro = await _context.Pesqueiros.FindAsync(PesqueiroId);
             if (pesqueiro == null) return NotFound();
 
+            // Atualiza a fotografia caso um novo ficheiro seja enviado
             if (Input.FotoFile != null)
             {
                 var pasta = Path.Combine(_env.WebRootPath, "images", "pesqueiros");
                 Directory.CreateDirectory(pasta);
                 var nomeFicheiro = Guid.NewGuid().ToString() + Path.GetExtension(Input.FotoFile.FileName);
                 var caminhoCompleto = Path.Combine(pasta, nomeFicheiro);
+
                 using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
                 {
                     await Input.FotoFile.CopyToAsync(stream);
@@ -65,6 +71,7 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
                 pesqueiro.FotografiaUrl = "/images/pesqueiros/" + nomeFicheiro;
             }
 
+            // Atualiza os dados básicos do pesqueiro
             pesqueiro.Nome = Input.Nome;
             pesqueiro.Descricao = Input.Descricao ?? "";
             pesqueiro.Latitude = Input.Latitude;
@@ -73,6 +80,7 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
 
             _context.Update(pesqueiro);
             await _context.SaveChangesAsync();
+
             return RedirectToPage("./Detalhes", new { id = PesqueiroId });
         }
     }

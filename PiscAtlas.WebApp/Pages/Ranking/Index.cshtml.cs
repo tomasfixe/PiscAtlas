@@ -23,14 +23,14 @@ namespace PiscAtlas.WebApp.Pages.Ranking
         [BindProperty(SupportsGet = true)]
         public int? PesqueiroId { get; set; }
 
-        // Os dados agrupados: O nome da espécie e a lista do TOP das capturas
+        // O nome da espécie e a lista do top das capturas
         public Dictionary<string, List<PiscAtlas.Models.Models.Captura>> RankingsPorEspecie { get; set; } = new();
 
         public SelectList Pesqueiros { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
-            // 1. Iniciar a query pelas capturas aprovadas e que têm peso registado
+            // Iniciar a query pelas capturas aprovadas e que têm peso registado
             var query = _context.Capturas
                 .Include(c => c.Especie)
                 .Include(c => c.Pesqueiro)
@@ -38,7 +38,7 @@ namespace PiscAtlas.WebApp.Pages.Ranking
                 .Where(c => c.AprovadaPeloAdmin && c.Peso.HasValue)
                 .AsQueryable();
 
-            // 2. Aplicar o filtro de Tempo
+            // Aplicar o filtro de Tempo
             var agora = DateTime.Now;
             if (TempoFiltro == "Mes")
             {
@@ -49,16 +49,16 @@ namespace PiscAtlas.WebApp.Pages.Ranking
                 query = query.Where(c => c.DataCaptura.Year == agora.Year);
             }
 
-            // 3. Aplicar o filtro de Zona / Pesqueiro
+            // Aplicar o filtro de Zona / Pesqueiro
             if (PesqueiroId.HasValue)
             {
                 query = query.Where(c => c.PesqueiroId == PesqueiroId.Value);
             }
 
-            // 4. Ir buscar à Base de Dados
+            // Ir buscar à Base de Dados
             var capturasFiltradas = await query.ToListAsync();
 
-            // 5. Agrupar por espécie e ficar apenas com o Top 10 de cada uma
+            // Agrupar por espécie e ficar apenas com o Top 10 de cada uma
             RankingsPorEspecie = capturasFiltradas
                 .GroupBy(c => c.Especie?.Nome ?? "Desconhecida")
                 .OrderBy(g => g.Key) // Ordenar alfabeticamente pelo nome do peixe

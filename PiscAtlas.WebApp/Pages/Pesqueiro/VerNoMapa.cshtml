@@ -23,7 +23,7 @@
 @section Scripts {
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // O Replace é necessário para garantir que o C# não usa vírgulas nas coordenadas (que o JS não entende)
+        // O Replace é necessário para garantir que o C# não usa vírgulas nas coordenadas
         var lat = @Model.PesqueiroItem.Latitude.ToString().Replace(",", ".");
         var lng = @Model.PesqueiroItem.Longitude.ToString().Replace(",", ".");
 
@@ -35,7 +35,7 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Adiciona o pino no mapa
+        // Adiciona o pin no mapa
         L.marker([lat, lng]).addTo(map)
             .bindPopup("<b style='font-size: 16px;'>@Model.PesqueiroItem.Nome</b><br/>Pesqueiro").openPopup();
     </script>

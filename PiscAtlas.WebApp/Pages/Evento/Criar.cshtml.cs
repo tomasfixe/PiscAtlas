@@ -2,22 +2,22 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.SignalR; 
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
-using PiscAtlas.WebApp.Hubs; 
+using PiscAtlas.WebApp.Hubs;
 using System.ComponentModel.DataAnnotations;
 
 namespace PiscAtlas.WebApp.Pages.Evento
 {
+   
     [Authorize(Roles = "Admin")]
     public class CriarModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _env;
-        private readonly IHubContext<NotificacaoHub> _hubContext; 
+        private readonly IHubContext<NotificacaoHub> _hubContext;
 
-        
         public CriarModel(ApplicationDbContext context, IWebHostEnvironment env, IHubContext<NotificacaoHub> hubContext)
         {
             _context = context;
@@ -43,6 +43,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
                 return Page();
             }
 
+            // Processamento do upload da imagem do evento
             string fotoPath = string.Empty;
             if (Input.FotoFile != null)
             {
@@ -50,6 +51,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
                 Directory.CreateDirectory(pasta);
                 var nomeFicheiro = Guid.NewGuid().ToString() + Path.GetExtension(Input.FotoFile.FileName);
                 var caminhoCompleto = Path.Combine(pasta, nomeFicheiro);
+
                 using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
                 {
                     await Input.FotoFile.CopyToAsync(stream);
@@ -57,6 +59,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
                 fotoPath = "/images/eventos/" + nomeFicheiro;
             }
 
+            // Mapeamento do modelo de entrada para a entidade Evento
             var evento = new PiscAtlas.Models.Models.Evento
             {
                 Nome = Input.Nome,
@@ -73,7 +76,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
             _context.Eventos.Add(evento);
             await _context.SaveChangesAsync();
 
-            // DISPARAR NOTIFICAÇÃO DE NOVO EVENTO
+            // Envia notificação em tempo real para todos os utilizadores conectados via SignalR
             await _hubContext.Clients.All.SendAsync(
                 "ReceberNovidade",
                 "Evento",
@@ -85,6 +88,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
             return RedirectToPage("./Index");
         }
 
+        // Carrega a lista de espécies para o menu pendente
         private async Task PopularSelectLists()
         {
             Especies = new SelectList(await _context.Especies.OrderBy(e => e.Nome).ToListAsync(), "EspecieId", "Nome");
@@ -94,13 +98,18 @@ namespace PiscAtlas.WebApp.Pages.Evento
         {
             [Required(ErrorMessage = "O nome é obrigatório.")]
             public string Nome { get; set; } = string.Empty;
+
             public string? Descricao { get; set; }
+
             [Required(ErrorMessage = "A data de início é obrigatória.")]
             public DateTime DataInicio { get; set; } = DateTime.Now;
+
             [Required(ErrorMessage = "A data de fim é obrigatória.")]
             public DateTime DataFim { get; set; } = DateTime.Now.AddDays(1);
+
             [Required(ErrorMessage = "Selecione a espécie-alvo.")]
             public int EspecieAlvoId { get; set; }
+
             public double? PesoMinimo { get; set; }
             public double? TamanhoMinimo { get; set; }
             public double? PrecoInscricao { get; set; }

@@ -39,7 +39,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             IsProprio = (currentUserId == targetId);
             if (!string.IsNullOrEmpty(aba)) AbaAtiva = aba;
 
-            // VERIFICAÇÃO DE PRIVACIDADE DA LISTA DE SEGUIDORES:
+            
             // Se for privado, bloqueia o acesso (a não ser que seja um Admin ou o próprio)
             if (!IsProprio && Alvo.ListaSeguidoresPrivada && !User.IsInRole("Admin"))
             {
@@ -47,7 +47,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 return Page();
             }
 
-            // CARREGAR A LISTA DA BASE DE DADOS DEPENDENDO DA ABA
+            
             if (AbaAtiva == "seguidores")
             {
                 // Mostra quem me segue (ignorando quem ainda está pendente, a não ser que seja o próprio a ver)

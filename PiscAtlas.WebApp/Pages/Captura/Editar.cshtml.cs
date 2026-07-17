@@ -45,6 +45,8 @@ namespace PiscAtlas.WebApp.Pages.Captura
                 .FirstOrDefaultAsync(c => c.CapturaId == id);
 
             if (captura == null) return NotFound();
+
+            // Permissão: apenas o autor ou um administrador pode editar
             if (captura.UtilizadorId != userId && !User.IsInRole("Admin"))
                 return Forbid();
 

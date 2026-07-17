@@ -18,7 +18,9 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
+            // Busca o pesqueiro na base de dados pelo ID fornecido
             var pesqueiro = await _context.Pesqueiros.FindAsync(id);
+
             if (pesqueiro == null) return NotFound();
 
             PesqueiroItem = pesqueiro;

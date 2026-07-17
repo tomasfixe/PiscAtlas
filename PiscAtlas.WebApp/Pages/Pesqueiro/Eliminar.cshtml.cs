@@ -6,6 +6,7 @@ using PiscAtlas.Models;
 
 namespace PiscAtlas.WebApp.Pages.Pesqueiro
 {
+    
     [Authorize(Roles = "Admin")]
     public class EliminarModel : PageModel
     {
@@ -24,8 +25,14 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null) return NotFound();
-            var pesqueiro = await _context.Pesqueiros.Include(p => p.Capturas).FirstOrDefaultAsync(p => p.PesqueiroId == id);
+
+            // Carrega o pesqueiro com as suas capturas para confirmar antes de apagar
+            var pesqueiro = await _context.Pesqueiros
+                .Include(p => p.Capturas)
+                .FirstOrDefaultAsync(p => p.PesqueiroId == id);
+
             if (pesqueiro == null) return NotFound();
+
             PesqueiroItem = pesqueiro;
             PesqueiroId = pesqueiro.PesqueiroId;
             return Page();
@@ -34,11 +41,14 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
         public async Task<IActionResult> OnPostAsync()
         {
             var pesqueiro = await _context.Pesqueiros.FindAsync(PesqueiroId);
+
             if (pesqueiro != null)
             {
+                // Remove o pesqueiro da base de dados
                 _context.Pesqueiros.Remove(pesqueiro);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToPage("./Index");
         }
     }

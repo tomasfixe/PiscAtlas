@@ -34,7 +34,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
 
             EventoItem = evento;
 
-            // Verifica se o utilizador atual já está inscrito, validando pelo Email (como no teu controller)
+            // Verifica se o utilizador atual já está inscrito, validando pelo Email 
             if (User.Identity?.IsAuthenticated == true)
             {
                 var user = await _userManager.GetUserAsync(User);

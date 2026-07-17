@@ -22,6 +22,7 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
         {
             if (id == null) return NotFound();
 
+            // Carrega o pesqueiro e as suas capturas associadas com as espécies
             var pesqueiro = await _context.Pesqueiros
                 .Include(p => p.Capturas!)
                     .ThenInclude(c => c.Especie)
@@ -31,6 +32,7 @@ namespace PiscAtlas.WebApp.Pages.Pesqueiro
 
             PesqueiroItem = pesqueiro;
 
+            // Obtém as 4 capturas mais pesadas aprovadas neste pesqueiro
             TopCapturas = await _context.Capturas
                 .Include(c => c.Especie)
                 .Include(c => c.Utilizador)

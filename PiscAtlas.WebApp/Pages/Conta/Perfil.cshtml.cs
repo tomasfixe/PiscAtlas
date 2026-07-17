@@ -36,6 +36,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
         {
             string targetId = id ?? string.Empty;
 
+            // Se não houver ID, assume o perfil do utilizador atual
             if (string.IsNullOrEmpty(targetId))
             {
                 var currentUser = await _userManager.GetUserAsync(User);
@@ -51,6 +52,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             if (user == null) return NotFound();
 
             PerfilUser = user;
+            // Apenas conta seguidores que já foram aceites (não pendentes)
             TotalSeguidores = user.Seguidores?.Count(s => !s.Pendente) ?? 0;
             TotalASeguir = user.A_Seguir?.Count(s => !s.Pendente) ?? 0;
 
@@ -78,7 +80,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 }
             }
 
-            // O MODO CADEADO DAS CAPTURAS
+            // Bloqueia a visualização das capturas se a conta for privada e não seguir
             if (user.ContaPrivada && !IsProprioPerfil && !IsSeguindo && !User.IsInRole("Admin"))
             {
                 Capturas = new List<PiscAtlas.Models.Models.Captura>();
@@ -96,6 +98,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return Page();
         }
 
+        // Alterna entre seguir, deixar de seguir ou pedir para seguir
         public async Task<IActionResult> OnPostToggleSeguirAsync(string id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -116,6 +119,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             }
             else
             {
+                // Cria relação, pendente se o utilizador for privado
                 var novoSeguidor = new Seguidor
                 {
                     SeguidorId = currentUser.Id,
@@ -124,6 +128,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
                 };
                 _context.Seguidores.Add(novoSeguidor);
 
+                // Notifica o utilizador alvo via SignalR
                 if (novoSeguidor.Pendente)
                 {
                     await _hubContext.Clients.All.SendAsync("ReceberNovidade", "Utilizador", "Novo Pedido", $"{currentUser.NomeUtilizador} quer seguir-te!");
@@ -138,6 +143,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return RedirectToPage(new { id });
         }
 
+        // Aceita o pedido de follow
         public async Task<IActionResult> OnPostAceitarPedidoAsync(string id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -153,6 +159,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return RedirectToPage();
         }
 
+        // Rejeita o pedido
         public async Task<IActionResult> OnPostRejeitarPedidoAsync(string id)
         {
             var currentUser = await _userManager.GetUserAsync(User);

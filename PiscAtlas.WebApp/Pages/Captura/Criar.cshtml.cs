@@ -103,7 +103,7 @@ namespace PiscAtlas.WebApp.Pages.Captura
             TempData["Sucesso"] = "Captura registada com sucesso!";
             return RedirectToPage("/Home/Index");
         }
-
+        // Prepara os dropdowns de seleção
         private void CarregarListas()
         {
             EspeciesList = new SelectList(_context.Especies.OrderBy(e => e.Nome), "EspecieId", "Nome");

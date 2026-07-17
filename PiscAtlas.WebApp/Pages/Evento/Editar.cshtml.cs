@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PiscAtlas.WebApp.Pages.Evento
 {
+   
     [Authorize(Roles = "Admin")]
     public class EditarModel : PageModel
     {
@@ -39,6 +40,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
             EventoId = evento.EventoId;
             FotoAtual = evento.FotografiaUrl;
 
+            // Preenche o formulário com os dados atuais do evento
             Input = new EventoInputModel
             {
                 Nome = evento.Nome,
@@ -66,12 +68,14 @@ namespace PiscAtlas.WebApp.Pages.Evento
             var evento = await _context.Eventos.FindAsync(EventoId);
             if (evento == null) return NotFound();
 
+            // Atualiza a imagem do evento caso tenha sido carregada uma nova
             if (Input.FotoFile != null)
             {
                 var pasta = Path.Combine(_env.WebRootPath, "images", "eventos");
                 Directory.CreateDirectory(pasta);
                 var nomeFicheiro = Guid.NewGuid().ToString() + Path.GetExtension(Input.FotoFile.FileName);
                 var caminhoCompleto = Path.Combine(pasta, nomeFicheiro);
+
                 using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
                 {
                     await Input.FotoFile.CopyToAsync(stream);
@@ -79,6 +83,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
                 evento.FotografiaUrl = "/images/eventos/" + nomeFicheiro;
             }
 
+            // Atualiza os restantes dados do evento
             evento.Nome = Input.Nome;
             evento.Descricao = Input.Descricao ?? "";
             evento.DataInicio = Input.DataInicio;
@@ -95,6 +100,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
             return RedirectToPage("./Detalhes", new { id = EventoId });
         }
 
+        // Carrega a lista de espécies para o menu pendente
         private async Task PopularSelectLists()
         {
             Especies = new SelectList(await _context.Especies.OrderBy(e => e.Nome).ToListAsync(), "EspecieId", "Nome");
@@ -104,13 +110,18 @@ namespace PiscAtlas.WebApp.Pages.Evento
         {
             [Required(ErrorMessage = "O nome é obrigatório.")]
             public string Nome { get; set; } = string.Empty;
+
             public string? Descricao { get; set; }
+
             [Required(ErrorMessage = "A data de início é obrigatória.")]
             public DateTime DataInicio { get; set; }
+
             [Required(ErrorMessage = "A data de fim é obrigatória.")]
             public DateTime DataFim { get; set; }
+
             [Required(ErrorMessage = "Selecione a espécie-alvo.")]
             public int EspecieAlvoId { get; set; }
+
             public double? PesoMinimo { get; set; }
             public double? TamanhoMinimo { get; set; }
             public double? PrecoInscricao { get; set; }

@@ -24,8 +24,9 @@ namespace PiscAtlas.WebApp.Pages.Especie
         public List<int> EspeciesCapturadasIds { get; set; } = new();
         public Utilizador? CadernetaUser { get; set; }
         public bool IsProprio { get; set; }
-        public bool AcessoNegado { get; set; } = false; 
+        public bool AcessoNegado { get; set; } = false;
 
+        // Cálculos de progresso do utilizador
         public int TotalCapturadas => EspeciesCapturadasIds.Count;
         public int TotalEspecies => TodasEspecies.Count;
         public int PorFazer => TotalEspecies - TotalCapturadas;
@@ -44,13 +45,14 @@ namespace PiscAtlas.WebApp.Pages.Especie
 
             IsProprio = (currentUserId == targetUserId);
 
-            // FECHADURA DA CADERNETA PRIVADA:
+            // Bloqueia acesso se a caderneta for privada (exceto para o dono ou Admin)
             if (!IsProprio && CadernetaUser.CadernetaPrivada && !User.IsInRole("Admin"))
             {
                 AcessoNegado = true;
-                return Page(); // Para a execução aqui e mostra o aviso na página!
+                return Page(); 
             }
 
+            // Carrega a lista completa de espécies e as IDs das que o utilizador já capturou
             TodasEspecies = await _context.Especies.OrderBy(e => e.Nome).ToListAsync();
             EspeciesCapturadasIds = await _context.Capturas
                 .Where(c => c.UtilizadorId == targetUserId && !c.FraudeConfirmada)

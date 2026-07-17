@@ -32,7 +32,6 @@ namespace PiscAtlas.WebApp.Pages.Admin
 
             if (Pendentes)
             {
-                // CORRIGIDO: Retirado o '&& c.PossuiProvasVisuais'
                 query = query.Where(c => !c.AprovadaPeloAdmin);
             }
 

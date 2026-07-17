@@ -6,6 +6,7 @@ using PiscAtlas.Models;
 
 namespace PiscAtlas.WebApp.Pages.Evento
 {
+    
     [Authorize(Roles = "Admin")]
     public class EliminarModel : PageModel
     {
@@ -25,6 +26,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
         {
             if (id == null) return NotFound();
 
+            // Carrega o evento com as dependências necessárias para exibição
             var evento = await _context.Eventos
                 .Include(e => e.EspecieAlvo)
                 .Include(e => e.Inscricoes)
@@ -45,7 +47,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
 
             if (evento != null)
             {
-                // Remove primeiro as inscrições para não dar erro de chave estrangeira
+                // Remove as inscrições associadas para evitar erros de integridade na base de dados
                 if (evento.Inscricoes != null && evento.Inscricoes.Any())
                 {
                     _context.Inscricoes.RemoveRange(evento.Inscricoes);
@@ -53,6 +55,7 @@ namespace PiscAtlas.WebApp.Pages.Evento
 
                 _context.Eventos.Remove(evento);
                 await _context.SaveChangesAsync();
+
                 TempData["Sucesso"] = "Evento eliminado com sucesso.";
             }
 

@@ -7,11 +7,11 @@ using PiscAtlas.WebApp.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configuração da Base de Dados
+// Configuração da Base de Dados
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Configuração do Identity (Autenticação)
+// Configuração do Identity (Autenticação)
 builder.Services.AddIdentity<Utilizador, IdentityRole>(options =>
 {
     // Regras das passwords (simplificadas para ser mais fácil testar)
@@ -31,13 +31,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Conta/Login";
 });
 
-// 3. Adicionar Serviços Core (Apenas Razor Pages e SignalR)
+//  Adicionar Serviços Core 
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// 4. Configurar o HTTP request pipeline
+// Configurar o HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Erro");
@@ -45,7 +45,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Aponta erros 404, 403, etc., para a nossa página de erro customizada
+// Aponta erros 404, 403, etc., para a página de erro 
 app.UseStatusCodePagesWithReExecute("/Home/Erro", "?statusCode={0}");
 
 app.UseHttpsRedirection();
@@ -56,7 +56,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 5. Mapeamento de Rotas
+// Mapeamento de Rotas
 app.MapRazorPages();
 app.MapHub<NotificacaoHub>("/notificacaoHub");
 
@@ -66,7 +66,7 @@ app.MapGet("/", context => {
     return Task.CompletedTask;
 });
 
-// 6. Seeding de Dados (Criação do Admin)
+// Seeding de Dados (Criação do Admin)
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -108,7 +108,7 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 
-    // Da tambem o cargo Admin ao teu email pessoal
+    // Da tambem o cargo Admin ao email pessoal
     var user = await userManager.FindByEmailAsync("ambmatos193@gmail.com");
     if (user != null && !await userManager.IsInRoleAsync(user, "Admin"))
     {

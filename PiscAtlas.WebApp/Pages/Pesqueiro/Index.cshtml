@@ -98,7 +98,7 @@ else
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // 1. Inicializar o mapa centrado em Portugal
+            // Inicializar o mapa centrado em Portugal
             var map = L.map('mapaPesqueiros').setView([39.3999, -8.2245], 6);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -106,7 +106,7 @@ else
                 attribution: '© OpenStreetMap contributors - PiscAtlas'
             }).addTo(map);
 
-            // 2. Importar os pesqueiros do C# para o Javascript
+            // Importar os pesqueiros do C# para o Javascript
             var pesqueiros = @Html.Raw(Json.Serialize(Model.Pesqueiros.Select(p => new
             {
                 id = p.PesqueiroId,
@@ -117,7 +117,7 @@ else
                 capturas = p.Capturas != null ? p.Capturas.Count : 0
             })));
 
-            // 3. Adicionar os marcadores ao mapa
+            // Adicionar os marcadores ao mapa
             pesqueiros.forEach(function(p) {
                 if (p.lat && p.lng && p.lat !== 0 && p.lng !== 0) {
                     var marker = L.marker([p.lat, p.lng]).addTo(map);
@@ -133,7 +133,7 @@ else
                 }
             });
 
-            // 4. Detalhe técnico fundamental: Recalcular o tamanho do mapa quando a gaveta (collapse) se abre
+            // Recalcular o tamanho do mapa quando a gaveta (collapse) se abre
             var secaoMapa = document.getElementById('secaoMapa');
             if (secaoMapa) {
                 secaoMapa.addEventListener('shown.bs.collapse', function () {

@@ -28,12 +28,15 @@ namespace PiscAtlas.WebApp.Pages.Conta
         {
             if (ModelState.IsValid)
             {
+                
                 string fotoUrl = "/images/Default.jpg";
 
+                // Processamento do upload da fotografia de perfil
                 if (Input.FotoFile != null && Input.FotoFile.Length > 0)
                 {
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Input.FotoFile.FileName);
                     var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/perfis");
+
                     if (!Directory.Exists(uploadPath))
                         Directory.CreateDirectory(uploadPath);
 
@@ -44,6 +47,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
                     fotoUrl = "/uploads/perfis/" + fileName;
                 }
 
+                // Criação do novo utilizador
                 var user = new Utilizador
                 {
                     UserName = Input.Email,
@@ -54,19 +58,23 @@ namespace PiscAtlas.WebApp.Pages.Conta
                     FotografiaPerfilUrl = fotoUrl
                 };
 
+                // Regista o utilizador na base de dados
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
+                    // Inicia sessão automaticamente após o registo
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect("~/");
                 }
 
+                // Adiciona erros caso o registo falhe 
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
             }
             return Page();
         }
 
+        // Modelo de dados para o formulário de Registo
         public class RegistarInputModel
         {
             [Required(ErrorMessage = "O Primeiro Nome é obrigatório.")]

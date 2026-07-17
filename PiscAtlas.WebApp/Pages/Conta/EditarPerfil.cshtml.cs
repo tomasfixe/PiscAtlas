@@ -23,7 +23,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
 
         public Utilizador UtilizadorAtual { get; set; } = default!;
 
-        // 1. Formulário de Perfil Público
+        // Formulário de Perfil Público
         [BindProperty]
         public InputPerfilModel InputPerfil { get; set; } = new();
 
@@ -54,7 +54,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             public string? FotografiaPerfilUrlAtual { get; set; }
         }
 
-        // 2. Formulário de Privacidade da Conta
+        // Formulário de Privacidade da Conta
         [BindProperty]
         public InputPrivacidadeModel InputPrivacidade { get; set; } = new();
 
@@ -70,7 +70,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             public bool CadernetaPrivada { get; set; }
         }
 
-        // 3. Formulário de Password
+        // Formulário de Password
         [BindProperty]
         public InputPasswordModel InputPassword { get; set; } = new();
 
@@ -93,7 +93,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             public string ConfirmarPassword { get; set; } = string.Empty;
         }
 
-        // 4. Formulário de Aparência & Alertas
+        // Formulário de Aparência & Alertas
         [BindProperty]
         public InputAparenciaModel InputAparencia { get; set; } = new();
 
@@ -139,7 +139,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return Page();
         }
 
-        // HANDLER 1: GUARDAR PERFIL
+        // Guardar Alterações do Perfil Público
         public async Task<IActionResult> OnPostPerfilAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -200,7 +200,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return Page();
         }
 
-        // HANDLER 2: GUARDAR PRIVACIDADE
+        // Guardar Alterações das Definições de Privacidade
         public async Task<IActionResult> OnPostPrivacidadeAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -219,7 +219,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return RedirectToPage();
         }
 
-        // HANDLER 3: GUARDAR PASSWORD
+        // Guardar Alterações da Palavra-passe
         public async Task<IActionResult> OnPostPasswordAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -253,7 +253,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
             return RedirectToPage();
         }
 
-        // HANDLER 4: GUARDAR APARÊNCIA
+        // Guardar Alterações da Aparência e Alertas
         public async Task<IActionResult> OnPostAparenciaAsync()
         {
             var user = await _userManager.GetUserAsync(User);

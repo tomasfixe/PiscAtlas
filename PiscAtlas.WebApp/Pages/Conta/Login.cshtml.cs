@@ -26,23 +26,28 @@ namespace PiscAtlas.WebApp.Pages.Conta
         {
             if (ModelState.IsValid)
             {
+                // Tenta autenticar o utilizador com as credenciais fornecidas
                 var result = await _signInManager.PasswordSignInAsync(
                     Input.Email, Input.Password, Input.LembrarMe, lockoutOnFailure: false);
 
+                // Autenticação bem-sucedida: redireciona para a página inicial
                 if (result.Succeeded)
                     return LocalRedirect("~/"); // Redireciona para a raiz (Home)
 
+                // Verifica se a conta está suspensa (banida)
                 if (result.IsLockedOut)
                 {
                     ModelState.AddModelError(string.Empty, "Esta conta foi suspensa pela administração.");
                     return Page();
                 }
 
+                // Credenciais incorretas
                 ModelState.AddModelError(string.Empty, "Email ou palavra-passe inválidos.");
             }
             return Page();
         }
 
+        // Modelo de dados para o formulário de Login
         public class LoginInputModel
         {
             [Required(ErrorMessage = "O Email é obrigatório.")]
