@@ -1,0 +1,88 @@
+﻿@page "{id?}"
+@model PiscAtlas.WebApp.Pages.Conta.RedeModel
+@{
+    ViewData["Title"] = $"Rede de {Model.Alvo?.NomeCompleto}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+
+        <!-- Cabeçalho -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a asp-page="/Conta/Perfil" asp-route-id="@Model.Alvo?.Id" class="btn btn-outline-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h4 class="fw-bold mb-0">@Model.Alvo?.NomeCompleto</h4>
+                <small class="text-muted">@@@Model.Alvo?.UserName</small>
+            </div>
+        </div>
+
+        <!-- SE A LISTA FOR PRIVADA E NÃO FOR ADMIN, BLOQUEIA AQUI -->
+        @if (Model.AcessoNegadoPrivacidade)
+        {
+            <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4 bg-body-tertiary">
+                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 4rem;"></i>
+                <h4 class="fw-bold mt-3">Lista de Seguidores Privada</h4>
+                <p class="text-muted">Este pescador optou por não partilhar publicamente a sua rede de contactos e amigos.</p>
+            </div>
+            return;
+        }
+
+        <!-- Abas de Navegação -->
+        <ul class="nav nav-pills nav-fill mb-4 bg-body-tertiary p-1 rounded-pill border">
+            <li class="nav-item">
+                <a class="nav-link rounded-pill fw-bold @(Model.AbaAtiva == "seguidores" ? "active" : "")"
+                   asp-page="/Conta/Rede" asp-route-id="@Model.Alvo?.Id" asp-route-aba="seguidores">
+                    Seguidores
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link rounded-pill fw-bold @(Model.AbaAtiva == "aseguir" ? "active" : "")"
+                   asp-page="/Conta/Rede" asp-route-id="@Model.Alvo?.Id" asp-route-aba="aseguir">
+                    A Seguir
+                </a>
+            </li>
+        </ul>
+
+        <!-- Lista de Utilizadores (Os utilizadores pendentes só aparecem para o dono da conta) -->
+        <div class="d-flex flex-column gap-2">
+            @if (!Model.ListaUtilizadores.Any())
+            {
+                <div class="text-center p-4 text-muted">A lista está vazia.</div>
+            }
+            else
+            {
+                @foreach (var u in Model.ListaUtilizadores)
+                {
+                    <div class="card border-0 shadow-sm p-3 rounded-4 bg-body-tertiary d-flex flex-row align-items-center justify-content-between">
+                        <a asp-page="/Conta/Perfil" asp-route-id="@u.Id" class="text-decoration-none text-body d-flex align-items-center gap-3">
+                            @if (!string.IsNullOrEmpty(u.FotografiaPerfilUrl))
+                            {
+                                <img src="@u.FotografiaPerfilUrl" class="rounded-circle border" style="width: 48px; height: 48px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center fs-5" style="width: 48px; height: 48px;">
+                                    @(u.PrimeiroNome?.FirstOrDefault() ?? 'U')
+                                </div>
+                            }
+                            <div>
+                                <h6 class="fw-bold mb-0">@u.NomeCompleto</h6>
+                                <small class="text-muted">@@@u.UserName</small>
+                            </div>
+                        </a>
+
+                        @if (u.Id != User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                        {
+                            <a asp-page="/Conta/Perfil" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                                Ver Perfil
+                            </a>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+</div>

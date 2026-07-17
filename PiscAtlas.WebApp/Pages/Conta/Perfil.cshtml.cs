@@ -1,45 +1,48 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PiscAtlas.Models;
 using PiscAtlas.Models.Models;
+using PiscAtlas.WebApp.Hubs;
 
 namespace PiscAtlas.WebApp.Pages.Conta
 {
-    // Removemos o [Authorize] para que os perfis possam ser públicos
     public class PerfilModel : PageModel
     {
         private readonly UserManager<Utilizador> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<NotificacaoHub> _hubContext;
 
-        public PerfilModel(UserManager<Utilizador> userManager, ApplicationDbContext context)
+        public PerfilModel(UserManager<Utilizador> userManager, ApplicationDbContext context, IHubContext<NotificacaoHub> hubContext)
         {
             _userManager = userManager;
             _context = context;
+            _hubContext = hubContext;
         }
 
         public Utilizador PerfilUser { get; set; } = default!;
         public List<PiscAtlas.Models.Models.Captura> Capturas { get; set; } = new();
+        public List<Seguidor> PedidosPendentes { get; set; } = new();
 
         public int TotalSeguidores { get; set; }
         public int TotalASeguir { get; set; }
         public bool IsSeguindo { get; set; }
+        public bool IsPendente { get; set; }
         public bool IsProprioPerfil { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string? id)
         {
             string targetId = id ?? string.Empty;
 
-            // Se o ID não for fornecido na URL, assumimos que o utilizador quer ver o próprio perfil
             if (string.IsNullOrEmpty(targetId))
             {
                 var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser == null) return Challenge(); // Se não estiver logado e não passou ID, manda pro Login
+                if (currentUser == null) return Challenge();
                 targetId = currentUser.Id;
             }
 
-            // Vai buscar os dados do perfil (seja o próprio ou o de outro)
             var user = await _context.Users
                 .Include(u => u.Seguidores)
                 .Include(u => u.A_Seguir)
@@ -48,28 +51,46 @@ namespace PiscAtlas.WebApp.Pages.Conta
             if (user == null) return NotFound();
 
             PerfilUser = user;
-            TotalSeguidores = user.Seguidores?.Count ?? 0;
-            TotalASeguir = user.A_Seguir?.Count ?? 0;
+            TotalSeguidores = user.Seguidores?.Count(s => !s.Pendente) ?? 0;
+            TotalASeguir = user.A_Seguir?.Count(s => !s.Pendente) ?? 0;
 
-            // Puxa as capturas (se for o próprio, pode ver todas, se for outro, só as aprovadas)
-            var queryCapturas = _context.Capturas
-                .Include(c => c.Especie)
-                .Include(c => c.Pesqueiro)
-                .Where(c => c.UtilizadorId == targetId);
-
-            Capturas = await queryCapturas
-                .OrderByDescending(c => c.DataCaptura)
-                .ToListAsync();
-
-            // Verifica as permissões de quem está a ver
             if (User.Identity?.IsAuthenticated == true)
             {
                 var viewer = await _userManager.GetUserAsync(User);
                 if (viewer != null)
                 {
                     IsProprioPerfil = viewer.Id == targetId;
-                    IsSeguindo = user.Seguidores?.Any(s => s.SeguidorId == viewer.Id) ?? false;
+
+                    var relacao = user.Seguidores?.FirstOrDefault(s => s.SeguidorId == viewer.Id);
+                    if (relacao != null)
+                    {
+                        if (relacao.Pendente) IsPendente = true;
+                        else IsSeguindo = true;
+                    }
+
+                    if (IsProprioPerfil)
+                    {
+                        PedidosPendentes = await _context.Seguidores
+                            .Include(s => s.UtilizadorSeguidor)
+                            .Where(s => s.SeguidoId == targetId && s.Pendente)
+                            .ToListAsync();
+                    }
                 }
+            }
+
+            // O MODO CADEADO DAS CAPTURAS
+            if (user.ContaPrivada && !IsProprioPerfil && !IsSeguindo && !User.IsInRole("Admin"))
+            {
+                Capturas = new List<PiscAtlas.Models.Models.Captura>();
+            }
+            else
+            {
+                Capturas = await _context.Capturas
+                    .Include(c => c.Especie)
+                    .Include(c => c.Pesqueiro)
+                    .Where(c => c.UtilizadorId == targetId)
+                    .OrderByDescending(c => c.DataCaptura)
+                    .ToListAsync();
             }
 
             return Page();
@@ -78,8 +99,7 @@ namespace PiscAtlas.WebApp.Pages.Conta
         public async Task<IActionResult> OnPostToggleSeguirAsync(string id)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null) return Challenge(); // Obriga a estar logado para seguir
-
+            if (currentUser == null) return Challenge();
             if (currentUser.Id == id) return BadRequest("Não pode seguir-se a si próprio.");
 
             var targetUser = await _context.Users
@@ -92,21 +112,59 @@ namespace PiscAtlas.WebApp.Pages.Conta
 
             if (seguimentoExistente != null)
             {
-                // Já segue -> Remover (Deixar de seguir)
                 _context.Seguidores.Remove(seguimentoExistente);
             }
             else
             {
-                // Não segue -> Adicionar (Seguir)
-                _context.Seguidores.Add(new Seguidor
+                var novoSeguidor = new Seguidor
                 {
                     SeguidorId = currentUser.Id,
-                    SeguidoId = id
-                });
+                    SeguidoId = id,
+                    Pendente = targetUser.ContaPrivada
+                };
+                _context.Seguidores.Add(novoSeguidor);
+
+                if (novoSeguidor.Pendente)
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceberNovidade", "Utilizador", "Novo Pedido", $"{currentUser.NomeUtilizador} quer seguir-te!");
+                }
+                else
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceberNovidade", "Utilizador", "Novo Seguidor", $"{currentUser.NomeUtilizador} começou a seguir-te!");
+                }
             }
 
             await _context.SaveChangesAsync();
             return RedirectToPage(new { id });
+        }
+
+        public async Task<IActionResult> OnPostAceitarPedidoAsync(string id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            var relacao = await _context.Seguidores.FirstOrDefaultAsync(s => s.SeguidoId == currentUser.Id && s.SeguidorId == id);
+            if (relacao != null)
+            {
+                relacao.Pendente = false;
+                await _context.SaveChangesAsync();
+                TempData["Sucesso"] = "Pedido de seguimento aceite!";
+            }
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostRejeitarPedidoAsync(string id)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            var relacao = await _context.Seguidores.FirstOrDefaultAsync(s => s.SeguidoId == currentUser.Id && s.SeguidorId == id);
+            if (relacao != null)
+            {
+                _context.Seguidores.Remove(relacao);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToPage();
         }
     }
 }

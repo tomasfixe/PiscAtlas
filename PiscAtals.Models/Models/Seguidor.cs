@@ -15,5 +15,8 @@ namespace PiscAtlas.Models.Models
         public virtual Utilizador? UtilizadorSeguido { get; set; }
 
         public DateTime DataSeguimento { get; set; } = DateTime.Now;
+
+        // Pedido de seguimento pendente (para perfis privados)
+        public bool Pendente { get; set; } = false;
     }
 }

@@ -4,6 +4,20 @@
     ViewData["Title"] = Model.IsProprio ? "A Minha Caderneta" : $"Caderneta de {Model.CadernetaUser?.NomeCompleto}";
 }
 
+@if (Model.AcessoNegado)
+{
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-5 bg-body-tertiary">
+        <i class="bi bi-lock-fill text-danger" style="font-size: 4rem;"></i>
+        <h3 class="fw-bold mt-3">Caderneta Privada</h3>
+        <p class="text-muted">O pescador @Model.CadernetaUser?.NomeCompleto optou por manter os seus troféus e progresso privados.</p>
+        <div class="mt-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4">Voltar atrás</a>
+        </div>
+    </div>
+    return;
+    <!-- Impede que o resto da grelha de peixes seja desenhada -->
+}
+
 <!-- Cabeçalho da Caderneta -->
 <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div>
@@ -107,7 +121,7 @@ else
                             <h5 class="fw-bold mb-0 text-dark">@peixe.Nome</h5>
                             <small class="text-muted fst-italic d-block mb-2">@peixe.NomeCientifico</small>
 
-                            <!-- CORREÇÃO DO ERRO CS1503 AQUI: Formatação direta do Enum -->
+                            <!-- Formatação direta do Enum -->
                             <span class="badge bg-light text-dark border small fw-normal">@peixe.Habitat.ToString().Replace("_", " ")</span>
                         </div>
 

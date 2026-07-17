@@ -22,11 +22,10 @@ namespace PiscAtlas.WebApp.Pages.Especie
 
         public List<PiscAtlas.Models.Models.Especie> TodasEspecies { get; set; } = new();
         public List<int> EspeciesCapturadasIds { get; set; } = new();
-
         public Utilizador? CadernetaUser { get; set; }
         public bool IsProprio { get; set; }
+        public bool AcessoNegado { get; set; } = false; 
 
-        // AS PROPRIEDADES QUE RESOLVEM OS DOIS ERROS CS1061:
         public int TotalCapturadas => EspeciesCapturadasIds.Count;
         public int TotalEspecies => TodasEspecies.Count;
         public int PorFazer => TotalEspecies - TotalCapturadas;
@@ -45,8 +44,14 @@ namespace PiscAtlas.WebApp.Pages.Especie
 
             IsProprio = (currentUserId == targetUserId);
 
-            TodasEspecies = await _context.Especies.OrderBy(e => e.Nome).ToListAsync();
+            // FECHADURA DA CADERNETA PRIVADA:
+            if (!IsProprio && CadernetaUser.CadernetaPrivada && !User.IsInRole("Admin"))
+            {
+                AcessoNegado = true;
+                return Page(); // Para a execução aqui e mostra o aviso na página!
+            }
 
+            TodasEspecies = await _context.Especies.OrderBy(e => e.Nome).ToListAsync();
             EspeciesCapturadasIds = await _context.Capturas
                 .Where(c => c.UtilizadorId == targetUserId && !c.FraudeConfirmada)
                 .Select(c => c.EspecieId)
