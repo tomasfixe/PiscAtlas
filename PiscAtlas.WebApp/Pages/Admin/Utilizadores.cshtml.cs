@@ -45,7 +45,32 @@ namespace PiscAtlas.WebApp.Pages.Admin
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            // Ninguém mexe nos privilégios do admin principal
+            if (user.Email == "admin@piscatlas.pt")
+            {
+                TempData["Erro"] = "Operação bloqueada: Não é possível alterar os privilégios do Administrador Principal.";
+                return RedirectToPage();
+            }
+
+            // Não podes tirar os teus próprios privilégios
+            if (currentUser.Id == userId)
+            {
+                TempData["Erro"] = "Operação bloqueada: Não pode retirar os seus próprios privilégios de administrador.";
+                return RedirectToPage();
+            }
+
             bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            // Apenas o admin principal pode despromover outros admins
+            if (isAdmin && currentUser.Email != "admin@piscatlas.pt")
+            {
+                TempData["Erro"] = "Permissão negada: Apenas o Administrador Principal pode remover os privilégios de outros administradores.";
+                return RedirectToPage();
+            }
+
             if (isAdmin)
                 await _userManager.RemoveFromRoleAsync(user, "Admin");
             else
@@ -63,10 +88,28 @@ namespace PiscAtlas.WebApp.Pages.Admin
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
-            var idAtual = _userManager.GetUserId(User);
-            if (user.Id == idAtual)
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            // Não podes banir a ti próprio
+            if (user.Id == currentUser.Id)
             {
-                TempData["Erro"] = "Não pode banir a sua própria conta.";
+                TempData["Erro"] = "Operação bloqueada: Não pode banir a sua própria conta.";
+                return RedirectToPage();
+            }
+
+            // O admin principal não pode ser banido
+            if (user.Email == "admin@piscatlas.pt")
+            {
+                TempData["Erro"] = "Operação bloqueada: Não é possível suspender o Administrador Principal.";
+                return RedirectToPage();
+            }
+
+            // Apenas o admin principal pode banir outros admins
+            bool isTargetAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (isTargetAdmin && currentUser.Email != "admin@piscatlas.pt")
+            {
+                TempData["Erro"] = "Permissão negada: Apenas o Administrador Principal pode suspender outros administradores.";
                 return RedirectToPage();
             }
 
@@ -95,6 +138,31 @@ namespace PiscAtlas.WebApp.Pages.Admin
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            // Não podes apagar a tua própria conta
+            if (currentUser.Id == userId)
+            {
+                TempData["Erro"] = "Operação bloqueada: Não pode eliminar a sua própria conta.";
+                return RedirectToPage();
+            }
+
+            // A conta admin original NUNCA pode ser apagada
+            if (user.Email == "admin@piscatlas.pt")
+            {
+                TempData["Erro"] = "Operação bloqueada: O Administrador Principal não pode ser eliminado do sistema.";
+                return RedirectToPage();
+            }
+
+            // Apenas o admin original pode apagar outros administradores
+            bool isTargetAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (isTargetAdmin && currentUser.Email != "admin@piscatlas.pt")
+            {
+                TempData["Erro"] = "Permissão negada: Apenas o Administrador Principal pode eliminar contas de outros administradores.";
+                return RedirectToPage();
+            }
+
             // 1. Apagar todas as relações de Seguidores
             var seguidores = await _context.Seguidores
                 .Where(s => s.SeguidorId == userId || s.SeguidoId == userId)
@@ -110,13 +178,13 @@ namespace PiscAtlas.WebApp.Pages.Admin
             {
                 var capturasIds = capturas.Select(c => c.CapturaId).ToList();
 
-                // 3. CORREÇÃO: Usar o Set<CapturaFotografia>() para a pesquisa e _context.RemoveRange para apagar
+                // 3. Usar o Set<CapturaFotografia>()
                 var fotografias = await _context.Set<CapturaFotografia>()
                     .Where(f => capturasIds.Contains(f.CapturaId))
                     .ToListAsync();
                 _context.RemoveRange(fotografias);
 
-                // 4. CORREÇÃO: Usar o Set<Interacao>() pelo mesmo motivo (precaução)
+                // 4. Usar o Set<Interacao>()
                 var interacoes = await _context.Set<Interacao>()
                     .Where(i => capturasIds.Contains(i.CapturaId) || i.UtilizadorId == userId)
                     .ToListAsync();
@@ -126,10 +194,9 @@ namespace PiscAtlas.WebApp.Pages.Admin
                 _context.Capturas.RemoveRange(capturas);
             }
 
-            // Gravar todas estas eliminações na base de dados ANTES de apagar o utilizador
             await _context.SaveChangesAsync();
 
-            // 6. Agora sim, eliminar o utilizador com segurança
+            // 6. Eliminar o utilizador final
             var resultado = await _userManager.DeleteAsync(user);
 
             if (resultado.Succeeded)
